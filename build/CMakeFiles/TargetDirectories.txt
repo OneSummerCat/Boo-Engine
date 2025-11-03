@@ -1,0 +1,3 @@
+/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles/app.dir
+/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles/edit_cache.dir
+/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles/rebuild_cache.dir

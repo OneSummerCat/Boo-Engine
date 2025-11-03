@@ -1,0 +1,212 @@
+[
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/editor/editor-config.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/editor/editor-config.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/editor/editor-config.cpp",
+  "output": "CMakeFiles/app.dir/editor/editor-config.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/editor/editor-layout.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/editor/editor-layout.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/editor/editor-layout.cpp",
+  "output": "CMakeFiles/app.dir/editor/editor-layout.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/editor/editor.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/editor/editor.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/editor/editor.cpp",
+  "output": "CMakeFiles/app.dir/editor/editor.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/editor/ipc/editor-ipc.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/editor/ipc/editor-ipc.cpp",
+  "output": "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/component/component.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/component/component.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/game.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/game.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/game.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/game.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-mgr.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-mgr.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-object.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-object.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pass.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pass.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pipeline.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pipeline.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-queue.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-queue.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-renderer.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-renderer.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-shader.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-shader.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-texture.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-texture.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/global/event.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/event.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/event.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/global/event.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/global/global.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/global.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/global.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/global/global.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/color.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/color.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/color.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/color.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/mat4.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/mat4.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/mat4.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/mat4.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/quat.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/quat.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/quat.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/quat.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/size.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/size.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/size.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/size.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/vec2.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec2.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec2.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/vec2.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/math/vec3.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec3.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec3.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/math/vec3.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-renderer.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-renderer.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-sprite.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-sprite.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-2d.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-2d.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-3d.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-3d.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/scene/node.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/scene/node.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/scene/scene.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/scene.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/scene.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/scene/scene.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/time-util.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/time-util.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/uuid-util.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/uuid-util.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/engine.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/engine.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/engine.cpp",
+  "output": "CMakeFiles/app.dir/engine/engine.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/window/window-mgr.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/window/window-mgr.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/window/window-mgr.cpp",
+  "output": "CMakeFiles/app.dir/engine/window/window-mgr.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/app.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/app.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/app.cpp",
+  "output": "CMakeFiles/app.dir/app.cpp.o"
+}
+]
