@@ -21,6 +21,9 @@ public:
     bool isEnabled() { return this->_isEnabled; }
     void setEnabled(bool enabled);
     virtual void update(float deltaTime) = 0;
+    virtual void lateUpdate(float deltaTime) = 0;
+    virtual void render();
+
     NodeLayer layer() { return this->_layer; }
     virtual void destroy();
    virtual  ~Component();

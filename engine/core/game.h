@@ -52,7 +52,10 @@ public:
     {
         return this->_componentFactory;
     };
-
     Scene *openScene(std::string sceneName);
+    Scene *getScene()
+    {
+        return this->_curScene;
+    }
     void update(float dt);
 };

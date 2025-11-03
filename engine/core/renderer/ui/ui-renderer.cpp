@@ -105,36 +105,47 @@ void UIRenderer::_createGfxTexture()
 }
 
 void UIRenderer::update(float deltaTime) {
-    if (!this->isEnabled())
-        return; // 渲染组件未激活
-    if (this->_color.getA() <= 0)
-        return; // 颜色透明
-    if (this->_modelMatrix.getM00() <= 0 || this->_modelMatrix.getM10() <= 0)
-    {
-        return;
-    }
-    // 节点变换矩阵更新了
-    if (this->_node->hasFrameTransformFlag())
-    {
-        Node2D* node2D = dynamic_cast<Node2D*>(this->_node);
-        GfxMgr::getInstance()->setObjectModelMatrix(this->_uuid, node2D->uiWorldMatrix().data());
-        /*UIMaskRect& maskRect = node2D->maskRect();
-        GfxMgr::getInstance()->setUIObjectMask(this->_uuid, maskRect.x, maskRect.y, maskRect.width, maskRect.height, maskRect.angle);*/
-    }
+    Component::lateUpdate(deltaTime);
 
-    if (this->_flag & static_cast<uint32_t>(UIFlag::UI_TEXTURE))
-    {
-        // 更新纹理
-        GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_texture);
-    }
-    if (this->_flag & static_cast<uint32_t>(UIFlag::UI_COLOR))
-    {
-        // 更新颜色
-        GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getA(), this->_color.getA(), this->_color.getG(), this->_color.getR());
-    }
+    // if (!this->isEnabled())
+    //     return; // 渲染组件未激活
+    // if (this->_color.getA() <= 0)
+    //     return; // 颜色透明
+    // if (this->_modelMatrix.getM00() <= 0 || this->_modelMatrix.getM10() <= 0)
+    // {
+    //     return;
+    // }
+    // // 节点变换矩阵更新了
+    // if (this->_node->hasFrameTransformFlag())
+    // {
+    //     Node2D* node2D = dynamic_cast<Node2D*>(this->_node);
+    //     GfxMgr::getInstance()->setObjectModelMatrix(this->_uuid, node2D->uiWorldMatrix().data());
+    //     /*UIMaskRect& maskRect = node2D->maskRect();
+    //     GfxMgr::getInstance()->setUIObjectMask(this->_uuid, maskRect.x, maskRect.y, maskRect.width, maskRect.height, maskRect.angle);*/
+    // }
 
-    this->_flag = static_cast<uint32_t>(UIFlag::UI_NONE);
+    // if (this->_flag & static_cast<uint32_t>(UIFlag::UI_TEXTURE))
+    // {
+    //     // 更新纹理
+    //     GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_texture);
+    // }
+    // if (this->_flag & static_cast<uint32_t>(UIFlag::UI_COLOR))
+    // {
+    //     // 更新颜色
+    //     GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getA(), this->_color.getA(), this->_color.getG(), this->_color.getR());
+    // }
+
+    // this->_flag = static_cast<uint32_t>(UIFlag::UI_NONE);
 }
+void UIRenderer::lateUpdate(float deltaTime) {
+   Component::lateUpdate(deltaTime);
+}
+void UIRenderer::render() {
+    Component::render();
+}
+
+
+
 UIRenderer::~UIRenderer()
 {
 

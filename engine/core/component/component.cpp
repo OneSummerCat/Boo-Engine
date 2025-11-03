@@ -14,6 +14,15 @@ Component::Component(Node *node, std::string uuid) : _layer(NodeLayer::Node)
 
 void Component::update(float deltaTime)
 {
+    if(!this->_isEnabled) return;
+}
+void Component::lateUpdate(float deltaTime)
+{
+    if(!this->_isEnabled) return;
+}
+void Component::render()
+{
+    if(!this->_isEnabled) return;
 }
 
 void Component::destroy()

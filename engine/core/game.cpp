@@ -3,6 +3,7 @@
 #include "global/event.h"
 
 #include "component/component-factory.h"
+#include "scene/scene.h"
 #include "renderer/ui/ui-sprite.h"
 //#include "renderer/ui/sprite.h"
 //#include "renderer/ui/text.h"
@@ -56,6 +57,12 @@ void Game::setView(int width, int height)
 }
 void Game::update(float dt)
 {
+	// 更新场景
+	if (this->_curScene != nullptr)
+	{
+		this->_curScene->update(dt);
+	}
+
 
 
 	// 更新渲染器
