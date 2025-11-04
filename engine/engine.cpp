@@ -27,8 +27,6 @@ void Engine::init()
 	this->_initGFX();
 	// 初始化Game
 	this->_initGame();
-
-
 	// 初始化编辑器
 	this->_initEditor();
 	
@@ -44,16 +42,14 @@ void Engine::_initGFX()
 	GfxMgr::getInstance()->init();
 	GfxMgr::getInstance()->createRenderPass("ui");
 }
+void Engine::_initGame()
+{
+	std::cout << "INIT Game MGR" << std::endl;
+	Game::getInstance()->init();
+}
 void Engine::_initEditor() {
 	Editor::getInstance()->init();
 }
-
-void Engine::_initGame()
-{
-	// std::cout << "INIT Game MGR" << std::endl;
-	Game::getInstance()->init();
-}
-
 void Engine::launchEditor()
 {
 	// std::cout << "launch editor" << std::endl;

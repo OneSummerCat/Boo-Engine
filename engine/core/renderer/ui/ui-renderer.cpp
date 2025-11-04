@@ -105,8 +105,7 @@ void UIRenderer::_createGfxTexture()
 }
 
 void UIRenderer::update(float deltaTime) {
-    Component::lateUpdate(deltaTime);
-
+    Component::update(deltaTime);
     // if (!this->isEnabled())
     //     return; // 渲染组件未激活
     // if (this->_color.getA() <= 0)
@@ -138,14 +137,11 @@ void UIRenderer::update(float deltaTime) {
     // this->_flag = static_cast<uint32_t>(UIFlag::UI_NONE);
 }
 void UIRenderer::lateUpdate(float deltaTime) {
-   Component::lateUpdate(deltaTime);
+    Component::lateUpdate(deltaTime);
 }
 void UIRenderer::render() {
     Component::render();
 }
-
-
-
 UIRenderer::~UIRenderer()
 {
 

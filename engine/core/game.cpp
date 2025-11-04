@@ -1,9 +1,11 @@
 #include "game.h"
 #include "gfx/gfx-mgr.h"
 #include "global/event.h"
+#include "assets/assets-manager.h"
+
+
 
 #include "component/component-factory.h"
-#include "scene/scene.h"
 #include "renderer/ui/ui-sprite.h"
 //#include "renderer/ui/sprite.h"
 //#include "renderer/ui/text.h"
@@ -11,8 +13,12 @@
 //#include "ui/ui-tree/node-tree.h"
 //#include "ui/ui-tree/file-tree.h"
 //#include "ui/ui-mask.h"
-Game::Game()
+Game::Game():
+    _assetsManager(nullptr),
+    _curScene(nullptr)
 {
+	this->_view.width = 1280;
+	this->_view.height = 720;
 }
 Game* Game::getInstance()
 {
@@ -25,6 +31,7 @@ void Game::init()
 	this->_initInput();
 	this->_initFont();
 	this->_initComponents();
+	this->_initAssets();
 }
 
 void Game::_initEvent() {
@@ -50,6 +57,11 @@ void Game::_initComponents()
 	  this->_componentFactory->registerClass<FileTree>("FileTree");
 	  this->_componentFactory->registerClass<UIMask>("UIMask");*/
 }
+void Game::_initAssets()
+{
+	std::cout << "INIT ASSETS MGR" << std::endl;
+	this->_assetsManager = new AssetsManager();
+}
 void Game::setView(int width, int height)
 {
 	this->_view.width = width;
@@ -57,12 +69,6 @@ void Game::setView(int width, int height)
 }
 void Game::update(float dt)
 {
-	// 更新场景
-	if (this->_curScene != nullptr)
-	{
-		this->_curScene->update(dt);
-	}
-
 
 
 	// 更新渲染器

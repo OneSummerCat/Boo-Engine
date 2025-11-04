@@ -9,6 +9,7 @@ class Component;
 class Scene;
 class ComponentFactory;
 class Event;
+class AssetsManager;
 
 struct View
 {
@@ -26,14 +27,14 @@ private:
     Event *_event;
     ComponentFactory *_componentFactory = nullptr;
     View _view;
-    
-    // 场景
     Scene *_curScene;
+    AssetsManager *_assetsManager;
 
     void _initEvent();
     void _initInput();
     void _initFont();
     void _initComponents();
+    void _initAssets();
 
 public:
     static Game *getInstance();
@@ -52,10 +53,15 @@ public:
     {
         return this->_componentFactory;
     };
-    Scene *openScene(std::string sceneName);
     Scene *getScene()
     {
         return this->_curScene;
     }
+    AssetsManager *assetsManager()
+    {
+        return this->_assetsManager;
+    }
+
+    Scene *openScene(std::string sceneName);
     void update(float dt);
 };

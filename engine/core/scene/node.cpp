@@ -189,7 +189,10 @@ void Node::_updateWorldTransform()
 void Node::update(float dt)
 {
 	if (!this->_isActiveInHierarchy)
+	{
 		return;
+	}
+
 	// 更新组件
 	for (auto &component : this->_components)
 	{
@@ -204,7 +207,9 @@ void Node::update(float dt)
 void Node::lateUpdate(float dt)
 {
 	if (!this->_isActiveInHierarchy)
+	{
 		return;
+	}
 	// 更新组件
 	for (auto &component : this->_components)
 	{
@@ -218,7 +223,10 @@ void Node::lateUpdate(float dt)
 void Node::render()
 {
 	if (!this->_isActiveInHierarchy)
+	{
 		return;
+	}
+
 	// 渲染组件
 	for (auto &component : this->_components)
 	{

@@ -21,6 +21,7 @@ set(ENGINE_SOURCES
     editor/editor-layout.cpp
     editor/editor.cpp
     editor/ipc/editor-ipc.cpp
+    engine/core/assets/assets-manager.cpp
     engine/core/component/component-factory.cpp
     engine/core/component/component.cpp
     engine/core/game.cpp
