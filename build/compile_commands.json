@@ -25,6 +25,12 @@
 },
 {
   "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
+  "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp",
+  "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp",
+  "output": "CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o"
+},
+{
+  "directory": "/Users/yangzongyuan/personal/project/Boo-Engine/build",
   "command": "/usr/bin/clang++  -std=c++17  -I/Users/yangzongyuan/personal/project/Boo-Engine/engine/libs/stb -isystem /opt/homebrew/include -isystem /Users/yangzongyuan/software/vulkan/macOS/include -isystem /Library/Frameworks/Mono.framework/Headers -isystem /opt/homebrew/include/freetype2  -Wall -Wextra -Wpedantic -std=gnu++17 -arch arm64 -o CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp",
   "file": "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp",
   "output": "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o"

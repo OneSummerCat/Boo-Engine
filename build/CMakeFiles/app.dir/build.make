@@ -128,10 +128,24 @@ CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.s"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangzongyuan/personal/project/Boo-Engine/editor/ipc/editor-ipc.cpp -o CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.s
 
+CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o: CMakeFiles/app.dir/flags.make
+CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp
+CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o"
+	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o -MF CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o.d -o CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp
+
+CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.i"
+	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp > CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.i
+
+CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.s"
+	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp -o CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.s
+
 CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp
 CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o -MF CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o.d -o CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp
 
 CMakeFiles/app.dir/engine/core/component/component-factory.cpp.i: cmake_force
@@ -145,7 +159,7 @@ CMakeFiles/app.dir/engine/core/component/component-factory.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/component/component.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/component/component.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.cpp
 CMakeFiles/app.dir/engine/core/component/component.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/app.dir/engine/core/component/component.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/app.dir/engine/core/component/component.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/component/component.cpp.o -MF CMakeFiles/app.dir/engine/core/component/component.cpp.o.d -o CMakeFiles/app.dir/engine/core/component/component.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.cpp
 
 CMakeFiles/app.dir/engine/core/component/component.cpp.i: cmake_force
@@ -159,7 +173,7 @@ CMakeFiles/app.dir/engine/core/component/component.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/game.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/game.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/game.cpp
 CMakeFiles/app.dir/engine/core/game.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/app.dir/engine/core/game.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/app.dir/engine/core/game.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/game.cpp.o -MF CMakeFiles/app.dir/engine/core/game.cpp.o.d -o CMakeFiles/app.dir/engine/core/game.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/game.cpp
 
 CMakeFiles/app.dir/engine/core/game.cpp.i: cmake_force
@@ -173,7 +187,7 @@ CMakeFiles/app.dir/engine/core/game.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-context.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-mgr.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-mgr.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.i: cmake_force
@@ -201,7 +215,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-mgr.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-object.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-object.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.i: cmake_force
@@ -215,7 +229,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pass.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pass.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.i: cmake_force
@@ -229,7 +243,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-pass.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pipeline.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-pipeline.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.i: cmake_force
@@ -243,7 +257,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-pipeline.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-queue.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-queue.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.i: cmake_force
@@ -257,7 +271,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-queue.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-renderer.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-renderer.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.i: cmake_force
@@ -271,7 +285,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-renderer.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-shader.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-shader.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.i: cmake_force
@@ -285,7 +299,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-shader.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-texture.cpp
 CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o -MF CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o.d -o CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-texture.cpp
 
 CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.i: cmake_force
@@ -299,7 +313,7 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-texture.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/global/event.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/global/event.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/event.cpp
 CMakeFiles/app.dir/engine/core/global/event.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/app.dir/engine/core/global/event.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/app.dir/engine/core/global/event.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/global/event.cpp.o -MF CMakeFiles/app.dir/engine/core/global/event.cpp.o.d -o CMakeFiles/app.dir/engine/core/global/event.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/event.cpp
 
 CMakeFiles/app.dir/engine/core/global/event.cpp.i: cmake_force
@@ -313,7 +327,7 @@ CMakeFiles/app.dir/engine/core/global/event.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/global/global.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/global/global.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/global.cpp
 CMakeFiles/app.dir/engine/core/global/global.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/app.dir/engine/core/global/global.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/app.dir/engine/core/global/global.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/global/global.cpp.o -MF CMakeFiles/app.dir/engine/core/global/global.cpp.o.d -o CMakeFiles/app.dir/engine/core/global/global.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/global.cpp
 
 CMakeFiles/app.dir/engine/core/global/global.cpp.i: cmake_force
@@ -327,7 +341,7 @@ CMakeFiles/app.dir/engine/core/global/global.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/color.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/color.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/color.cpp
 CMakeFiles/app.dir/engine/core/math/color.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/app.dir/engine/core/math/color.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/app.dir/engine/core/math/color.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/color.cpp.o -MF CMakeFiles/app.dir/engine/core/math/color.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/color.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/color.cpp
 
 CMakeFiles/app.dir/engine/core/math/color.cpp.i: cmake_force
@@ -341,7 +355,7 @@ CMakeFiles/app.dir/engine/core/math/color.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/mat4.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/mat4.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/mat4.cpp
 CMakeFiles/app.dir/engine/core/math/mat4.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/app.dir/engine/core/math/mat4.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/app.dir/engine/core/math/mat4.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/mat4.cpp.o -MF CMakeFiles/app.dir/engine/core/math/mat4.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/mat4.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/mat4.cpp
 
 CMakeFiles/app.dir/engine/core/math/mat4.cpp.i: cmake_force
@@ -355,7 +369,7 @@ CMakeFiles/app.dir/engine/core/math/mat4.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/quat.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/quat.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/quat.cpp
 CMakeFiles/app.dir/engine/core/math/quat.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/app.dir/engine/core/math/quat.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/app.dir/engine/core/math/quat.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/quat.cpp.o -MF CMakeFiles/app.dir/engine/core/math/quat.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/quat.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/quat.cpp
 
 CMakeFiles/app.dir/engine/core/math/quat.cpp.i: cmake_force
@@ -369,7 +383,7 @@ CMakeFiles/app.dir/engine/core/math/quat.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/size.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/size.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/size.cpp
 CMakeFiles/app.dir/engine/core/math/size.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/app.dir/engine/core/math/size.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/app.dir/engine/core/math/size.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/size.cpp.o -MF CMakeFiles/app.dir/engine/core/math/size.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/size.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/size.cpp
 
 CMakeFiles/app.dir/engine/core/math/size.cpp.i: cmake_force
@@ -383,7 +397,7 @@ CMakeFiles/app.dir/engine/core/math/size.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/vec2.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/vec2.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec2.cpp
 CMakeFiles/app.dir/engine/core/math/vec2.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/app.dir/engine/core/math/vec2.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/app.dir/engine/core/math/vec2.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/vec2.cpp.o -MF CMakeFiles/app.dir/engine/core/math/vec2.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/vec2.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec2.cpp
 
 CMakeFiles/app.dir/engine/core/math/vec2.cpp.i: cmake_force
@@ -397,7 +411,7 @@ CMakeFiles/app.dir/engine/core/math/vec2.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/math/vec3.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/math/vec3.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec3.cpp
 CMakeFiles/app.dir/engine/core/math/vec3.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object CMakeFiles/app.dir/engine/core/math/vec3.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/app.dir/engine/core/math/vec3.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/math/vec3.cpp.o -MF CMakeFiles/app.dir/engine/core/math/vec3.cpp.o.d -o CMakeFiles/app.dir/engine/core/math/vec3.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/math/vec3.cpp
 
 CMakeFiles/app.dir/engine/core/math/vec3.cpp.i: cmake_force
@@ -411,7 +425,7 @@ CMakeFiles/app.dir/engine/core/math/vec3.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-renderer.cpp
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o -MF CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o.d -o CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-renderer.cpp
 
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.i: cmake_force
@@ -425,7 +439,7 @@ CMakeFiles/app.dir/engine/core/renderer/ui/ui-renderer.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-sprite.cpp
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o -MF CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o.d -o CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/renderer/ui/ui-sprite.cpp
 
 CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.i: cmake_force
@@ -439,7 +453,7 @@ CMakeFiles/app.dir/engine/core/renderer/ui/ui-sprite.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-2d.cpp
 CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o -MF CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o.d -o CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-2d.cpp
 
 CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.i: cmake_force
@@ -453,7 +467,7 @@ CMakeFiles/app.dir/engine/core/scene/node-2d.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-3d.cpp
 CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o -MF CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o.d -o CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node-3d.cpp
 
 CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.i: cmake_force
@@ -467,7 +481,7 @@ CMakeFiles/app.dir/engine/core/scene/node-3d.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/scene/node.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/scene/node.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node.cpp
 CMakeFiles/app.dir/engine/core/scene/node.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/app.dir/engine/core/scene/node.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/scene/node.cpp.o -MF CMakeFiles/app.dir/engine/core/scene/node.cpp.o.d -o CMakeFiles/app.dir/engine/core/scene/node.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/node.cpp
 
 CMakeFiles/app.dir/engine/core/scene/node.cpp.i: cmake_force
@@ -481,7 +495,7 @@ CMakeFiles/app.dir/engine/core/scene/node.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/scene/scene.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/scene/scene.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/scene.cpp
 CMakeFiles/app.dir/engine/core/scene/scene.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object CMakeFiles/app.dir/engine/core/scene/scene.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/app.dir/engine/core/scene/scene.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/scene/scene.cpp.o -MF CMakeFiles/app.dir/engine/core/scene/scene.cpp.o.d -o CMakeFiles/app.dir/engine/core/scene/scene.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/scene/scene.cpp
 
 CMakeFiles/app.dir/engine/core/scene/scene.cpp.i: cmake_force
@@ -495,7 +509,7 @@ CMakeFiles/app.dir/engine/core/scene/scene.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/time-util.cpp
 CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o -MF CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o.d -o CMakeFiles/app.dir/engine/core/utils/time-util.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/time-util.cpp
 
 CMakeFiles/app.dir/engine/core/utils/time-util.cpp.i: cmake_force
@@ -509,7 +523,7 @@ CMakeFiles/app.dir/engine/core/utils/time-util.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/uuid-util.cpp
 CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o -MF CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o.d -o CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/utils/uuid-util.cpp
 
 CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.i: cmake_force
@@ -523,7 +537,7 @@ CMakeFiles/app.dir/engine/core/utils/uuid-util.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/engine.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/engine.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/engine.cpp
 CMakeFiles/app.dir/engine/engine.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object CMakeFiles/app.dir/engine/engine.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/app.dir/engine/engine.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/engine.cpp.o -MF CMakeFiles/app.dir/engine/engine.cpp.o.d -o CMakeFiles/app.dir/engine/engine.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/engine.cpp
 
 CMakeFiles/app.dir/engine/engine.cpp.i: cmake_force
@@ -537,7 +551,7 @@ CMakeFiles/app.dir/engine/engine.cpp.s: cmake_force
 CMakeFiles/app.dir/engine/window/window-mgr.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/engine/window/window-mgr.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/engine/window/window-mgr.cpp
 CMakeFiles/app.dir/engine/window/window-mgr.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object CMakeFiles/app.dir/engine/window/window-mgr.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/app.dir/engine/window/window-mgr.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/engine/window/window-mgr.cpp.o -MF CMakeFiles/app.dir/engine/window/window-mgr.cpp.o.d -o CMakeFiles/app.dir/engine/window/window-mgr.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/engine/window/window-mgr.cpp
 
 CMakeFiles/app.dir/engine/window/window-mgr.cpp.i: cmake_force
@@ -551,7 +565,7 @@ CMakeFiles/app.dir/engine/window/window-mgr.cpp.s: cmake_force
 CMakeFiles/app.dir/app.cpp.o: CMakeFiles/app.dir/flags.make
 CMakeFiles/app.dir/app.cpp.o: /Users/yangzongyuan/personal/project/Boo-Engine/app.cpp
 CMakeFiles/app.dir/app.cpp.o: CMakeFiles/app.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object CMakeFiles/app.dir/app.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object CMakeFiles/app.dir/app.cpp.o"
 	/usr/bin/clang++  -std=c++17 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/app.dir/app.cpp.o -MF CMakeFiles/app.dir/app.cpp.o.d -o CMakeFiles/app.dir/app.cpp.o -c /Users/yangzongyuan/personal/project/Boo-Engine/app.cpp
 
 CMakeFiles/app.dir/app.cpp.i: cmake_force
@@ -568,6 +582,7 @@ app_OBJECTS = \
 "CMakeFiles/app.dir/editor/editor-layout.cpp.o" \
 "CMakeFiles/app.dir/editor/editor.cpp.o" \
 "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o" \
+"CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o" \
 "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o" \
 "CMakeFiles/app.dir/engine/core/component/component.cpp.o" \
 "CMakeFiles/app.dir/engine/core/game.cpp.o" \
@@ -607,6 +622,7 @@ app: CMakeFiles/app.dir/editor/editor-config.cpp.o
 app: CMakeFiles/app.dir/editor/editor-layout.cpp.o
 app: CMakeFiles/app.dir/editor/editor.cpp.o
 app: CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o
+app: CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o
 app: CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o
 app: CMakeFiles/app.dir/engine/core/component/component.cpp.o
 app: CMakeFiles/app.dir/engine/core/game.cpp.o
@@ -643,7 +659,7 @@ app: /opt/homebrew/lib/libglfw.3.4.dylib
 app: /Users/yangzongyuan/software/vulkan/macOS/lib/libvulkan.dylib
 app: /opt/homebrew/lib/libfreetype.dylib
 app: CMakeFiles/app.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Linking CXX executable app"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/yangzongyuan/personal/project/Boo-Engine/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Linking CXX executable app"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/app.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

@@ -9,6 +9,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/app.dir/editor/editor.cpp.o.d"
   "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o"
   "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o.d"
+  "CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o"
+  "CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o.d"
   "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o"
   "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o.d"
   "CMakeFiles/app.dir/engine/core/component/component.cpp.o"

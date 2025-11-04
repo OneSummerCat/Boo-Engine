@@ -249,6 +249,30 @@ editor/ipc/editor-ipc.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.s
 .PHONY : editor/ipc/editor-ipc.cpp.s
 
+engine/core/assets/assets-manager.o: engine/core/assets/assets-manager.cpp.o
+.PHONY : engine/core/assets/assets-manager.o
+
+# target to build an object file
+engine/core/assets/assets-manager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o
+.PHONY : engine/core/assets/assets-manager.cpp.o
+
+engine/core/assets/assets-manager.i: engine/core/assets/assets-manager.cpp.i
+.PHONY : engine/core/assets/assets-manager.i
+
+# target to preprocess a source file
+engine/core/assets/assets-manager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.i
+.PHONY : engine/core/assets/assets-manager.cpp.i
+
+engine/core/assets/assets-manager.s: engine/core/assets/assets-manager.cpp.s
+.PHONY : engine/core/assets/assets-manager.s
+
+# target to generate assembly for a file
+engine/core/assets/assets-manager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.s
+.PHONY : engine/core/assets/assets-manager.cpp.s
+
 engine/core/component/component-factory.o: engine/core/component/component-factory.cpp.o
 .PHONY : engine/core/component/component-factory.o
 
@@ -993,6 +1017,9 @@ help:
 	@echo "... editor/ipc/editor-ipc.o"
 	@echo "... editor/ipc/editor-ipc.i"
 	@echo "... editor/ipc/editor-ipc.s"
+	@echo "... engine/core/assets/assets-manager.o"
+	@echo "... engine/core/assets/assets-manager.i"
+	@echo "... engine/core/assets/assets-manager.s"
 	@echo "... engine/core/component/component-factory.o"
 	@echo "... engine/core/component/component-factory.i"
 	@echo "... engine/core/component/component-factory.s"
