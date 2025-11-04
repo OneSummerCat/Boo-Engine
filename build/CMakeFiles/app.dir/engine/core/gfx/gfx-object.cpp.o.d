@@ -1003,4 +1003,5 @@ CMakeFiles/app.dir/engine/core/gfx/gfx-object.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Headers/gltypes.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks/OpenGL.framework/Headers/OpenGLAvailability.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/os/availability.h \
-  /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.h
+  /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/gfx-context.h \
+  /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/gfx/../game.h

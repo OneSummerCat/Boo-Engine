@@ -249,6 +249,54 @@ editor/ipc/editor-ipc.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.s
 .PHONY : editor/ipc/editor-ipc.cpp.s
 
+engine/core/assets/Image.o: engine/core/assets/Image.cpp.o
+.PHONY : engine/core/assets/Image.o
+
+# target to build an object file
+engine/core/assets/Image.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/Image.cpp.o
+.PHONY : engine/core/assets/Image.cpp.o
+
+engine/core/assets/Image.i: engine/core/assets/Image.cpp.i
+.PHONY : engine/core/assets/Image.i
+
+# target to preprocess a source file
+engine/core/assets/Image.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/Image.cpp.i
+.PHONY : engine/core/assets/Image.cpp.i
+
+engine/core/assets/Image.s: engine/core/assets/Image.cpp.s
+.PHONY : engine/core/assets/Image.s
+
+# target to generate assembly for a file
+engine/core/assets/Image.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/Image.cpp.s
+.PHONY : engine/core/assets/Image.cpp.s
+
+engine/core/assets/asset.o: engine/core/assets/asset.cpp.o
+.PHONY : engine/core/assets/asset.o
+
+# target to build an object file
+engine/core/assets/asset.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/asset.cpp.o
+.PHONY : engine/core/assets/asset.cpp.o
+
+engine/core/assets/asset.i: engine/core/assets/asset.cpp.i
+.PHONY : engine/core/assets/asset.i
+
+# target to preprocess a source file
+engine/core/assets/asset.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/asset.cpp.i
+.PHONY : engine/core/assets/asset.cpp.i
+
+engine/core/assets/asset.s: engine/core/assets/asset.cpp.s
+.PHONY : engine/core/assets/asset.s
+
+# target to generate assembly for a file
+engine/core/assets/asset.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/app.dir/build.make CMakeFiles/app.dir/engine/core/assets/asset.cpp.s
+.PHONY : engine/core/assets/asset.cpp.s
+
 engine/core/assets/assets-manager.o: engine/core/assets/assets-manager.cpp.o
 .PHONY : engine/core/assets/assets-manager.o
 
@@ -1017,6 +1065,12 @@ help:
 	@echo "... editor/ipc/editor-ipc.o"
 	@echo "... editor/ipc/editor-ipc.i"
 	@echo "... editor/ipc/editor-ipc.s"
+	@echo "... engine/core/assets/Image.o"
+	@echo "... engine/core/assets/Image.i"
+	@echo "... engine/core/assets/Image.s"
+	@echo "... engine/core/assets/asset.o"
+	@echo "... engine/core/assets/asset.i"
+	@echo "... engine/core/assets/asset.s"
 	@echo "... engine/core/assets/assets-manager.o"
 	@echo "... engine/core/assets/assets-manager.i"
 	@echo "... engine/core/assets/assets-manager.s"

@@ -29,7 +29,6 @@ void Engine::init()
 	this->_initGame();
 	// 初始化编辑器
 	this->_initEditor();
-	
 }
 void Engine::_initWindow()
 {
@@ -47,14 +46,15 @@ void Engine::_initGame()
 	std::cout << "INIT Game MGR" << std::endl;
 	Game::getInstance()->init();
 }
-void Engine::_initEditor() {
+void Engine::_initEditor()
+{
 	Editor::getInstance()->init();
 }
 void Engine::launchEditor()
 {
 	// std::cout << "launch editor" << std::endl;
 	// 初始化编辑器
-	
+
 	// std::string project_path = "F:/worksapces/carlos-engine/project";
 	// std::string project_path = "/Users/yangzongyuan/personal/project/vulkan/project";
 	// Editor::getInstance()->setAssetsRoot(project_path);
@@ -120,11 +120,14 @@ void Engine::update(float dt)
 {
 	int width, height;
 	bool isChange = WindowMgr::getInstance()->getWindowSize(width, height);
-	if (isChange) {
+	if (isChange)
+	{
 		Game::getInstance()->setView(width, height);
 	}
-	//Editor::getInstance()->update(dt);
+	Editor::getInstance()->update(dt);
 	Game::getInstance()->update(dt);
+	// 更新渲染器
+	GfxMgr::getInstance()->update();
 }
 
 Engine::~Engine()

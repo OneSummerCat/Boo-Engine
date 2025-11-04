@@ -1002,6 +1002,8 @@ CMakeFiles/app.dir/engine/core/game.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/map \
   /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/global/event.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include/c++/v1/typeindex \
+  /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.h \
+  /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/asset.h \
   /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.h \
   /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.h \
   /Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/../scene/node.h \

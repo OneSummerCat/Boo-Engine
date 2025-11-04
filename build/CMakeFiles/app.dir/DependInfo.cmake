@@ -13,6 +13,8 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/Users/yangzongyuan/personal/project/Boo-Engine/editor/editor-layout.cpp" "CMakeFiles/app.dir/editor/editor-layout.cpp.o" "gcc" "CMakeFiles/app.dir/editor/editor-layout.cpp.o.d"
   "/Users/yangzongyuan/personal/project/Boo-Engine/editor/editor.cpp" "CMakeFiles/app.dir/editor/editor.cpp.o" "gcc" "CMakeFiles/app.dir/editor/editor.cpp.o.d"
   "/Users/yangzongyuan/personal/project/Boo-Engine/editor/ipc/editor-ipc.cpp" "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o" "gcc" "CMakeFiles/app.dir/editor/ipc/editor-ipc.cpp.o.d"
+  "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/Image.cpp" "CMakeFiles/app.dir/engine/core/assets/Image.cpp.o" "gcc" "CMakeFiles/app.dir/engine/core/assets/Image.cpp.o.d"
+  "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/asset.cpp" "CMakeFiles/app.dir/engine/core/assets/asset.cpp.o" "gcc" "CMakeFiles/app.dir/engine/core/assets/asset.cpp.o.d"
   "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/assets/assets-manager.cpp" "CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o" "gcc" "CMakeFiles/app.dir/engine/core/assets/assets-manager.cpp.o.d"
   "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component-factory.cpp" "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o" "gcc" "CMakeFiles/app.dir/engine/core/component/component-factory.cpp.o.d"
   "/Users/yangzongyuan/personal/project/Boo-Engine/engine/core/component/component.cpp" "CMakeFiles/app.dir/engine/core/component/component.cpp.o" "gcc" "CMakeFiles/app.dir/engine/core/component/component.cpp.o.d"

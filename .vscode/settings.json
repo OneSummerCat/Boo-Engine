@@ -64,6 +64,9 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "unordered_map": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "iterator": "cpp",
+        "__availability": "cpp",
+        "filesystem": "cpp"
     }
 }

@@ -95,6 +95,7 @@ void GfxRenderer::createTexture(std::string textureUuid, uint32_t width, uint32_
     {
         GfxTexture *texture = new GfxTexture(this->_context, pixels, width, height, channels);
         this->_textures[textureUuid] = texture;
+        std::cout << "createTexture: " << textureUuid << std::endl;
     }
 }
 
@@ -259,6 +260,7 @@ void GfxRenderer::setObjectPipeline(std::string id, std::string pipeline)
 
 void GfxRenderer::submit(std::string id)
 {
+    std::cout << "renderer submit   :" << id << std::endl;
     if (this->_objects.find(id) == this->_objects.end())
     {
         this->_Log("submit:id not found");
@@ -268,7 +270,7 @@ void GfxRenderer::submit(std::string id)
     GfxPass *pass = object->pass();
     if (pass == nullptr || this->_queues.find(pass->name()) == this->_queues.end())
     {
-        /* // this->_Log("submit:pass not found"); */
+         this->_Log("submit:pass not found");
         return;
     }
     this->_queues[pass->name()]->submit(object);
@@ -277,7 +279,8 @@ void GfxRenderer::submit(std::string id)
 void GfxRenderer::frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers)
 {
   /*   // this->submit("text"); */
-
+    std::cout << "renderer frameRenderer" << std::endl;
+    
     if (this->_queues.find("ui") != this->_queues.end())
     {
         this->_queues["ui"]->render(imageIndex, commandBuffers);

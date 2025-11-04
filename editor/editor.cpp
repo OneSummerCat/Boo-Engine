@@ -83,7 +83,7 @@ void Editor::init()
 void Editor::update(float dt)
 {
     this->_editorLayout->update(dt);
-   /* this->_hierarchy->update(dt);
-    this->_assets->update(dt);
-    this->_property->update(dt);*/
+    //this->_hierarchy->update(dt);
+    //this->_assets->update(dt);
+    //this->_property->update(dt);*/
 }
