@@ -27,6 +27,7 @@ void Engine::init()
 	this->_initGFX();
 	// 初始化Game
 	this->_initGame();
+
 	// 初始化编辑器
 	this->_initEditor();
 }
@@ -48,6 +49,7 @@ void Engine::_initGame()
 }
 void Engine::_initEditor()
 {
+	std::cout << "INIT EDITOR" << std::endl;
 	Editor::getInstance()->init();
 }
 void Engine::launchEditor()

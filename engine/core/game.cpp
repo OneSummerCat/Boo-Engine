@@ -43,7 +43,7 @@ void Game::_initInput()
 }
 void Game::_initFont()
 {
-	//FreetypeMgr::getInstance()->init();
+	// FreetypeMgr::getInstance()->init();
 }
 
 void Game::_initComponents()
