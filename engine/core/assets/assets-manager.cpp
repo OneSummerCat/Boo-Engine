@@ -1,4 +1,6 @@
 #include "assets-manager.h"
+#include "asset.h"
+#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -8,8 +10,12 @@
 #include <mach-o/dyld.h> // 必需的头文件
 #endif
 #include <iostream>
+#include "asset-load.h"
 
 AssetsManager::AssetsManager()
+{
+}
+void AssetsManager::init()
 {
 	this->_initRoot();
 }
@@ -27,12 +33,15 @@ void AssetsManager::_initRoot()
 	std::vector<char> buffer(size);
 	if (_NSGetExecutablePath(buffer.data(), &size) == 0)
 	{
-		try {
-           std::string appPath = std::string(buffer.data());
-           this->_root = std::filesystem::path(appPath).parent_path().string();
-        } catch (const std::filesystem::filesystem_error& ex) {
-            std::cerr << "文件系统错误: " << ex.what() << std::endl;
-        }
+		try
+		{
+			std::string appPath = std::string(buffer.data());
+			this->_root = std::filesystem::path(appPath).parent_path().string();
+		}
+		catch (const std::filesystem::filesystem_error &ex)
+		{
+			std::cerr << "文件系统错误: " << ex.what() << std::endl;
+		}
 	}
 #elif TARGET_OS_IPHONE
 #if TARGET_IPHONE_SIMULATOR
@@ -49,6 +58,20 @@ void AssetsManager::_initRoot()
 #endif
 	std::cout << "Assets root:" << this->_root << std::endl;
 }
+Asset *AssetsManager::load(const std::string &path)
+{
+	std::filesystem::path fullPath = std::filesystem::path(this->_root) / path;
+	Asset *asset = AssetLoad::load(path, fullPath.string());
+	if (asset != nullptr)
+	{
+		this->_assetsMap[path] = asset;
+		return asset;
+	}
+	return nullptr;
+}
+// void AssetsManager::loadAsync(const std::string &path, std::function<void(Asset *)> callback)
+// {
+// }
 
 AssetsManager::~AssetsManager()
 {

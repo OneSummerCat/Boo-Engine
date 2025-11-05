@@ -61,6 +61,7 @@ void Game::_initAssets()
 {
 	std::cout << "INIT ASSETS MGR" << std::endl;
 	this->_assetsManager = new AssetsManager();
+	this->_assetsManager->init();
 }
 void Game::setView(int width, int height)
 {

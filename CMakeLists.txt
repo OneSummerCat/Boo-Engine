@@ -21,9 +21,10 @@ set(ENGINE_SOURCES
     editor/editor-layout.cpp
     editor/editor.cpp
     editor/ipc/editor-ipc.cpp
-    engine/core/assets/Image.cpp
+    engine/core/assets/asset-load.cpp
     engine/core/assets/asset.cpp
     engine/core/assets/assets-manager.cpp
+    engine/core/assets/texture.cpp
     engine/core/component/component-factory.cpp
     engine/core/component/component.cpp
     engine/core/font/freetype-mgr.cpp

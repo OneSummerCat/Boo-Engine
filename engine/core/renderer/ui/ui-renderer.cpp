@@ -3,8 +3,7 @@
 #include "../../game.h"
 #include "../../scene/node.h"
 #include "../../scene/node-2d.h"
-#define STB_IMAGE_IMPLEMENTATION
-#include "../../../libs/stb/stb_image.h"
+
 
 UIRenderer::UIRenderer(Node *node, std::string uuid) : Component(node, uuid)
 {
@@ -89,27 +88,27 @@ void UIRenderer::setTexture(std::string texture)
 
 void UIRenderer::_createGfxTexture()
 {
-    int _width = 0;
-    int _height = 0;
-    int _channels = 0;
-    const void *_pixels;
-    _pixels = stbi_load(this->_texture.c_str(), &_width, &_height, &_channels, STBI_rgb_alpha);
-    if (_pixels == nullptr)
-    {
-        std::cerr << "Failed to load texture: " << this->_texture << std::endl;
-        return;
-    }
-    _channels = 4;
-    /**
-     *  使用实际通道数
-     */
-    std::vector<uint8_t> pixelsVector(static_cast<const uint8_t *>(_pixels),
-                                      static_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
-    /**
-     * 记得释放内存！
-     */
-    stbi_image_free((void *)_pixels);
-    GfxMgr::getInstance()->createTexture(this->_texture, _width, _height, _channels, &pixelsVector);
+    // int _width = 0;
+    // int _height = 0;
+    // int _channels = 0;
+    // const void *_pixels;
+    // _pixels = stbi_load(this->_texture.c_str(), &_width, &_height, &_channels, STBI_rgb_alpha);
+    // if (_pixels == nullptr)
+    // {
+    //     std::cerr << "Failed to load texture: " << this->_texture << std::endl;
+    //     return;
+    // }
+    // _channels = 4;
+    // /**
+    //  *  使用实际通道数
+    //  */
+    // std::vector<uint8_t> pixelsVector(static_cast<const uint8_t *>(_pixels),
+    //                                   static_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
+    // /**
+    //  * 记得释放内存！
+    //  */
+    // stbi_image_free((void *)_pixels);
+    // GfxMgr::getInstance()->createTexture(this->_texture, _width, _height, _channels, &pixelsVector);
 }
 
 void UIRenderer::update(float deltaTime)

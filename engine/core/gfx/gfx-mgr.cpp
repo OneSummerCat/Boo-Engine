@@ -172,7 +172,7 @@ void GfxMgr::submit(std::string id)
 
 void GfxMgr::update()
 {
-    std::cout << "renderer update" << std::endl;
+    // std::cout << "renderer update" << std::endl;
     this->_context->frameFencesPrepare(this->_currentFrame);
     /* // 可用的图像的索引 */
     uint32_t imageIndex;

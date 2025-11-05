@@ -1,9 +1,23 @@
 #pragma once
-class  Asset
+#include <string>
+enum class AssetType
+{
+    None,
+    Texture,
+    Audio,
+    Font,
+    Shader,
+    Material,
+};
+class Asset
 {
 private:
-    /* data */
+protected:
+    AssetType _type;
+    std::string _key;
+    std::string _path;
+    virtual void _load() = 0;
 public:
-     Asset(/* args */);
-    ~ Asset();
+    Asset(const std::string key, const std::string path);
+    ~Asset();
 };

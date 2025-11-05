@@ -95,7 +95,7 @@ void GfxRenderer::createTexture(std::string textureUuid, uint32_t width, uint32_
     {
         GfxTexture *texture = new GfxTexture(this->_context, pixels, width, height, channels);
         this->_textures[textureUuid] = texture;
-        std::cout << "createTexture: " << textureUuid << std::endl;
+        std::cout << "createGfxTexture: " << textureUuid << std::endl;
     }
 }
 
@@ -279,7 +279,7 @@ void GfxRenderer::submit(std::string id)
 void GfxRenderer::frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers)
 {
   /*   // this->submit("text"); */
-    std::cout << "renderer frameRenderer" << std::endl;
+    // std::cout << "renderer frameRenderer" << std::endl;
     
     if (this->_queues.find("ui") != this->_queues.end())
     {
