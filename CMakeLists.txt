@@ -26,6 +26,7 @@ set(ENGINE_SOURCES
     engine/core/assets/assets-manager.cpp
     engine/core/component/component-factory.cpp
     engine/core/component/component.cpp
+    engine/core/font/freetype-mgr.cpp
     engine/core/game.cpp
     engine/core/gfx/gfx-context.cpp
     engine/core/gfx/gfx-mgr.cpp
@@ -117,7 +118,13 @@ elseif(APPLE)
 else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
-
+# CMAKE_CURRENT_BINARY_DIR：当前 CMakeLists.txt 对应的构建目录
+# CMAKE_BINARY_DIR：整个项目的顶级构建目录
+# CMAKE_CURRENT_SOURCE_DIR：当前 CMakeLists.txt 所在的源码目录
+# CMAKE_SOURCE_DIR：整个项目的顶级源码目录
+#编辑器
+file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/res)
+file(COPY editor/res/ DESTINATION res)
+#内置资源
 file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/resources)
-# 文件拷贝
 file(COPY engine/resources/ DESTINATION resources)

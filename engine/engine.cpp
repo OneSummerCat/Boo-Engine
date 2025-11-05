@@ -27,7 +27,6 @@ void Engine::init()
 	this->_initGFX();
 	// 初始化Game
 	this->_initGame();
-
 	// 初始化编辑器
 	this->_initEditor();
 }
