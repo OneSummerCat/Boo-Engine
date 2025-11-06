@@ -25,3 +25,7 @@ void Texture::_load()
 void Texture::clearCache()
 {
 }
+void Texture::destroy()
+{
+    GfxMgr::getInstance()->destroyTexture(this->_key);
+}

@@ -19,5 +19,6 @@ protected:
     virtual void _load() = 0;
 public:
     Asset(const std::string key, const std::string path);
+    virtual void destroy();
     ~Asset();
 };

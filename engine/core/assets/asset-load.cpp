@@ -3,6 +3,7 @@
 #include "texture.h"
 #include <filesystem>
 #include <iostream>
+#include "shader.h"
 
 Asset *AssetLoad::load(std::string path, std::string fullPath)
 {
@@ -21,6 +22,10 @@ Asset *AssetLoad::load(std::string path, std::string fullPath)
     {
         Texture *texture = new Texture(path, fullPath);
         return texture;
+    }else if (extension == ".vert" || extension == ".frag")
+    {
+        Shader *shader = new Shader(path, fullPath);
+        return shader;
     }
     //     else if (extension == ".vert")
     //     {
