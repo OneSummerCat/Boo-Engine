@@ -76,7 +76,7 @@ public:
      * @param shaderName 着色器名称
      * @param buffer 着色器字节码
      */
-    void createShader(std::string shaderName, std::string &data);
+    void createShader(const std::string &shaderName, const std::string &data);
     /**
      * @brief 创建模型渲染对象
      *
@@ -124,6 +124,6 @@ public:
     std::vector<char> readShaderFile(const std::string &filename);
     static void Log(const std::string tag, const std::string msg)
     {
-        std::cout << "🚄" << tag << ":" << msg << std::endl;
+        std::cout << "Boo-Engine: " << tag << ":" << msg << std::endl;
     }
 };

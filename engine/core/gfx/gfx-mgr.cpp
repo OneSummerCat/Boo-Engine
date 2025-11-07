@@ -44,8 +44,6 @@ void GfxMgr::showVersion()
         uint32_t major = VK_VERSION_MAJOR(instanceVersion);
         uint32_t minor = VK_VERSION_MINOR(instanceVersion);
         uint32_t patch = VK_VERSION_PATCH(instanceVersion);
-       /*  // std::cout << "Vulkan Instance (Driver) Version: "
-        //           << major << "." << minor << "." << patch << std::endl; */
         GfxMgr::Log("GfxMgr", "Vulkan Instance (Driver) Version:" + std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch));
     }
 }
@@ -65,7 +63,7 @@ void GfxMgr::_testMSAASample()
     VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
                                 physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     VkSampleCountFlagBits sampleCount = this->_getMaxMSAAUsableSampleCount();
-    GfxMgr::Log("GfxMgr", "GPU最大支持采样次数:" + std::to_string(sampleCount));
+    GfxMgr::Log("GfxMgr", "GPU Maximum supported sampling:" + std::to_string(sampleCount));
 }
 VkSampleCountFlagBits GfxMgr::_getMaxMSAAUsableSampleCount()
 {
@@ -122,7 +120,7 @@ bool GfxMgr::isExistTexture(std::string texture)
 {
     return this->_renderer->isExistTexture(texture);
 }
-void GfxMgr::createShader(std::string shaderName, std::string &data)
+void GfxMgr::createShader(const std::string &shaderName, const std::string &data)
 {
     this->_renderer->createShader(shaderName, data);
 }

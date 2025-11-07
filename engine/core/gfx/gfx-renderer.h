@@ -118,6 +118,6 @@ public:
      * @param shaderName 着色器名称
      * @param buffer 着色器字节码
      */
-    void createShader(std::string shaderName, std::string &data);
+    void createShader(const std::string &shaderName, const std::string &data);
     ~GfxRenderer();
 };

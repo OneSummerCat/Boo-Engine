@@ -8,24 +8,22 @@
  * vert, frag, geom的统称
  * 一个shader代表了vert, frag, geom中的其中一个
  */
-GfxShader::GfxShader(GfxContext *context, std::string path)
+GfxShader::GfxShader(GfxContext *context, const std::string &name): _context(context), _name(name)
 {
-    this->_context = context;
-    this->_path = path;
-    try
-    {
-        std::vector<char> vertexShaderCode = GfxMgr::getInstance()->readShaderFile(this->_path);
-        this->_shaderModule = this->_createShaderModule(vertexShaderCode);
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Error: " << e.what() << std::endl;
-        if (this->_shaderModule != VK_NULL_HANDLE)
-        {
-            vkDestroyShaderModule(this->_context->getVkDevice(), this->_shaderModule, nullptr);
-            this->_shaderModule = VK_NULL_HANDLE;
-        }
-    }
+    // try
+    // {
+    //     std::vector<char> vertexShaderCode = GfxMgr::getInstance()->readShaderFile(this->_path);
+    //     this->_shaderModule = this->_createShaderModule(vertexShaderCode);
+    // }
+    // catch (const std::exception &e)
+    // {
+    //     std::cerr << "Error: " << e.what() << std::endl;
+    //     if (this->_shaderModule != VK_NULL_HANDLE)
+    //     {
+    //         vkDestroyShaderModule(this->_context->getVkDevice(), this->_shaderModule, nullptr);
+    //         this->_shaderModule = VK_NULL_HANDLE;
+    //     }
+    // }
 }
 
 // 要将着色器字节码在管线上使用，还需要使用VkShaderModule转换

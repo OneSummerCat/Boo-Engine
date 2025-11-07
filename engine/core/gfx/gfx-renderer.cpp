@@ -7,6 +7,7 @@
 #include "gfx-queue.h"
 #include "gfx-object.h"
 #include "../math/mat4.h"
+#include "gfx-shader-compile.h"
 
 GfxRenderer::GfxRenderer(GfxContext *context)
 {
@@ -15,6 +16,7 @@ GfxRenderer::GfxRenderer(GfxContext *context)
 void GfxRenderer::init()
 {
     std::cout << "GfxRenderer:init" << std::endl;
+    GfxShaderCompile::getInstance()->init();
 }
 
 void GfxRenderer::createRenderPass(std::string name)
@@ -111,10 +113,14 @@ bool GfxRenderer::isExistTexture(std::string textureUuid)
 {
     return this->_textures.find(textureUuid) != this->_textures.end();
 }
-void GfxRenderer::createShader(std::string shaderName, std::string &data)
+void GfxRenderer::createShader(const std::string &shaderName, const std::string &data)
 {
     if (this->_shaders.find(shaderName) == this->_shaders.end())
     {
+        GfxShader *shader = new GfxShader(this->_context, shaderName);
+
+
+        // this->_shaders[shaderName] = shader;
         //    GfxShader *shader = new GfxShader(this->_context, shaderName, buffer);
         //     this->_shaders[shaderName] = shader;
         // GfxShader *vertexShader = new GfxShader(this->_context, shaderVert);
