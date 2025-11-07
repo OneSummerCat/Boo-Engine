@@ -14,8 +14,6 @@ private:
     GfxShaderCompile();
     ~GfxShaderCompile();
 
-    bool _initialized ;
-    shaderc::CompileOptions _compileOptions;
     shaderc::Compiler _compiler;
 public:
     static GfxShaderCompile *getInstance();
@@ -28,5 +26,5 @@ public:
      * @brief 编译着色器
      * @param path 着色器路径
      */
-    std::vector<uint32_t> compile(const std::string &path);
+    std::vector<uint32_t> compile(const std::string &type,const std::string &param,const std::string &path);
 };

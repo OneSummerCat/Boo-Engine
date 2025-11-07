@@ -22,9 +22,10 @@ Asset *AssetLoad::load(std::string path, std::string fullPath)
     {
         Texture *texture = new Texture(path, fullPath);
         return texture;
-    }else if (extension == ".vert" || extension == ".frag")
+    }
+    else if (extension == ".vert" || extension == ".frag")
     {
-        Shader *shader = new Shader(path, fullPath);
+        Shader *shader = new Shader(path, extension, fullPath);
         return shader;
     }
     return nullptr;
