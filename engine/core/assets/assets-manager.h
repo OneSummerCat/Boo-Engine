@@ -3,10 +3,10 @@
 #include <unordered_map>
 #include <filesystem>
 #include <functional>
+#include "asset-load.h"
 enum class AssetType;
 class Asset;
 class AssetCache;
-class AssetLoad;
 struct AssetLoadResult;
 
 // 基础图片资源
@@ -46,11 +46,18 @@ public:
 	 * @return Asset 资产对象
 	 */
 	Asset *load(const std::string &path);
-	void loadAsync(const std::string &path, std::function<void()> callback);
-	void loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback);
+	template <typename T, typename Func>
+	void loadAsync(const std::string &path, Func callback, T *instance)
+	{
+		this->_assetLoad->loadAsync(path, callback, instance);
+	}
+	template <typename T, typename Func>
+	void loadListAsync(const std::vector<std::string> &paths, Func callback, T *instance)
+	{
+		this->_assetLoad->loadListAsync(paths, callback, instance);
+	}
 
 	Asset *get(const std::string &path);
-
 
 	void update(float deltaTime);
 	// /**

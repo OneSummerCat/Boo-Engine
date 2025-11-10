@@ -62,13 +62,14 @@ private:
      */
     bool _isComplete = false;
     /**
-     * @brief 资产加载回调
+     * @brief 资产加载实例
      */
     std::function<void()> _callbackOnce;
     /**
      * @brief 资产加载回调
      */
     std::function<void(const int complete, const int all, const float progress)> _callbackList;
+
     AssetLoadResult *_result;
 
     /**
@@ -105,8 +106,27 @@ private:
 public:
     AssetTask(AssetsManager *mgr, AssetCache *cache);
     Asset *load(const std::string &path);
-    void loadAsync(const std::string &path, std::function<void()> callback);
-    void loadSync(const std::string path, AssetLoadResult *result, std::function<void(const int complete, const int all, const float progress)> callback);
+    template <typename T, typename Func>
+    void loadAsync(const std::string &path, Func callback, T *instance)
+    {
+        this->_path = path;
+        this->_type = AssetTaskType::AsyncOnce;
+        this->_callbackOnce = [instance, callback]()
+        {
+            (instance->*callback)();
+        };
+    }
+    template <typename T, typename Func>
+    void loadASync(const std::string path, AssetLoadResult *result, Func callback, T *instance)
+    {
+        this->_path = path;
+        this->_type = AssetTaskType::AsyncList;
+        this->_result = result;
+        this->_callbackList = [instance, callback](const int complete, const int all, const float progress)
+        {
+            (instance->*callback)(complete, all, progress);
+        };
+    }
     void run();
     bool isComplete()
     {

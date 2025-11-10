@@ -29,6 +29,11 @@ void Editor::init()
 {
 	this->_initEditorLayout();
 	this->_initEditorRes();
+	// Editor:: : 表示 Editor 类的作用域
+	// _onAlphaAnimOK : 成员函数名
+	// & : 取地址运算符，获取成员函数的地址
+	// 成员函数指针的正确格式是 &ClassName::MemberFunction
+	// &this->member 语法用于获取成员变量的地址，不适用于成员函数
 	Game::getInstance()->scheduleOnce(&Editor::_onAlphaAnimOK, this, 2.0f);
 }
 void Editor::_initEditorLayout()
@@ -36,13 +41,7 @@ void Editor::_initEditorLayout()
 	this->_editorLayout = new EditorLayout();
 	this->_editorLayout->load();
 }
-void Editor::_onAlphaAnimOK()
-{
-	this->_alphaAnimOK = true;
-	if(this->_loadComplete){
-		this->_launchEditor();
-	}
-}
+
 void Editor::_initEditorRes()
 {
 	// 先加载公用resources文件,
@@ -55,15 +54,29 @@ void Editor::_initEditorRes()
 		paths.push_back(path.generic_string());
 		std::cout << "add resource " << path.generic_string() << std::endl;
 	}
-	Game::getInstance()->assetsManager()->loadListAsync(paths, [this](const int complete, const int all, const float progress)
-														{
-		this->_editorLayout->setLoadProgress(progress);									
-		if (complete == all) {
-           this->_loadComplete = true;
-          if(this->_alphaAnimOK){
+
+	Game::getInstance()->assetsManager()->loadListAsync(paths, &Editor::_onLoadCallBack, this);
+}
+void Editor::_onAlphaAnimOK()
+{
+	this->_alphaAnimOK = true;
+	if (this->_loadComplete)
+	{
+		this->_launchEditor();
+	}
+}
+void Editor::_onLoadCallBack(const int complete, const int all, const float progress)
+{
+	std::cout << "load progress " << complete << " / " << all << " " << progress << std::endl;
+	this->_editorLayout->setLoadProgress(progress);
+	if (complete == all)
+	{
+		this->_loadComplete = true;
+		if (this->_alphaAnimOK)
+		{
 			this->_launchEditor();
-		  }
-        } });
+		}
+	}
 }
 
 void Editor::_launchEditor()

@@ -2,14 +2,14 @@
 #include <string>
 #include <vector>
 #include <functional>
-
+#include "asset-cache.h"
 #include "asset-task.h"
 
 class Asset;
 class Shader;
 class AssetsManager;
 
-class AssetCache;
+
 
 class AssetLoad
 {
@@ -29,12 +29,51 @@ private:
 public:
     AssetLoad(AssetsManager *mgr);
     Asset *load(const std::string path);
-    void loadAsync(const std::string &path, std::function<void()> callback);
-    //
-    // void loadList(const std::vector<std::string> &paths);
-    // void loadAsync(const std::string &path, std::function<void(const int complete, const int all, const float progress)> callback);
-    
-    void loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback);
+
+    template <typename T, typename Func>
+    void loadAsync(const std::string &path, Func callback, T *instance)
+    {
+        std::filesystem::path key = std::filesystem::path(path);
+        std::string normPath = key.generic_string();
+        Asset *asset = this->_cache->getAsset(normPath);
+        if (asset != nullptr)
+        {
+            (instance->*callback)();
+            return;
+        }
+        AssetTask task(this->_mgr, this->_cache);
+        task.loadAsync(normPath, callback, instance);
+        this->_tasks.push_back(task);
+    }
+    template <typename T, typename Func>
+    void loadListAsync(const std::vector<std::string> &paths, Func callback, T *instance)
+    {
+        AssetLoadResult *result = new AssetLoadResult();
+        result->all = paths.size();
+        for (const std::string &path : paths)
+        {
+            std::filesystem::path key = std::filesystem::path(path);
+            std::string normPath = key.generic_string();
+            Asset *asset = this->_cache->getAsset(normPath);
+            if (asset != nullptr)
+            {
+                result->complete++;
+                continue;
+            }
+            AssetTask task(this->_mgr, this->_cache);
+            task.loadASync(normPath, result, callback, instance);
+            this->_tasks.push_back(task);
+        }
+        // 所有任务完成
+        if (result->complete >= result->all)
+        {
+            int complete = result->complete;
+            int all = result->all;
+            float progress = (float)complete / (float)all;
+            (instance->*callback)(complete, all, progress);
+            delete result;
+        }
+    }
 
     Asset *getAsset(const std::string &path);
 

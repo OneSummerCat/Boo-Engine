@@ -21,20 +21,20 @@ Asset *AssetTask::load(const std::string &path)
 	this->run();
 	return this->_cache->getAsset(this->_path);
 }
-void AssetTask::loadAsync(const std::string &path, std::function<void()> callback)
-{
-	this->_path = path;
-	this->_callbackOnce = callback;
-	this->_type = AssetTaskType::AsyncOnce;
-}
+// void AssetTask::loadAsync(const std::string &path, std::function<void()> callback)
+// {
+// 	this->_path = path;
+// 	this->_callbackOnce = callback;
+// 	this->_type = AssetTaskType::AsyncOnce;
+// }
 
-void AssetTask::loadSync(const std::string path, AssetLoadResult *result, std::function<void(const int complete, const int all, const float progress)> callback)
-{
-	this->_path = path;
-	this->_result = result;
-	this->_callbackList = callback;
-	this->_type = AssetTaskType::AsyncList;
-}
+// void AssetTask::loadSync(const std::string path, AssetLoadResult *result, std::function<void(const int complete, const int all, const float progress)> callback)
+// {
+// 	this->_path = path;
+// 	this->_result = result;
+// 	this->_callbackList = callback;
+// 	this->_type = AssetTaskType::AsyncList;
+// }
 
 void AssetTask::run()
 {

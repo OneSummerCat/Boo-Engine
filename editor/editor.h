@@ -10,9 +10,9 @@ class Scene;
 class Node;
 class Sprite;
 class EditorLayout;
-//class EditorHierarchy;
-//class EditorAssets;
-//class EditorProperty;
+// class EditorHierarchy;
+// class EditorAssets;
+// class EditorProperty;
 
 class Editor
 {
@@ -26,22 +26,21 @@ private:
 
     bool _alphaAnimOK = false;
     bool _loadComplete = false;
-    void _onAlphaAnimOK();
     void _initEditorRes();
     void _initEditorLayout();
+    void _onAlphaAnimOK();
+    void _onLoadCallBack(const int complete, const int all, const float progress);
     void _launchEditor();
 
+    /*EditorHierarchy *_hierarchy;
+   EditorAssets *_assets;
+   EditorProperty *_property;
 
+   void _initHierarchy();
+   void _initAssets();
+   void _initProperty();
 
-     /*EditorHierarchy *_hierarchy;
-    EditorAssets *_assets;
-    EditorProperty *_property;
-
-    void _initHierarchy();
-    void _initAssets();
-    void _initProperty();
-    
-    void _onHierarchyRootUpdate(const EventValue& value);*/
+   void _onHierarchyRootUpdate(const EventValue& value);*/
 public:
     static Editor *getInstance();
     /**
@@ -53,9 +52,7 @@ public:
      */
     void update(float dt);
 
-   /* void setHierarchyRoot(Scene *scene);
-    void setHierarchyNode(Node *node);
-    void setAssetsRoot(std::string root);*/
-
-   
+    /* void setHierarchyRoot(Scene *scene);
+     void setHierarchyNode(Node *node);
+     void setAssetsRoot(std::string root);*/
 };

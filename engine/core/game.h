@@ -86,7 +86,8 @@ public:
     {
         return this->_assetsManager;
     }
-
+    // typename T: 表示一个类型参数，通常指类的类型
+    // typename Func: 表示另一个类型参数，通常指函数类型（函数指针、成员函数指针、函数对象等）
     template <typename T, typename Func>
     int schedule(Func func, T *instance, float interval)
     {

@@ -32,48 +32,48 @@ Asset *AssetLoad::load(const std::string path)
     return asset2;
 }
 
-void AssetLoad::loadAsync(const std::string &path, std::function<void()> callback)
-{
-    std::filesystem::path key = std::filesystem::path(path);
-    std::string normPath = key.generic_string();
-    Asset *asset = this->_cache->getAsset(normPath);
-    if (asset != nullptr)
-    {
-        callback();
-        return;
-    }
-    AssetTask task(this->_mgr, this->_cache);
-    task.loadAsync(normPath, callback);
-    this->_tasks.push_back(task);
-}
-void AssetLoad::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
-{
-    AssetLoadResult *result = new AssetLoadResult();
-    result->all = paths.size();
-    for (const std::string &path : paths)
-    {
-        std::filesystem::path key = std::filesystem::path(path);
-        std::string normPath = key.generic_string();
-        Asset *asset = this->_cache->getAsset(normPath);
-        if (asset != nullptr)
-        {
-            result->complete++;
-            continue;
-        }
-        AssetTask task(this->_mgr, this->_cache);
-        task.loadSync(normPath, result, callback);
-        this->_tasks.push_back(task);
-    }
-    // 所有任务完成
-    if (result->complete >= result->all)
-    {
-        int complete = result->complete;
-        int all = result->all;
-        float progress = (float)complete / (float)all;
-        callback(complete, all, progress);
-        delete result;
-    }
-}
+// void AssetLoad::loadAsync(const std::string &path, std::function<void()> callback)
+// {
+//     std::filesystem::path key = std::filesystem::path(path);
+//     std::string normPath = key.generic_string();
+//     Asset *asset = this->_cache->getAsset(normPath);
+//     if (asset != nullptr)
+//     {
+//         callback();
+//         return;
+//     }
+//     AssetTask task(this->_mgr, this->_cache);
+//     task.loadAsync(normPath, callback);
+//     this->_tasks.push_back(task);
+// }
+// void AssetLoad::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
+// {
+//     AssetLoadResult *result = new AssetLoadResult();
+//     result->all = paths.size();
+//     for (const std::string &path : paths)
+//     {
+//         std::filesystem::path key = std::filesystem::path(path);
+//         std::string normPath = key.generic_string();
+//         Asset *asset = this->_cache->getAsset(normPath);
+//         if (asset != nullptr)
+//         {
+//             result->complete++;
+//             continue;
+//         }
+//         AssetTask task(this->_mgr, this->_cache);
+//         task.loadSync(normPath, result, callback);
+//         this->_tasks.push_back(task);
+//     }
+//     // 所有任务完成
+//     if (result->complete >= result->all)
+//     {
+//         int complete = result->complete;
+//         int all = result->all;
+//         float progress = (float)complete / (float)all;
+//         callback(complete, all, progress);
+//         delete result;
+//     }
+// }
 
 Asset *AssetLoad::getAsset(const std::string &path)
 {
