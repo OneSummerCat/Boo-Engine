@@ -16,12 +16,21 @@ EditorLayout::EditorLayout()
 {
 	// 创建
 	this->_scene = new Scene("EDITOR");
-	Node2D* root2D = this->_scene->getRoot2D();
+	// Node2D* root2D = this->_scene->getRoot2D();
+}
+void EditorLayout::load()
+{
 	
-
 }
 
-
+void EditorLayout::setLoadProgress(float progress)
+{
+	
+}
+void EditorLayout::launch()
+{
+	
+}
 
 
 

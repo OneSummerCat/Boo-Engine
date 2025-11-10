@@ -106,7 +106,6 @@ void Game::update(float dt)
 }
 void Game::_updateSchedules(float dt)
 {
-	// std::cout << "UPDATE SCHEDULES:"<< this->_schedules.size() << std::endl;
 	for (auto it = this->_schedules.begin(); it != this->_schedules.end();)
 	{
 		ScheduleInfo &info = it->second;
@@ -120,7 +119,6 @@ void Game::_updateSchedules(float dt)
 		{
 			info.time = 0.0f;
 			info.func();
-			std::cout << "Schedule " << it->first << " executed." << std::endl;
 			bool isOnce = info.isOnce;
 			int currentId = it->first; // 保存当前ID
 			if (isOnce)

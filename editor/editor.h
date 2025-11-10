@@ -24,7 +24,16 @@ private:
 
     EditorLayout *_editorLayout;
 
-    /*EditorHierarchy *_hierarchy;
+    bool _alphaAnimOK = false;
+    bool _loadComplete = false;
+    void _onAlphaAnimOK();
+    void _initEditorRes();
+    void _initEditorLayout();
+    void _launchEditor();
+
+
+
+     /*EditorHierarchy *_hierarchy;
     EditorAssets *_assets;
     EditorProperty *_property;
 
@@ -33,8 +42,6 @@ private:
     void _initProperty();
     
     void _onHierarchyRootUpdate(const EventValue& value);*/
-    void _initEditorRes();
-    void _initEditorLayout();
 public:
     static Editor *getInstance();
     /**

@@ -70,7 +70,6 @@ void AssetsManager::loadAsync(const std::string &path, std::function<void()> cal
 {
 	this->_assetLoad->loadAsync(path, callback);
 }
-
 void AssetsManager::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
 {
 	this->_assetLoad->loadListAsync(paths, callback);

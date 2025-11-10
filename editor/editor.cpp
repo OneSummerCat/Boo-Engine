@@ -29,16 +29,19 @@ void Editor::init()
 {
 	this->_initEditorLayout();
 	this->_initEditorRes();
+	Game::getInstance()->scheduleOnce(&Editor::_onAlphaAnimOK, this, 2.0f);
 }
 void Editor::_initEditorLayout()
 {
 	this->_editorLayout = new EditorLayout();
-	/*this->_initHierarchy();
-	this->_initAssets();
-	this->_initProperty();*/
-
-	/*  EditorIpc::getInstance()->on(IpcEvent::UPDATE_HIERARCHY_ROOT, &Editor::_onHierarchyRootUpdate, this);
-	  EditorIpc::getInstance()->send(IpcEvent::UPDATE_HIERARCHY_ROOT,0);*/
+	this->_editorLayout->load();
+}
+void Editor::_onAlphaAnimOK()
+{
+	this->_alphaAnimOK = true;
+	if(this->_loadComplete){
+		this->_launchEditor();
+	}
 }
 void Editor::_initEditorRes()
 {
@@ -52,8 +55,27 @@ void Editor::_initEditorRes()
 		paths.push_back(path.generic_string());
 		std::cout << "add resource " << path.generic_string() << std::endl;
 	}
-	Game::getInstance()->assetsManager()->loadListAsync(paths, [](const int complete, const int all, const float progress)
-														{ std::cout << "load resources " << complete << " / " << all << " progress " << progress << std::endl; });
+	Game::getInstance()->assetsManager()->loadListAsync(paths, [this](const int complete, const int all, const float progress)
+														{
+		this->_editorLayout->setLoadProgress(progress);									
+		if (complete == all) {
+           this->_loadComplete = true;
+          if(this->_alphaAnimOK){
+			this->_launchEditor();
+		  }
+        } });
+}
+
+void Editor::_launchEditor()
+{
+	std::cout << "launch editor" << std::endl;
+	this->_editorLayout->launch();
+	/*this->_initHierarchy();
+	this->_initAssets();
+	this->_initProperty();*/
+
+	/*  EditorIpc::getInstance()->on(IpcEvent::UPDATE_HIERARCHY_ROOT, &Editor::_onHierarchyRootUpdate, this);
+	  EditorIpc::getInstance()->send(IpcEvent::UPDATE_HIERARCHY_ROOT,0);*/
 }
 
 // void Editor::_initHierarchy()

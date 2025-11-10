@@ -22,15 +22,17 @@ struct ScheduleInfo
     float interval;
     float time;
     bool isOnce;
-    ScheduleInfo() 
-        : func(), instance(nullptr), interval(0.0f), time(0.0f), isOnce(false) 
-    {}
+    ScheduleInfo()
+        : func(), instance(nullptr), interval(0.0f), time(0.0f), isOnce(false)
+    {
+    }
     ScheduleInfo(std::function<void()> f, void *i, float in, float t, bool once)
     {
         this->func = f;
         this->instance = i;
         this->interval = in;
         this->time = t;
+        this->isOnce = once;
     }
 };
 

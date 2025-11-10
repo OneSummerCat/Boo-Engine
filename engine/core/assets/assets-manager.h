@@ -47,11 +47,6 @@ public:
 	 */
 	Asset *load(const std::string &path);
 	void loadAsync(const std::string &path, std::function<void()> callback);
-	/**
-	 * @brief 异步加载资产列表
-	 * @param paths 资产路径列表
-	 */
-	void loadList(const std::vector<std::string> &paths);
 	void loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback);
 
 	Asset *get(const std::string &path);

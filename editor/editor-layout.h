@@ -75,6 +75,18 @@ private:
 
 public:
 	EditorLayout();
+	/**
+	 * @brief 加载布局
+	 */
+	void load();
+	void setLoadProgress(float progress);
+	/**
+	 * @brief 启动布局
+	 */
+	void launch();
+
+
+
 	Scene* scene() {
 		return this->_scene;
 	}
