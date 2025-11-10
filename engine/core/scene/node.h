@@ -148,8 +148,6 @@ protected:
 	virtual void _updateWorldTransform();
 	
 public:
-	Node(const std::string name, const std::string uuid);
-
 
 	// 基础属性
 	void setName(const std::string& name);
@@ -293,5 +291,4 @@ public:
 	virtual void render();
 	virtual void clearNodeFrameFlag();
 	virtual void destroy();
-	virtual ~Node();
 };

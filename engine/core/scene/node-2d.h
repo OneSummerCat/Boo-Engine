@@ -2,6 +2,7 @@
 #include "node.h"
 #include "../math/vec2.h"
 #include "../math/size.h"
+#include "../math/mat4.h"
 
 class Node2D : public Node
 {
@@ -53,7 +54,7 @@ public:
 
     void clearNodeFrameFlag() override;
     void destroy() override;
-    ~Node2D() override;
+    ~Node2D();
 
     // void onNodeInputEvent(NodeInput input, std::function<void(NodeInputResult &)> callback, bool isIntercept = false);
     // void offNodeInputEvent(NodeInput input, int inputID);
