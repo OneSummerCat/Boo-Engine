@@ -16,13 +16,13 @@ private:
 
 	int _initDelayScheduleID;
 	
-	
+	void _init();
 	void _initRes();
 	void _initAlpha();
 	void _updateLogoAlpha(float deltaTime);
 public:
     Alpha(const std::string name, const std::string uuid="");
-	void init();
+	
 	void update(float deltaTime) override;
 	void destroy() override;
     ~Alpha();

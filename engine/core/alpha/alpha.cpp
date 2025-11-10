@@ -9,14 +9,15 @@
 
 Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _logoAlphaNum(0.0f)
 {
-    std::cout << "Alpha::Alpha()" << std::endl;
-    this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::init, this, 0.05f);
-    std::cout << "Alpha::Alpha() this->_initDelayScheduleID: " << this->_initDelayScheduleID << std::endl;
+    // std::cout << "Alpha::Alpha()" << std::endl;
+    // // this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::init, this, 0.05f);
+    // std::cout << "Alpha::Alpha() this->_initDelayScheduleID: " << this->_initDelayScheduleID << std::endl;
     this->_alphaDuration = 2.0f;
     this->_logoAlphaNum = 0.0f;
+    this->_init();
 }
 
-void Alpha::init()
+void Alpha::_init()
 {
     std::cout << "Alpha::init()" << std::endl;
     this->_initRes();
@@ -26,8 +27,8 @@ void Alpha::_initRes()
 {
     Game::getInstance()->assetsManager()->load("resources/texture/logo.png");
     Game::getInstance()->assetsManager()->load("resources/texture/ic-default.png");
-    Game::getInstance()->assetsManager()->load("resources/shader/ui/ui.vert");
-    Game::getInstance()->assetsManager()->load("resources/shader/ui/ui.frag");
+    Game::getInstance()->assetsManager()->load("resources/shader/ui/ui.vert.spv");
+    Game::getInstance()->assetsManager()->load("resources/shader/ui/ui.frag.spv");
 }
 
 void Alpha::_initAlpha()

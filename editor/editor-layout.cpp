@@ -17,12 +17,27 @@ EditorLayout::EditorLayout()
 	// 创建
 	this->_scene = new Scene("EDITOR");
 	Node2D* root2D = this->_scene->getRoot2D();
-	// this->_initAlpha();
+	this->_initAlpha();
 
 }
-// void EditorLayout::_initAlpha() {
-	
-// }
+void EditorLayout::_initAlpha() {
+	this->_ndAlpha = new Node2D("Editor-Alpha");
+    this->_scene->getRoot2D()->addChild(this->_ndAlpha);
+    // 添加logo
+    this->_ndLogo = new Node2D("Editor-Alpha-Logo");
+    this->_ndAlpha->addChild(this->_ndLogo);
+    this->_ndLogo->setSize(550 * 0.7, 400 * 0.7);
+    this->_ndLogo->setPosition(0.0f, -100.0f, 0.0f);
+    Component *compLogo = this->_ndLogo->addComponent("UISprite");
+    if (compLogo != nullptr)
+    {
+        this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
+        Asset *tex = Game::getInstance()->assetsManager()->get("resources/texture/logo.png");
+        this->_spriteLogo->setTexture(static_cast<Texture *>(tex));
+        this->_spriteLogo->setMaterial(nullptr);
+        this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 0.0f);
+    }
+}
 
 
 

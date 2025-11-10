@@ -6,6 +6,7 @@
 #include "shader.h"
 #include "assets-manager.h"
 #include "asset-cache.h"
+#include "../utils/time-util.h"
 
 AssetTask::AssetTask(AssetsManager *mgr, AssetCache *cache)
 {
@@ -14,7 +15,6 @@ AssetTask::AssetTask(AssetsManager *mgr, AssetCache *cache)
 }
 Asset *AssetTask::load(const std::string &path)
 {
-	std::cout << "AssetTask:load:" << path << std::endl;
 	this->_path = path;
 	return this->run();
 }
@@ -26,7 +26,6 @@ void AssetTask::load(const std::string path, AssetLoadResult *result)
 Asset *AssetTask::run()
 {
 	std::filesystem::path fullPath = std::filesystem::path(this->_mgr->root()) / this->_path;
-	std::cout << "AssetTask:Path:" << fullPath << std::endl;
 	if (!std::filesystem::exists(fullPath))
 	{
 		std::cerr << "AssetLoad:No such file or directory:" << fullPath << std::endl;
@@ -37,19 +36,28 @@ Asset *AssetTask::run()
 		std::cerr << "AssetLoad:Not a regular file:" << fullPath << std::endl;
 		return nullptr;
 	}
-	std::filesystem::path key = std::filesystem::relative(fullPath, std::filesystem::path(this->_mgr->root()));
-	std::cout << "AssetTask:Key:" << key.generic_string() << std::endl;
+	std::filesystem::path path = std::filesystem::relative(fullPath, std::filesystem::path(this->_mgr->root()));
+	std::string resKey = path.generic_string();
+	
 	std::string extension = std::filesystem::path(fullPath).extension().string();
 	if (extension == ".png" || extension == ".PNG" || extension == ".jpg" || extension == ".JPG")
 	{
-		Texture *texture = new Texture(key.generic_string(), fullPath.generic_string());
-		this->_cache->addAsset(key.generic_string(), texture);
+		// 贴图
+		Texture *texture = new Texture(resKey, fullPath.generic_string());
 		return texture;
 	}
 	else if (extension == ".vert" || extension == ".frag")
 	{
-		Shader *shader = new Shader(key.generic_string(), fullPath.generic_string());
-		this->_cache->addAsset(key.generic_string(), shader);
+		// 着色器
+		Shader *shader = new Shader(resKey, fullPath.generic_string());
+		shader->loadGlsl();
+		return shader;
+	}
+	else if (extension == ".spv")
+	{
+		// SPIR-V
+		Shader *shader = new Shader(resKey, fullPath.generic_string());
+		shader->loadSpv();
 		return shader;
 	}
 	return nullptr;

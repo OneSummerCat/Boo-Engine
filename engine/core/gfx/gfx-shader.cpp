@@ -3,11 +3,6 @@
 #include "gfx-mgr.h"
 #include "gfx-context.h"
 
-/**
- * shader
- * vert, frag, geom的统称
- * 一个shader代表了vert, frag, geom中的其中一个
- */
 GfxShader::GfxShader(GfxContext *context, const std::string &name): _context(context), _name(name)
 {
     // try
@@ -39,9 +34,22 @@ void GfxShader::createShaderModule(const std::vector<uint32_t> &code)
         throw std::runtime_error("Failed to create shader module!");
     }
     std::cout << "Shader module created: " << this->_name << std::endl;
-
-   /* return shaderModule;*/
 }
+
+void GfxShader::createShaderModule(const std::vector<char> &code)
+{
+    VkShaderModuleCreateInfo createInfo{};
+    createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    createInfo.codeSize = code.size();
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
+    if (vkCreateShaderModule(this->_context->getVkDevice(), &createInfo, nullptr, &this->_shaderModule) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create shader module!");
+    }
+    std::cout << "Shader module created: " << this->_name << std::endl;
+}
+
+
 GfxShader::~GfxShader()
 {
     if (this->_shaderModule != VK_NULL_HANDLE)

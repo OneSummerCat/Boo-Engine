@@ -39,8 +39,8 @@ void UIRenderer::setAlpha(float alpha)
 void UIRenderer::setMaterial(Material *mtl)
 {
 	this->_material = mtl;
-	std::string vert = std::filesystem::path("resources/shader/ui/ui.vert").generic_string();
-	std::string frag = std::filesystem::path("resources/shader/ui/ui.frag").generic_string();
+	std::string vert = std::filesystem::path("resources/shader/ui/ui.vert.spv").generic_string();
+	std::string frag = std::filesystem::path("resources/shader/ui/ui.frag.spv").generic_string();
 	std::string pipeline = "Blend:1|DepthTest:0|DepthWrite:0|vert:" + vert + "|frag:" + frag;
 	GfxMgr::getInstance()->createPipeline("ui", pipeline);
 	GfxMgr::getInstance()->setObjectPipeline(this->_uuid, pipeline);
@@ -89,13 +89,13 @@ void UIRenderer::render()
 	}
 	if (this->_color.getA() <= 0)
 	{
-		std::cout << "UIRenderer::render: color alpha is 0" << std::endl;
+		// std::cout << "UIRenderer::render: color alpha is 0" << std::endl;
 		return; // 颜色透明
 	}
 	if (this->_modelMatrix.getM00() <= 0 || this->_modelMatrix.getM11() <= 0)
 	{
 		// 模型矩阵缩放为0
-		std::cout << "UIRenderer::render: modelMatrix scale to 0" << std::endl;
+		// std::cout << "UIRenderer::render: modelMatrix scale to 0" << std::endl;
 		return;
 	}
 	// 提交渲染对象

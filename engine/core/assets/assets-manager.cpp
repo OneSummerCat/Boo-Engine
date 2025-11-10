@@ -74,9 +74,6 @@ Asset *AssetsManager::get(const std::string &path)
 {
 	 return this->_assetLoad->getAsset(path);
 }
-// void AssetsManager::loadAsync(const std::string &path, std::function<void(Asset *)> callback)
-// {
-// }
 
 AssetsManager::~AssetsManager()
 {
