@@ -267,6 +267,3 @@ void Node::destroy()
 	this->destroyAllChildren();
 	delete this;
 }
-Node ::~Node()
-{
-}

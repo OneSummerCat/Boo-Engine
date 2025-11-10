@@ -9,11 +9,16 @@
 
 Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _logoAlphaNum(0.0f)
 {
-    this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::_init, this, 0.05f);
+    std::cout << "Alpha::Alpha()" << std::endl;
+    this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::init, this, 0.05f);
+    std::cout << "Alpha::Alpha() this->_initDelayScheduleID: " << this->_initDelayScheduleID << std::endl;
+    this->_alphaDuration = 2.0f;
+    this->_logoAlphaNum = 0.0f;
 }
 
-void Alpha::_init()
+void Alpha::init()
 {
+    std::cout << "Alpha::init()" << std::endl;
     this->_initRes();
     this->_initAlpha();
 }
@@ -47,21 +52,21 @@ void Alpha::_initAlpha()
 void Alpha::update(float deltaTime)
 {
     // Update logo alpha
-    this->_updateLogoAlpha();
+    this->_updateLogoAlpha(deltaTime);
 }
-void Alpha::_updateLogoAlpha()
+void Alpha::_updateLogoAlpha(float deltaTime)
 {
     if (this->_spriteLogo == nullptr)
     {
         return;
     }
-    if (this->_logoAlphaNum > 1.0)
+    if (this->_logoAlphaNum > this->_alphaDuration)
     {
         return;
     }
-    this->_logoAlphaNum += 0.02;
+    this->_logoAlphaNum += deltaTime;
     // std::cout << "this->_logoAlphaNum: " << this->_logoAlphaNum << std::endl;
-    this->_spriteLogo->setAlpha(this->_logoAlphaNum);
+    this->_spriteLogo->setAlpha(this->_logoAlphaNum / this->_alphaDuration);
 }
 // void Alpha::_loadResources()
 // {

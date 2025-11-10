@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <iostream>
 #include <functional>
 #include <unordered_map>
 
@@ -21,6 +22,16 @@ struct ScheduleInfo
     float interval;
     float time;
     bool isOnce;
+    ScheduleInfo() 
+        : func(), instance(nullptr), interval(0.0f), time(0.0f), isOnce(false) 
+    {}
+    ScheduleInfo(std::function<void()> f, void *i, float in, float t, bool once)
+    {
+        this->func = f;
+        this->instance = i;
+        this->interval = in;
+        this->time = t;
+    }
 };
 
 class Game
@@ -47,6 +58,7 @@ private:
     void _initAlpha();
 
     void _updateSchedules(float dt);
+
 public:
     static Game *getInstance();
     void init();
@@ -72,10 +84,33 @@ public:
     {
         return this->_assetsManager;
     }
+
     template <typename T, typename Func>
-    int schedule(Func func, T *instance, float interval);
+    int schedule(Func func, T *instance, float interval)
+    {
+        int id = this->_scheduleNextID_++;
+        auto callback = [instance, func]()
+        {
+            (instance->*func)();
+        };
+        this->_schedules[id] = ScheduleInfo(callback, instance, interval, 0.0f, false);
+        return id;
+    }
     template <typename T, typename Func>
-    int scheduleOnce(Func func, T *instance, float interval);
+    int scheduleOnce(Func func, T *instance, float interval)
+    {
+        int id = this->_scheduleNextID_++;
+        std::cout << "scheduleOnce: " << id << std::endl;
+        auto callback = [instance, func]()
+        {
+            (instance->*func)();
+        };
+        // this->_schedules[id] = ScheduleInfo(callback, instance, interval, 0.0f, true);
+        ScheduleInfo scheduleInfo(callback, instance, interval, 0.0f, true);
+        this->_schedules[id] = scheduleInfo;
+        std::cout << "scheduleOnce: " << id << " interval2: " << interval << std::endl;
+        return id;
+    }
     void unschedule(int scheduleID);
 
     Scene *openScene(std::string sceneName);

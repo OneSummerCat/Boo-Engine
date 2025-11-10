@@ -66,7 +66,7 @@ void Game::_initAssets()
 void Game::_initAlpha()
 {
 	Alpha *alpha = new Alpha("Editor-Alpha");
-	this->_curScene = dynamic_cast<Scene *>(alpha);
+	this->_curScene = static_cast<Scene *>(alpha);
 }
 
 void Game::setView(int width, int height)
@@ -74,26 +74,11 @@ void Game::setView(int width, int height)
 	this->_view.width = width;
 	this->_view.height = height;
 }
-template <typename T, typename Func>
-int Game::schedule(Func func, T *instance, float interval)
-{
-	int id = this->_scheduleNextID_++;
-	this->_schedules[id] = {func, instance, interval, 0.0f, false};
-	return id;
-}
-template <typename T, typename Func>
-int Game::scheduleOnce(Func func, T *instance, float interval)
-{
-	int id = this->_scheduleNextID_++;
-	this->_schedules[id] = {func, instance, interval, 0.0f, true};
-	return id;
-}
+
 void Game::unschedule(int scheduleID)
 {
 	this->_schedules.erase(scheduleID);
 }
-
-
 
 void Game::update(float dt)
 {
@@ -101,7 +86,6 @@ void Game::update(float dt)
 	{
 		this->_curScene->update(dt);
 	}
-	// Update schedules
 	this->_updateSchedules(dt);
 	if (this->_curScene)
 	{
@@ -118,17 +102,37 @@ void Game::update(float dt)
 }
 void Game::_updateSchedules(float dt)
 {
+	// std::cout << "UPDATE SCHEDULES:"<< this->_schedules.size() << std::endl;
 	for (auto it = this->_schedules.begin(); it != this->_schedules.end();)
 	{
 		ScheduleInfo &info = it->second;
+		if (info.instance == nullptr)
+		{
+			it = this->_schedules.erase(it);
+			continue;
+		}
 		info.time += dt;
 		if (info.time >= info.interval)
 		{
 			info.time = 0.0f;
 			info.func();
-			if (info.isOnce)
+			std::cout << "Schedule " << it->first << " executed." << std::endl;
+			bool isOnce = info.isOnce;
+			int currentId = it->first; // 保存当前ID
+			if (isOnce)
 			{
-				it = this->_schedules.erase(it);
+				it = this->_schedules.find(currentId);
+				if (it != this->_schedules.end())
+				{
+					it = this->_schedules.erase(it);
+				}
+				else
+				{
+					// 如果已经被删除，需要重新获取有效的迭代器
+					it = this->_schedules.begin();
+					if (it == this->_schedules.end())
+						break;
+				}
 			}
 			else
 			{
@@ -141,7 +145,6 @@ void Game::_updateSchedules(float dt)
 		}
 	}
 }
-
 
 Game::~Game()
 {
