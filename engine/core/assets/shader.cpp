@@ -22,7 +22,7 @@ void Shader::_load()
         return;
     }
     // tellg()返回当前定位指针的位置，也代表着输入流的大小。
-    size_t fileSize = static_cast<size_t>(file.tellg());
+    size_t fileSize = dynamic_cast<size_t>(file.tellg());
     // 创建缓冲区并读取文件
     this->_shaderData.resize(fileSize);
     file.seekg(0);

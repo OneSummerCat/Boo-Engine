@@ -63,7 +63,7 @@ void WindowMgr::cursorPosCallback(GLFWwindow* window, double xpos, double ypos)
 	if (userPointer == nullptr) {
 		return;
 	}
-	WindowMgr* manager = static_cast<WindowMgr*>(userPointer);
+	WindowMgr* manager = dynamic_cast<WindowMgr*>(userPointer);
 	if (manager == nullptr) {
 		return;
 	}
@@ -76,7 +76,7 @@ void WindowMgr::mouseButtonCallback(GLFWwindow* window, int button, int action, 
 	if (userPointer == nullptr) {
 		return;
 	}
-	WindowMgr* manager = static_cast<WindowMgr*>(userPointer);
+	WindowMgr* manager = dynamic_cast<WindowMgr*>(userPointer);
 	if (manager == nullptr) 
 	{
 		return;
@@ -89,7 +89,7 @@ void WindowMgr::windowSizeCallback(GLFWwindow* window, int width, int height)
 	if (userPointer == nullptr) {
 		return;
 	}
-	WindowMgr* manager = static_cast<WindowMgr*>(userPointer);
+	WindowMgr* manager = dynamic_cast<WindowMgr*>(userPointer);
 	if (manager == nullptr) // 检查非空
 	{
 		return;

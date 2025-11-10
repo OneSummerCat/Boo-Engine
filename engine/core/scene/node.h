@@ -237,7 +237,7 @@ public:
 			{
 				(instance->*func)();
 			};
-		this->_listeners[NodeEvent::ON_TRANSFORM_CHANGED].emplace_back(callback, static_cast<void*>(instance), id);
+		this->_listeners[NodeEvent::ON_TRANSFORM_CHANGED].emplace_back(callback, dynamic_cast<void*>(instance), id);
 		return id;
 	}
 	void off(uint64_t id)

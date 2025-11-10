@@ -76,9 +76,9 @@ void GfxPipeline::_createPipeline()
 	};
 
 	vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-	vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(vertexInputBindings.size());
+	vertexInputInfo.vertexBindingDescriptionCount = dynamic_cast<uint32_t>(vertexInputBindings.size());
 	vertexInputInfo.pVertexBindingDescriptions = vertexInputBindings.data();
-	vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(vertexInputAttributes.size());
+	vertexInputInfo.vertexAttributeDescriptionCount = dynamic_cast<uint32_t>(vertexInputAttributes.size());
 	vertexInputInfo.pVertexAttributeDescriptions = vertexInputAttributes.data();
 
 	/* // 第二步：顶点数据使用的几何图元 */
@@ -119,7 +119,7 @@ void GfxPipeline::_createPipeline()
 	// };
 	// VkPipelineDynamicStateCreateInfo dynamicState{};
 	// dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-	// dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+	// dynamicState.dynamicStateCount = dynamic_cast<uint32_t>(dynamicStates.size());
 	// dynamicState.pDynamicStates = dynamicStates.data();
 
 	// // 视口和裁剪状态（现在只设置数量，具体值将在命令缓冲区中动态设置）
@@ -344,7 +344,7 @@ void GfxPipeline::_createDescriptorSetLayout()
 
 	VkDescriptorSetLayoutCreateInfo layoutInfo{};
 	layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+	layoutInfo.bindingCount = dynamic_cast<uint32_t>(bindings.size());
 	layoutInfo.pBindings = bindings.data();
 
 	if (vkCreateDescriptorSetLayout(this->_context->getVkDevice(),

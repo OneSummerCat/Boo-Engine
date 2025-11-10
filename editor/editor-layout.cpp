@@ -59,9 +59,9 @@ void EditorLayout::_initMainUI()
 	this->_scene->getRoot2D()->addChild(this->_ndMain);
 	Component* comp = this->_ndMain->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteMain = static_cast<UISprite*>(comp);
+		this->_spriteMain = dynamic_cast<UISprite*>(comp);
 		Asset* tex = Game::getInstance()->assetsManager()->get("F:/worksapces/Boo-Engine/x64/Debug/res/ic-default.png");
-		this->_spriteMain->setTexture(static_cast<Texture*>(tex));
+		this->_spriteMain->setTexture(dynamic_cast<Texture*>(tex));
 		this->_spriteMain->setMaterial(nullptr);
 		this->_spriteMain->setColor(1.1f, 0.1f, 0.1f, 1.0f);
 	}
@@ -72,7 +72,7 @@ void EditorLayout::_initMenuUI()
 	this->_scene->getRoot2D()->addChild(this->_ndMenu);
 	Component* comp = this->_ndMenu->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteMenu = static_cast<UISprite*>(comp);
+		this->_spriteMenu = dynamic_cast<UISprite*>(comp);
 		this->_spriteMenu->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }
@@ -82,7 +82,7 @@ void EditorLayout::_initHierarchyUI()
 	this->_scene->getRoot2D()->addChild(this->_ndHierarchy);
 	Component* comp = this->_ndHierarchy->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteHierarchy = static_cast<UISprite*>(comp);
+		this->_spriteHierarchy = dynamic_cast<UISprite*>(comp);
 		this->_spriteHierarchy->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }
@@ -92,7 +92,7 @@ void EditorLayout::_initAssetsUI()
 	this->_scene->getRoot2D()->addChild(this->_ndAsset);
 	Component* comp = this->_ndAsset->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteAsset = static_cast<UISprite*>(comp);
+		this->_spriteAsset = dynamic_cast<UISprite*>(comp);
 		this->_spriteAsset->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }
@@ -102,7 +102,7 @@ void EditorLayout::_initSceneUI()
 	this->_scene->getRoot2D()->addChild(this->_ndScene);
 	Component* comp = this->_ndScene->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteScene = static_cast<UISprite*>(comp);
+		this->_spriteScene = dynamic_cast<UISprite*>(comp);
 		this->_spriteScene->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }
@@ -112,7 +112,7 @@ void EditorLayout::_initToolUI()
 	this->_scene->getRoot2D()->addChild(this->_ndTool);
 	Component* comp = this->_ndTool->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteTool = static_cast<UISprite*>(comp);
+		this->_spriteTool = dynamic_cast<UISprite*>(comp);
 		this->_spriteTool->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }
@@ -122,7 +122,7 @@ void EditorLayout::_initPropertyUI()
 	this->_scene->getRoot2D()->addChild(this->_ndProperty);
 	Component* comp = this->_ndProperty->addComponent("UISprite");
 	if (comp != nullptr) {
-		this->_spriteProperty = static_cast<UISprite*>(comp);
+		this->_spriteProperty = dynamic_cast<UISprite*>(comp);
 		this->_spriteProperty->setColor(0.0, 0.0, 0.0, 1.0f);
 	}
 }

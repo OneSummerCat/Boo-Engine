@@ -66,7 +66,7 @@ void Game::_initAssets()
 void Game::_initAlpha()
 {
 	Alpha *alpha = new Alpha("Editor-Alpha");
-	this->_curScene = static_cast<Scene *>(alpha);
+	this->_curScene = dynamic_cast<Scene *>(alpha);
 }
 
 void Game::setView(int width, int height)

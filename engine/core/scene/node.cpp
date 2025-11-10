@@ -153,8 +153,8 @@ void Node::removeChild(Node *node)
 
 void Node::_updateWorldTransformFlag(NodeTransformFlag flag)
 {
-	this->_worldTransformFlag |= static_cast<uint32_t>(flag);
-	this->_frameTransformFlag |= static_cast<uint32_t>(flag);
+	this->_worldTransformFlag |= dynamic_cast<uint32_t>(flag);
+	this->_frameTransformFlag |= dynamic_cast<uint32_t>(flag);
 	for (auto &child : this->_children)
 	{
 		child->_updateWorldTransformFlag(flag);

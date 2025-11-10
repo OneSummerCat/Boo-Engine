@@ -9,7 +9,7 @@
 
 UIRenderer::UIRenderer(Node *node, std::string uuid) : Component(node, uuid)
 {
-	this->_flag = static_cast<uint32_t>(UIFlag::UI_ALL);
+	this->_flag = dynamic_cast<uint32_t>(UIFlag::UI_ALL);
 	this->_layer = NodeLayer::Node2D;
 
 	// 创建渲染物体
@@ -19,13 +19,13 @@ UIRenderer::UIRenderer(Node *node, std::string uuid) : Component(node, uuid)
 void UIRenderer::setColor(float r, float g, float b, float a)
 {
 	this->_color.set(r, g, b, a);
-	this->_flag |= static_cast<uint32_t>(UIFlag::UI_COLOR);
+	this->_flag |= dynamic_cast<uint32_t>(UIFlag::UI_COLOR);
 	GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getR(), this->_color.getG(), this->_color.getB(), this->_color.getA());
 }
 void UIRenderer::setColor(std::string color)
 {
 	this->_color.set(color);
-	this->_flag |= static_cast<uint32_t>(UIFlag::UI_COLOR);
+	this->_flag |= dynamic_cast<uint32_t>(UIFlag::UI_COLOR);
 	GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getR(), this->_color.getG(), this->_color.getB(), this->_color.getA());
 }
 void UIRenderer::setAlpha(float alpha)
@@ -33,7 +33,7 @@ void UIRenderer::setAlpha(float alpha)
 	if (alpha == this->_color.getA())
 		return;
 	this->_color.setA(alpha);
-	this->_flag |= static_cast<uint32_t>(UIFlag::UI_COLOR);
+	this->_flag |= dynamic_cast<uint32_t>(UIFlag::UI_COLOR);
 	GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getR(), this->_color.getG(), this->_color.getB(), this->_color.getA());
 }
 void UIRenderer::setMaterial(Material *mtl)

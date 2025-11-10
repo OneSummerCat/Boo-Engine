@@ -54,7 +54,7 @@ void GfxContext::_createInstance()
     /*  GfxMgr::Log("VkInstanceCreateInfo..."); */
 
     auto extensions = this->_getRequiredExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.enabledExtensionCount = dynamic_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
     createInfo.enabledLayerCount = 0;
     createInfo.pNext = nullptr;
@@ -62,7 +62,7 @@ void GfxContext::_createInstance()
     if (enableValidationLayers)
     {
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+        createInfo.enabledLayerCount = dynamic_cast<uint32_t>(ValidationLayers.size());
         createInfo.ppEnabledLayerNames = ValidationLayers.data();
 
         this->_populateDebugMessengerCreateInfo(debugCreateInfo);
@@ -277,7 +277,7 @@ void GfxContext::_createLogicalDevice()
   /*   // 创建逻辑设备 */
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = dynamic_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
     createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -295,12 +295,12 @@ void GfxContext::_createLogicalDevice()
             break;
         }
     }
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(localDeviceExtensions.size());
+    createInfo.enabledExtensionCount = dynamic_cast<uint32_t>(localDeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = localDeviceExtensions.data();
 
     if (enableValidationLayers)
     {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+        createInfo.enabledLayerCount = dynamic_cast<uint32_t>(ValidationLayers.size());
         createInfo.ppEnabledLayerNames = ValidationLayers.data();
     }
     else
@@ -352,7 +352,7 @@ void GfxContext::_createDescriptorPool()
 
     VkDescriptorPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+    poolInfo.poolSizeCount = dynamic_cast<uint32_t>(poolSizes.size());
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * TOTAL_OBJECTS; // 支持更多描述符集
     if (vkCreateDescriptorPool(this->_vkdevice, &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS)
@@ -503,8 +503,8 @@ VkExtent2D GfxContext::_chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabil
         glfwGetFramebufferSize(WindowMgr::getInstance()->getWindow(), &width, &height);
 
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)};
+            dynamic_cast<uint32_t>(width),
+            dynamic_cast<uint32_t>(height)};
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
         actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
@@ -716,7 +716,7 @@ void GfxContext::frameSubmitCommands(uint32_t imageIndex, const std::vector<VkCo
     submitInfo.waitSemaphoreCount = 1;
     submitInfo.pWaitSemaphores = waitSemaphores;
     submitInfo.pWaitDstStageMask = waitStages;
-    submitInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+    submitInfo.commandBufferCount = dynamic_cast<uint32_t>(commandBuffers.size());
     submitInfo.pCommandBuffers = commandBuffers.data();
     submitInfo.signalSemaphoreCount = 1;
 

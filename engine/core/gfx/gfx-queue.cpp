@@ -34,7 +34,7 @@ void GfxQueue::_createFramebuffers()
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = this->_pass->getVkRenderPass();
 
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.attachmentCount = dynamic_cast<uint32_t>(attachments.size());
         ;                                                                     /* // 指定附着的个数 */
         framebufferInfo.pAttachments = attachments.data();                   /*  // 渲染流程对象用于描述附着信息的pAttachment数组 */
         framebufferInfo.width = this->_context->getSwapChainExtent().width;  /*  // width和height用于指定帧缓冲的大小 */
@@ -144,7 +144,7 @@ void GfxQueue::_beginBindRenderPass(uint32_t imageIndex)
     clearValues[1].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
     /* // 设置深度模板附件的清除值（索引3） */
     clearValues[2].depthStencil = {1.0f, 0}; /* // 深度=1.0f，模板=0 */
-    renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassInfo.clearValueCount = dynamic_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
 
     /* // renderPassInfo.clearValueCount = 1;
@@ -175,7 +175,7 @@ void GfxQueue::_cleanCommandBuffers()
     if (!this->_commandBuffers.empty())
 
     {
-        vkFreeCommandBuffers(this->_context->getVkDevice(), this->_context->getCommandPool(), static_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
+        vkFreeCommandBuffers(this->_context->getVkDevice(), this->_context->getCommandPool(), dynamic_cast<uint32_t>(_commandBuffers.size()), _commandBuffers.data());
         this->_commandBuffers.clear();
     }
 }
