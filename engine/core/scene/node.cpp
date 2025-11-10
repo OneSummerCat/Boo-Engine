@@ -2,18 +2,6 @@
 #include "../utils/uuid-util.h"
 #include "../component/component.h"
 
-// Node::Node(const std::string name, const std::string uuid)
-// 	: _name(name), _active(true), _layer(NodeLayer::Node), _isActiveInHierarchy(true),
-// 	  _position(0.0f, 0.0f, 0.0f), _scale(1.0f, 1.0f, 1.0f),
-// 	  _eulerAngles(0.0f, 0.0f, 0.0f), _rotation(0.0f, 0.0f, 0.0f, 1.0f),
-// 	  _worldPosition(0.0f, 0.0f, 0.0f), _worldScale(1.0f, 1.0f, 1.0f),
-// 	  _worldRotation(0.0f, 0.0f, 0.0f, 1.0f),
-// 	  _localMatrix(Mat4::identity()), _worldMatrix(Mat4::identity()),
-// 	  _worldTransformFlag(NodeTransformFlag::ALL_FLAG)
-// {
-// 	_uuid = uuid.empty() ? UuidUtil::generateUUID() : uuid;
-// }
-
 void Node::setName(const std::string &name)
 {
 	this->_name = name;
@@ -153,8 +141,8 @@ void Node::removeChild(Node *node)
 
 void Node::_updateWorldTransformFlag(NodeTransformFlag flag)
 {
-	this->_worldTransformFlag |= dynamic_cast<uint32_t>(flag);
-	this->_frameTransformFlag |= dynamic_cast<uint32_t>(flag);
+	this->_worldTransformFlag |= static_cast<uint32_t>(flag);
+	this->_frameTransformFlag |= static_cast<uint32_t>(flag);
 	for (auto &child : this->_children)
 	{
 		child->_updateWorldTransformFlag(flag);

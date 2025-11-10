@@ -5,7 +5,7 @@
 #include "../renderer/ui/ui-sprite.h"
 #include "../assets/assets-manager.h"
 #include "../assets/asset.h"
-#include "../assets/Texture.h"
+#include "../assets/texture.h"
 
 Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _frame(0), _logoAlphaNum(0.0f)
 {
@@ -58,7 +58,7 @@ void Alpha::_initAlpha()
     {
         this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
         Asset *tex = Game::getInstance()->assetsManager()->get("resources/texture/logo.png");
-        this->_spriteLogo->setTexture(dynamic_cast<Texture *>(tex));
+        this->_spriteLogo->setTexture(static_cast<Texture *>(tex));
         this->_spriteLogo->setMaterial(nullptr);
         this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 0.0f);
     }

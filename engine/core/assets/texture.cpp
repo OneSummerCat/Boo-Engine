@@ -17,8 +17,8 @@ void Texture::_load()
         return;
     }
     this->_channels = 4;
-    this->_pixelsVector = std::vector<uint8_t>(dynamic_cast<const uint8_t *>(_pixels),
-                                               dynamic_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
+    this->_pixelsVector = std::vector<uint8_t>(static_cast<const uint8_t *>(_pixels),
+                                               static_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
     stbi_image_free((void *)_pixels);
     this->createGfxTexture();
 }

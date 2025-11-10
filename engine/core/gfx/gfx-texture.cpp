@@ -37,7 +37,7 @@ void GfxTexture::_createTextureImage()
     /* // 复制数据到暂存缓冲区 */
     void *data;
     vkMapMemory(this->_context->getVkDevice(), stagingBufferMemory, 0, this->_imageSize, 0, &data);
-    memcpy(data, this->_pixels->data(), dynamic_cast<size_t>(this->_imageSize));
+    memcpy(data, this->_pixels->data(), static_cast<size_t>(this->_imageSize));
     vkUnmapMemory(this->_context->getVkDevice(), stagingBufferMemory);
     /* // 计算格式 */
     VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -53,7 +53,7 @@ void GfxTexture::_createTextureImage()
     /* // 转换布局并复制数据
     // VK_IMAGE_LAYOUT_UNDEFINED 待确定 */
     this->_transitionImageLayout(this->_textureImage, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    this->_copyBufferToImage(stagingBuffer, this->_textureImage, dynamic_cast<uint32_t>(this->_width), dynamic_cast<uint32_t>(this->_height));
+    this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
     this->_transitionImageLayout(this->_textureImage, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
    /*  // 清理暂存资源 */

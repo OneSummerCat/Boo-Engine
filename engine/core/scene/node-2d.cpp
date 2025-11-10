@@ -20,10 +20,10 @@ Node2D::Node2D(const std::string name, const std::string uuid)
 	this->_worldPosition.set(0.0f, 0.0f, 0.0f);
 	this->_worldScale.set(1.0f, 1.0f, 1.0f);
 	this->_worldRotation.set(0.0f, 0.0f, 0.0f, 1.0f);
-	this->_localMatrix = {};
-	this->_worldMatrix = {};
-	this->_worldTransformFlag = NodeTransformFlag::ALL_FLAG;
-	this->_frameTransformFlag = NodeTransformFlag::ALL_FLAG;
+	this->_localMatrix = Mat4::identity();
+	this->_worldMatrix = Mat4::identity();
+	this->_worldTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
+	this->_frameTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
 }
 
 /**

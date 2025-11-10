@@ -9,7 +9,7 @@
 #include "../engine/core/renderer/ui/ui-sprite.h"
 #include "../engine/core/assets/assets-manager.h"
 #include "../engine/core/assets/asset.h"
-#include "../engine/core/assets/Texture.h"
+#include "../engine/core/assets/texture.h"
 //#include "../engine/core/input/input-mgr.h"
 
 EditorLayout::EditorLayout()

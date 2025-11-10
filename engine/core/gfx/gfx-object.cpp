@@ -203,7 +203,7 @@ void GfxObject::_updateDescriptorSet()
     VkDescriptorSetAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
     allocInfo.descriptorPool = this->_context->getDescriptorPool();
-    allocInfo.descriptorSetCount = dynamic_cast<uint32_t>(swapChainImageViews.size());
+    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImageViews.size());
     allocInfo.pSetLayouts = layouts.data();
     this->_descriptorSets.resize(swapChainImageViews.size());
     VkResult result = vkAllocateDescriptorSets(this->_context->getVkDevice(), &allocInfo, this->_descriptorSets.data());
@@ -243,7 +243,7 @@ void GfxObject::_updateDescriptorSet()
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pImageInfo = &imageInfo;
 
-        vkUpdateDescriptorSets(this->_context->getVkDevice(), dynamic_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+        vkUpdateDescriptorSets(this->_context->getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
     }
     /*  // this->_Log("update descriptor set success..."); */
 }
@@ -388,7 +388,7 @@ void GfxObject::clear()
     /* // 销毁描述符集（Descriptor Sets） */
     for (auto descriptorSet : this->_descriptorSets)
     {
-        vkFreeDescriptorSets(this->_context->getVkDevice(), this->_context->getDescriptorPool(), dynamic_cast<uint32_t>(this->_descriptorSets.size()), &descriptorSet);
+        vkFreeDescriptorSets(this->_context->getVkDevice(), this->_context->getDescriptorPool(), static_cast<uint32_t>(this->_descriptorSets.size()), &descriptorSet);
     }
     this->_descriptorSets.clear();
     /*  // 销毁缓冲区 */
