@@ -1,1 +1,4 @@
-build/
+/Boo-Engine
+/x64
+/.vs
+/build
