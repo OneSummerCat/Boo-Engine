@@ -11,8 +11,9 @@ private:
     Node2D* _ndAlpha;
 	Node2D* _ndLogo;
 	UISprite* _spriteLogo;
-	int _frame;
 	float _logoAlphaNum;
+	int _initDelayScheduleID;
+
 	void _init();
 	void _initRes();
 	void _initAlpha();

@@ -3,8 +3,6 @@
 #include <functional>
 #include <unordered_map>
 
-
-
 class Component;
 class Scene;
 class ComponentFactory;
@@ -15,6 +13,14 @@ struct View
 {
     int width = 1280;
     int height = 720;
+};
+struct ScheduleInfo
+{
+    std::function<void()> func;
+    void *instance;
+    float interval;
+    float time;
+    bool isOnce;
 };
 
 class Game
@@ -30,6 +36,9 @@ private:
     Scene *_curScene;
     AssetsManager *_assetsManager;
 
+    uint64_t _scheduleNextID_ = 0;
+    std::unordered_map<int, ScheduleInfo> _schedules;
+
     void _initEvent();
     void _initInput();
     void _initFont();
@@ -37,10 +46,11 @@ private:
     void _initAssets();
     void _initAlpha();
 
+    void _updateSchedules(float dt);
 public:
     static Game *getInstance();
     void init();
-    
+
     void setView(int width, int height);
     View &view()
     {
@@ -62,6 +72,11 @@ public:
     {
         return this->_assetsManager;
     }
+    template <typename T, typename Func>
+    int schedule(Func func, T *instance, float interval);
+    template <typename T, typename Func>
+    int scheduleOnce(Func func, T *instance, float interval);
+    void unschedule(int scheduleID);
 
     Scene *openScene(std::string sceneName);
     void update(float dt);

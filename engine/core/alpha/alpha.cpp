@@ -7,28 +7,9 @@
 #include "../assets/asset.h"
 #include "../assets/texture.h"
 
-Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _frame(0), _logoAlphaNum(0.0f)
+Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _logoAlphaNum(0.0f)
 {
-}
-void Alpha::update(float deltaTime)
-{
-    if (this->_frame == 0)
-    {
-        this->_frame++;
-    }
-    else if (this->_frame == 1)
-    {
-        this->_frame++;
-        this->_init();
-    }
-    else if (this->_frame == 2)
-    {
-        this->_frame++;
-    }
-    else
-    {
-        this->_updateLogoAlpha();
-    }
+    this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::_init, this, 0.05f);
 }
 
 void Alpha::_init()
@@ -63,7 +44,11 @@ void Alpha::_initAlpha()
         this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 0.0f);
     }
 }
-
+void Alpha::update(float deltaTime)
+{
+    // Update logo alpha
+    this->_updateLogoAlpha();
+}
 void Alpha::_updateLogoAlpha()
 {
     if (this->_spriteLogo == nullptr)
@@ -75,7 +60,7 @@ void Alpha::_updateLogoAlpha()
         return;
     }
     this->_logoAlphaNum += 0.02;
-    std::cout << "this->_logoAlphaNum: " << this->_logoAlphaNum << std::endl;
+    // std::cout << "this->_logoAlphaNum: " << this->_logoAlphaNum << std::endl;
     this->_spriteLogo->setAlpha(this->_logoAlphaNum);
 }
 // void Alpha::_loadResources()
