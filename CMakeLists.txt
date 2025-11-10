@@ -16,9 +16,13 @@ set(ENGINE_SOURCES
     editor/editor-layout.cpp
     editor/editor.cpp
     editor/ipc/editor-ipc.cpp
+    engine/core/alpha/alpha.cpp
+    engine/core/assets/asset-cache.cpp
     engine/core/assets/asset-load.cpp
+    engine/core/assets/asset-task.cpp
     engine/core/assets/asset.cpp
     engine/core/assets/assets-manager.cpp
+    engine/core/assets/material.cpp
     engine/core/assets/shader.cpp
     engine/core/assets/texture.cpp
     engine/core/component/component-factory.cpp
@@ -32,6 +36,7 @@ set(ENGINE_SOURCES
     engine/core/gfx/gfx-pipeline.cpp
     engine/core/gfx/gfx-queue.cpp
     engine/core/gfx/gfx-renderer.cpp
+    engine/core/gfx/gfx-shader-compile.cpp
     engine/core/gfx/gfx-shader.cpp
     engine/core/gfx/gfx-texture.cpp
     engine/core/global/event.cpp
@@ -76,6 +81,7 @@ if(APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE
         glfw
         Vulkan::Vulkan
+        shaderc_shared
         Freetype::Freetype
     )
 else()
