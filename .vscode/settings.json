@@ -89,6 +89,7 @@
         "unordered_set": "cpp",
         "*.inc": "cpp",
         "*.hpp11": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "version": "cpp"
     }
 }

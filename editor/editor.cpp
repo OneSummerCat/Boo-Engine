@@ -5,7 +5,6 @@
 #include "editor-layout.h"
 #include "../engine/core/utils/time-util.h"
 
-
 // #include "../engine/core/renderer/scene.h"
 // #include "../engine/core/renderer/ui/sprite.h"
 // #include "../engine/core/global/event.h"
@@ -20,7 +19,7 @@ Editor::Editor()
 Editor::~Editor()
 {
 }
-Editor* Editor::getInstance()
+Editor *Editor::getInstance()
 {
 	static Editor instance;
 	return &instance;
@@ -28,12 +27,8 @@ Editor* Editor::getInstance()
 
 void Editor::init()
 {
-	this->_initEditorRes();
 	this->_initEditorLayout();
-}
-void Editor::_initEditorRes()
-{
-	
+	this->_initEditorRes();
 }
 void Editor::_initEditorLayout()
 {
@@ -44,6 +39,21 @@ void Editor::_initEditorLayout()
 
 	/*  EditorIpc::getInstance()->on(IpcEvent::UPDATE_HIERARCHY_ROOT, &Editor::_onHierarchyRootUpdate, this);
 	  EditorIpc::getInstance()->send(IpcEvent::UPDATE_HIERARCHY_ROOT,0);*/
+}
+void Editor::_initEditorRes()
+{
+	// 先加载公用resources文件,
+	const std::string &root = Game::getInstance()->assetsManager()->root();
+	std::filesystem::path fullPath = std::filesystem::path(root) / "resources";
+	std::vector<std::string> paths;
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(fullPath))
+	{
+		std::filesystem::path path = std::filesystem::relative(entry.path(), std::filesystem::path(root));
+		paths.push_back(path.generic_string());
+		std::cout << "add resource " << path.generic_string() << std::endl;
+	}
+	Game::getInstance()->assetsManager()->loadListAsync(paths, [](const int complete, const int all, const float progress)
+														{ std::cout << "load resources " << complete << " / " << all << " progress " << progress << std::endl; });
 }
 
 // void Editor::_initHierarchy()

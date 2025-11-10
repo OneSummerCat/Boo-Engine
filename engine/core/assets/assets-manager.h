@@ -7,6 +7,7 @@ enum class AssetType;
 class Asset;
 class AssetCache;
 class AssetLoad;
+struct AssetLoadResult;
 
 // 基础图片资源
 class AssetsManager
@@ -16,7 +17,7 @@ private:
 	 * @brief 资产根目录
 	 */
 	std::string _root;
-	
+
 	/**
 	 * @brief 资产加载器
 	 */
@@ -31,10 +32,12 @@ public:
 	 */
 	void init();
 
-	const  std::string& root() {
+	const std::string &root()
+	{
 		return this->_root;
 	}
-	AssetLoad *assetLoad() {
+	AssetLoad *assetLoad()
+	{
 		return this->_assetLoad;
 	}
 	/**
@@ -42,22 +45,23 @@ public:
 	 * @param path 资产路径
 	 * @return Asset 资产对象
 	 */
-	Asset* load(const std::string &path);
-	template <typename T, typename Func>
-	void loadAsync(const std::string &path, Func func, T *instance);
+	Asset *load(const std::string &path);
+	void loadAsync(const std::string &path, std::function<void()> callback);
 	/**
 	 * @brief 异步加载资产列表
 	 * @param paths 资产路径列表
 	 */
 	void loadList(const std::vector<std::string> &paths);
-	template <typename T, typename Func>
-	void loadListAsync(const std::vector<std::string> &paths,Func func, T *instance);
+	void loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback);
 
 	Asset *get(const std::string &path);
+
+
+	void update(float deltaTime);
 	// /**
 	//  * @brief 异步加载资产
 	//  * @param path 资产路径
 	//  */
-	// 
+	//
 	~AssetsManager();
 };

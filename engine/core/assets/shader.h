@@ -35,11 +35,11 @@ public:
 	 * @brief 创建图形资源
 	 * 参数 宏定义
 	 */
-	void createGfxGlslShader(const std::map<std::string, std::string> &macros);
-	/**
-	 * @brief 创建SPIR-V图形资源
-	 */
-	void createGfxSpirvShader();
+	void createGfxShader(const std::map<std::string, std::string> &macros);
+	// /**
+	//  * @brief 创建SPIR-V图形资源
+	//  */
+	// void createGfxSpirvShader();
 	virtual void destroy() override;
 	~Shader() {}
 };

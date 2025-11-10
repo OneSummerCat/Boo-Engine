@@ -37,6 +37,7 @@ void Shader::loadGlsl()
     file.seekg(0);
     file.read(this->_glslData.data(), fileSize);
     file.close();
+    this->createGfxShader({});
 }
 /**
  * @brief 加载SPIR-V文件
@@ -62,16 +63,33 @@ void Shader::loadSpv()
     /* // 读入到Buffer当中 */
     file.read(this->_spirvData.data(), fileSize);
     file.close();
-    this->createGfxSpirvShader();
+    // this->createGfxSpirvShader();
+    this->createGfxShader({});
 }
-void Shader::createGfxGlslShader(const std::map<std::string, std::string> &macros)
+/**
+ * @brief 创建图形资源
+ * 参数 宏定义
+ */
+void Shader::createGfxShader(const std::map<std::string, std::string> &macros)
 {
-    GfxMgr::getInstance()->createGlslShader(this->_uuid, this->_glslType, this->_glslData, macros);
+    if (this->_shaderFormat == ShaderFormat::GLSL)
+    {
+        GfxMgr::getInstance()->createGlslShader(this->_uuid, this->_glslType, this->_glslData, macros);
+    }
+    else if (this->_shaderFormat == ShaderFormat::SPIRV)
+    {
+        GfxMgr::getInstance()->createSpirvShader(this->_uuid, this->_spirvData);
+    }
 }
-void Shader::createGfxSpirvShader()
-{
-    GfxMgr::getInstance()->createSpirvShader(this->_uuid, this->_spirvData);
-}
+
+// void Shader::createGfxGlslShader(const std::map<std::string, std::string> &macros)
+// {
+//     GfxMgr::getInstance()->createGlslShader(this->_uuid, this->_glslType, this->_glslData, macros);
+// }
+// void Shader::createGfxSpirvShader()
+// {
+//     GfxMgr::getInstance()->createSpirvShader(this->_uuid, this->_spirvData);
+// }
 
 void Shader::destroy()
 {

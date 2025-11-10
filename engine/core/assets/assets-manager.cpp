@@ -63,17 +63,29 @@ void AssetsManager::_initRoot()
 	std::cout << "Assets root:" << this->_root << std::endl;
 }
 Asset *AssetsManager::load(const std::string &path)
-{	
+{
 	return this->_assetLoad->load(path);
 }
-template <typename T, typename Func>
-void AssetsManager::loadAsync(const std::string &path, Func func, T *instance){
-	
+void AssetsManager::loadAsync(const std::string &path, std::function<void()> callback)
+{
+	this->_assetLoad->loadAsync(path, callback);
+}
+
+void AssetsManager::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
+{
+	this->_assetLoad->loadListAsync(paths, callback);
 }
 Asset *AssetsManager::get(const std::string &path)
 {
-	 return this->_assetLoad->getAsset(path);
+	return this->_assetLoad->getAsset(path);
 }
+
+void AssetsManager::update(float deltaTime)
+{
+	this->_assetLoad->update(deltaTime);
+}
+
+
 
 AssetsManager::~AssetsManager()
 {

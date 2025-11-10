@@ -10,12 +10,6 @@ class EditorLayout
 private:
 	Scene* _scene;
 
-	Node2D* _ndAlpha;
-	UISprite* _spriteAlpha;
-	Node2D* _ndLogo;
-	UISprite* _spriteLogo;
-	void _initAlpha();
-
 
 	Node2D* _ndMain;
 	UISprite* _spriteMain;

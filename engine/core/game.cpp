@@ -87,6 +87,10 @@ void Game::update(float dt)
 		this->_curScene->update(dt);
 	}
 	this->_updateSchedules(dt);
+	if (this->_assetsManager)
+	{
+		this->_assetsManager->update(dt);
+	}
 	if (this->_curScene)
 	{
 		this->_curScene->lateUpdate(dt);
