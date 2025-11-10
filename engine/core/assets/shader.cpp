@@ -1,8 +1,16 @@
 #include "shader.h"
+#include <filesystem>
 #include "../gfx/gfx-mgr.h"
-Shader::Shader(const std::string key, const std::string type,const std::string path) : Asset(key, path)
+Shader::Shader(const std::string uuid, const std::string path) : Asset(uuid, path)
 {
-    this->_shaderType = type;
+    std::string extension = std::filesystem::path(path).extension().string();
+    if (extension == ".vert" )
+    {
+        this->_shaderType = "Vert";
+    }
+    else if (extension == ".frag") {
+        this->_shaderType = "Frag";
+    }
     this->_load();
 }
 void Shader::_load()
@@ -20,9 +28,13 @@ void Shader::_load()
     file.seekg(0);
     file.read(this->_shaderData.data(), fileSize);
     file.close();
-    // GfxMgr::getInstance()->createShader(this->_key, this->_data);
-    // // std::cout << "Loaded shader: " << this->_key << " from path: " << this->_data << std::endl;
-    // // GfxMgr::getInstance()->createTexture(this->_key, this->_width, this->_height, this->_channels, &this->_pixelsVector);
+    //std::cout << "Loaded shader: " << this->_key << " from path: " << this->_shaderData << std::endl;
+    std::map<std::string, std::string> no;
+    this->createGfxShader(no);
+}
+void Shader::createGfxShader(const std::map<std::string, std::string> &macros)
+{
+    GfxMgr::getInstance()->createShader(this->_uuid, this->_shaderType, this->_shaderData, macros);
 }
 void Shader::destroy()
 {

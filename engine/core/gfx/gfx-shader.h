@@ -11,13 +11,11 @@ private:
     std::string _name;
     VkShaderModule _shaderModule;
 
-    VkShaderModule _createShaderModule(const std::vector<char> &code);
 public:
     GfxShader(GfxContext *context, const std::string &name);
-
-
-
-    VkShaderModule getShaderModule(){
+    void createShaderModule(const std::vector<uint32_t> &code);
+    VkShaderModule getShaderModule()
+    {
         return this->_shaderModule;
     }
     ~GfxShader();

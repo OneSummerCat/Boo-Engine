@@ -27,22 +27,20 @@ GfxShader::GfxShader(GfxContext *context, const std::string &name): _context(con
 }
 
 // 要将着色器字节码在管线上使用，还需要使用VkShaderModule转换
-VkShaderModule GfxShader::_createShaderModule(const std::vector<char> &code)
+void GfxShader::createShaderModule(const std::vector<uint32_t> &code)
 {
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    createInfo.codeSize = code.size();
-    createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
-
-    // std::cout << "shader code size: " << code.size() << "\n";
-
-    VkShaderModule shaderModule;
-    if (vkCreateShaderModule(this->_context->getVkDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+    createInfo.codeSize = code.size() * sizeof(uint32_t);
+    createInfo.pCode = code.data();
+    /*VkShaderModule shaderModule;*/
+    if (vkCreateShaderModule(this->_context->getVkDevice(), &createInfo, nullptr, &this->_shaderModule) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
+    std::cout << "Shader module created: " << this->_name << std::endl;
 
-    return shaderModule;
+   /* return shaderModule;*/
 }
 GfxShader::~GfxShader()
 {
@@ -52,3 +50,12 @@ GfxShader::~GfxShader()
         this->_shaderModule = VK_NULL_HANDLE;
     }
 }
+// VkShaderModuleCreateInfo createInfo{};
+//     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+//     createInfo.codeSize = spirvCode.size() * sizeof(uint32_t);
+//     createInfo.pCode = spirvCode.data();
+//     VkShaderModule shaderModule;
+//     if (vkCreateShaderModule(this->_context->getVkDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+//     {
+//         throw std::runtime_error("Failed to create shader module!");
+//     }
