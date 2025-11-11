@@ -50,6 +50,7 @@ void Engine::_initEditor()
 {
 	std::cout << "INIT EDITOR" << std::endl;
 	Editor::getInstance()->init();
+	Editor::getInstance()->destroy();
 }
 void Engine::launchEditor()
 {

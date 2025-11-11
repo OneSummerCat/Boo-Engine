@@ -28,34 +28,39 @@ Editor *Editor::getInstance()
 void Editor::init()
 {
 	this->_initEditorLayout();
-	this->_initEditorRes();
-	// Editor:: : 表示 Editor 类的作用域
-	// _onAlphaAnimOK : 成员函数名
-	// & : 取地址运算符，获取成员函数的地址
-	// 成员函数指针的正确格式是 &ClassName::MemberFunction
-	// &this->member 语法用于获取成员变量的地址，不适用于成员函数
-	Game::getInstance()->scheduleOnce(&Editor::_onAlphaAnimOK, this, 2.0f);
+	// this->_initEditorRes();
+	// // Editor:: : 表示 Editor 类的作用域
+	// // _onAlphaAnimOK : 成员函数名
+	// // & : 取地址运算符，获取成员函数的地址
+	// // 成员函数指针的正确格式是 &ClassName::MemberFunction
+	// // &this->member 语法用于获取成员变量的地址，不适用于成员函数
+	// Game::getInstance()->scheduleOnce(&Editor::_onAlphaAnimOK, this, 2.0f);
 }
 void Editor::_initEditorLayout()
 {
-	this->_editorLayout = new EditorLayout();
-	this->_editorLayout->load();
+	// this->_editorLayout = new EditorLayout();
+	// this->_editorLayout->load();
+	// // 加载完成后删除布局对象
+	// delete this->_editorLayout;
+	// this->_editorLayout = nullptr;
+	this->_editorLayout->launch();
+	std::cout << "launch editor layout:"<<this->_editorLayout << std::endl;
 }
 
 void Editor::_initEditorRes()
 {
-	// 先加载公用resources文件,
-	const std::string &root = Game::getInstance()->assetsManager()->root();
-	std::filesystem::path fullPath = std::filesystem::path(root) / "resources";
-	std::vector<std::string> paths;
-	for (const auto &entry : std::filesystem::recursive_directory_iterator(fullPath))
-	{
-		std::filesystem::path path = std::filesystem::relative(entry.path(), std::filesystem::path(root));
-		paths.push_back(path.generic_string());
-		std::cout << "add resource " << path.generic_string() << std::endl;
-	}
+	// // 先加载公用resources文件,
+	// const std::string &root = Game::getInstance()->assetsManager()->root();
+	// std::filesystem::path fullPath = std::filesystem::path(root) / "resources";
+	// std::vector<std::string> paths;
+	// for (const auto &entry : std::filesystem::recursive_directory_iterator(fullPath))
+	// {
+	// 	std::filesystem::path path = std::filesystem::relative(entry.path(), std::filesystem::path(root));
+	// 	paths.push_back(path.generic_string());
+	// 	std::cout << "add resource " << path.generic_string() << std::endl;
+	// }
 
-	Game::getInstance()->assetsManager()->loadListAsync(paths, &Editor::_onLoadCallBack, this);
+	// Game::getInstance()->assetsManager()->loadListAsync(paths, &Editor::_onLoadCallBack, this);
 }
 void Editor::_onAlphaAnimOK()
 {
@@ -145,4 +150,9 @@ void Editor::update(float dt)
 	// this->_hierarchy->update(dt);
 	// this->_assets->update(dt);
 	// this->_property->update(dt);*/
+}
+
+void Editor::destroy()
+{
+	
 }

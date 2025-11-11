@@ -73,6 +73,7 @@ private:
 	 */
 	void _updateModuleSize();
 
+	void _onLoadCallBack(const int complete, const int all, const float progress);
 public:
 	EditorLayout();
 	/**

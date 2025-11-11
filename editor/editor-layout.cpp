@@ -20,8 +20,30 @@ EditorLayout::EditorLayout()
 }
 void EditorLayout::load()
 {
-	
+	// 先加载公用resources文件,
+	const std::string &root = Game::getInstance()->assetsManager()->root();
+	std::filesystem::path fullPath = std::filesystem::path(root) / "resources";
+	std::vector<std::string> paths;
+	for (const auto &entry : std::filesystem::recursive_directory_iterator(fullPath))
+	{
+		std::filesystem::path path = std::filesystem::relative(entry.path(), std::filesystem::path(root));
+		paths.push_back(path.generic_string());
+		std::cout << "add resource1 " << path.generic_string() << std::endl;
+	}
+
+	Game::getInstance()->assetsManager()->loadListAsync(paths, &EditorLayout::_onLoadCallBack, this);
 }
+void EditorLayout::_onLoadCallBack(const int complete, const int all, const float progress)
+{
+	std::cout << "load progress " << complete << " / " << all << " " << progress << std::endl;
+	this->setLoadProgress(progress);
+	if (complete == all)
+	{
+		// this->_loadComplete = true;
+	}
+}
+
+
 
 void EditorLayout::setLoadProgress(float progress)
 {
@@ -225,4 +247,5 @@ void EditorLayout::_updateModuleSize()
 }
 EditorLayout::~EditorLayout()
 {
+	std::cout << "EditorLayout::~EditorLayout()" << std::endl;
 }

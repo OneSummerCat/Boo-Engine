@@ -37,18 +37,18 @@ class Component;
 class Node
 {
 private:
-	int _nodeEventId = 0;
-	struct Listener
-	{
-		std::function<void()> callback;
-		void* owner;
-		// 唯一标识符
-		uint64_t id;
-		Listener(std::function<void()> cb, void* own, uint64_t id)
-			: callback(cb), owner(own), id(id) {
-		}
-	};
-	std::unordered_map<std::string, std::vector<Listener>> _listeners;
+	// int _nodeEventId = 0;
+	// struct Listener
+	// {
+	// 	std::function<void()> callback;
+	// 	void* owner;
+	// 	// 唯一标识符
+	// 	uint64_t id;
+	// 	Listener(std::function<void()> cb, void* own, uint64_t id)
+	// 		: callback(cb), owner(own), id(id) {
+	// 	}
+	// };
+	// std::unordered_map<std::string, std::vector<Listener>> _listeners;
 
 protected:
 	/**
@@ -129,22 +129,22 @@ protected:
 	 */
 	void _updateWorldTransformFlag(NodeTransformFlag flag);
 	void _updateNodesActiveInHierarchyState(bool isActiveInHierarch);
-	/**
-	 * @brief 触发事件
-	 * @param eventName 事件名称
-	 */
-	template <typename... Args>
-	void emit(const std::string eventName)
-	{
-		auto it = this->_listeners.find(eventName);
-		if (it != this->_listeners.end())
-		{
-			for (auto& listener : it->second)
-			{
-				listener.callback();
-			}
-		}
-	}
+	// /**
+	//  * @brief 触发事件
+	//  * @param eventName 事件名称
+	//  */
+	// template <typename... Args>
+	// void emit(const std::string eventName)
+	// {
+	// 	auto it = this->_listeners.find(eventName);
+	// 	if (it != this->_listeners.end())
+	// 	{
+	// 		for (auto& listener : it->second)
+	// 		{
+	// 			listener.callback();
+	// 		}
+	// 	}
+	// }
 	virtual void _updateWorldTransform();
 	
 public:
@@ -229,36 +229,37 @@ public:
 	
 	
 
-	template <typename T, typename Func>
-	uint64_t onTransformChange(Func func, T* instance)
-	{
-		uint64_t id = this->_nodeEventId++;
-		auto callback = [instance, func]()
-			{
-				(instance->*func)();
-			};
-		this->_listeners[NodeEvent::ON_TRANSFORM_CHANGED].emplace_back(callback, dynamic_cast<void*>(instance), id);
-		return id;
-	}
-	void off(uint64_t id)
-	{
-		for (auto it = this->_listeners.begin(); it != this->_listeners.end(); ++it)
-		{
-			auto& listeners = it->second;
-			for (auto listenerIt = listeners.begin(); listenerIt != listeners.end(); ++listenerIt)
-			{
-				if (listenerIt->id == id)
-				{
-					listeners.erase(listenerIt);
-					return;
-				}
-			}
-		}
-	}
-	void offAll()
-	{
-		this->_listeners.clear();
-	}
+	// template <typename T, typename Func>
+	// uint64_t onTransformChange(Func func, T* instance)
+	// {
+	// 	uint64_t id = this->_nodeEventId++;
+	// 	auto callback = [instance, func]()
+	// 		{
+	// 			(instance->*func)();
+	// 		};
+	// 	this->_listeners[NodeEvent::ON_TRANSFORM_CHANGED].emplace_back(callback, dynamic_cast<void*>(instance), id);
+	// 	return id;
+	// }
+	// void off(uint64_t id)
+	// {
+	// 	for (auto it = this->_listeners.begin(); it != this->_listeners.end(); ++it)
+	// 	{
+	// 		auto& listeners = it->second;
+	// 		for (auto listenerIt = listeners.begin(); listenerIt != listeners.end(); ++listenerIt)
+	// 		{
+	// 			if (listenerIt->id == id)
+	// 			{
+	// 				listeners.erase(listenerIt);
+	// 				return;
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// void offAll()
+	// {
+	// 	this->_listeners.clear();
+	// }
+	
 	Node* getParent();
 	void setParent(Node* node);
 

@@ -52,6 +52,8 @@ public:
      */
     void update(float dt);
 
+    void destroy();
+
     /* void setHierarchyRoot(Scene *scene);
      void setHierarchyNode(Node *node);
      void setAssetsRoot(std::string root);*/
