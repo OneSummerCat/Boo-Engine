@@ -9,9 +9,6 @@
 
 Alpha::Alpha(const std::string name, const std::string uuid) : Scene(name, uuid), _logoAlphaNum(0.0f)
 {
-    // std::cout << "Alpha::Alpha()" << std::endl;
-    // // this->_initDelayScheduleID = Game::getInstance()->scheduleOnce(&Alpha::init, this, 0.05f);
-    // std::cout << "Alpha::Alpha() this->_initDelayScheduleID: " << this->_initDelayScheduleID << std::endl;
     this->_alphaDuration = 2.0f;
     this->_logoAlphaNum = 0.0f;
     this->_logoRatio = 0.35f;
@@ -76,7 +73,6 @@ void Alpha::_updateLogoAlpha(float deltaTime)
         return;
     }
     this->_logoAlphaNum += deltaTime;
-    // std::cout << "this->_logoAlphaNum: " << this->_logoAlphaNum << std::endl;
     this->_spriteLogo->setAlpha(this->_logoAlphaNum / this->_alphaDuration);
 }
 void Alpha::_updateLogoSize()
@@ -99,11 +95,6 @@ void Alpha::_updateLogoSize()
     this->_height = _height;
 
     float width = this->_width * this->_logoRatio;
-    std::cout << "this->_width: " << this->_width << std::endl;
-    std::cout << "this->_height: " << this->_height << std::endl;
-    std::cout << "this->_logoRatio: " << this->_logoRatio << std::endl;
-    std::cout << "this->_logoTxWidth: " << this->_logoTxWidth << std::endl;
-    std::cout << "this->_logoTxHeight: " << this->_logoTxHeight << std::endl;
     float height = width * this->_logoTxHeight / this->_logoTxWidth;
     this->_ndLogo->setSize(width, height);
 }
