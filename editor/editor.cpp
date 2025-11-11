@@ -68,7 +68,6 @@ void Editor::_initRes()
 }
 void Editor::_onLoadCallBack(const int complete, const int all, const float progress)
 {
-	std::cout << "load progress " << complete << " / " << all << " " << progress << std::endl;
 	this->_editorLayout->setLoadProgress(progress);
 	if (complete == all)
 	{

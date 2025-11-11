@@ -29,7 +29,7 @@ void EditorLayout::_initLoadUI()
 		this->_spriteLoad->setTexture("resources/texture/ic-default.png");
 		this->_spriteLoad->setColor(1.0, 1.0, 1.0, 1.0f);
 		this->_spriteLoad->setMaterial(nullptr);
-		this->_spriteLoad->setColor(EditorConfig::theme);
+		this->_spriteLoad->setColor("#0A2F36");
 	}
 	this->_ndLoadBar = new Node2D("Editor-LoadBar");
 	this->_ndLoad->addChild(this->_ndLoadBar);
@@ -39,7 +39,7 @@ void EditorLayout::_initLoadUI()
 		this->_spriteLoadBar->setTexture("resources/texture/ic-default.png");
 		this->_spriteLoadBar->setMaterial(nullptr);
 		this->_spriteLoadBar->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		this->_spriteLoadBar->setColor(EditorConfig::iconColor);
+		this->_spriteLoadBar->setColor("#AFF2FF");
 	}
 }
 void EditorLayout::setLoadProgress(float progress)
@@ -49,7 +49,7 @@ void EditorLayout::setLoadProgress(float progress)
 	{
 		float loadWidth = this->_ndLoad->getSize().getWidth();
 		float loadBarWidth = loadWidth * this->_loadProgress;
-		this->_ndLoadBar->setSize(loadBarWidth, 7.0f);
+		this->_ndLoadBar->setSize(loadBarWidth, 5.0f);
 		this->_ndLoadBar->setPosition(-loadWidth / 2.0 + loadBarWidth / 2.0, 0.0f, 0.0f);
 	}
 }
@@ -201,12 +201,12 @@ void EditorLayout::_updateModuleSize()
 	if (this->_ndLoad != nullptr)
 	{
 		float loadWidth = this->_width * 0.55;
-		this->_ndLoad->setSize(loadWidth, 7.0f);
+		this->_ndLoad->setSize(loadWidth, 5.0f);
 		this->_ndLoad->setPosition(0.0, -this->_height / 2 + this->_height / 2 * 0.4, 0.0f);
 		if (this->_ndLoadBar != nullptr)
 		{
 			float loadBarWidth = loadWidth * this->_loadProgress;
-			this->_ndLoadBar->setSize(loadBarWidth, 7.0f);
+			this->_ndLoadBar->setSize(loadBarWidth, 5.0f);
 			this->_ndLoadBar->setPosition(-loadWidth / 2.0 + loadBarWidth / 2.0, 0.0f, 0.0f);
 		}
 	}
