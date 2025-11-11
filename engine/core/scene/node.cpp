@@ -49,7 +49,7 @@ void Node::setPosition(float x, float y, float z)
 	this->_position.set(x, y, z);
 	this->_localMatrix.translate(x, y, z);
 	this->_updateWorldTransformFlag(NodeTransformFlag::POSITION_FLAG);
-	this->emit(NodeEvent::ON_TRANSFORM_CHANGED);
+	// this->emit(NodeEvent::ON_TRANSFORM_CHANGED);
 }
 void Node::setWorldPosition(float x, float y, float z)
 {
@@ -94,7 +94,7 @@ void Node::setScale(float x, float y, float z)
 	this->_scale.set(x, y, z);
 	this->_localMatrix.scale(x, y, z);
 	this->_updateWorldTransformFlag(NodeTransformFlag::SCALE_FLAG);
-	this->emit(NodeEvent::ON_TRANSFORM_CHANGED);
+	// this->emit(NodeEvent::ON_TRANSFORM_CHANGED);
 }
 void Node::setWorldScale(float x, float y, float z)
 {

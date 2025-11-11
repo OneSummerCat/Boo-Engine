@@ -6,12 +6,6 @@
 #include "component/component-factory.h"
 #include "renderer/ui/ui-sprite.h"
 #include "alpha/alpha.h"
-// #include "renderer/ui/sprite.h"
-// #include "renderer/ui/text.h"
-// #include "ui/ui-widget.h"
-// #include "ui/ui-tree/node-tree.h"
-// #include "ui/ui-tree/file-tree.h"
-// #include "ui/ui-mask.h"
 Game::Game() : _assetsManager(nullptr),
 			   _curScene(nullptr)
 {
@@ -67,6 +61,7 @@ void Game::_initAlpha()
 {
 	Alpha *alpha = new Alpha("Editor-Alpha");
 	this->_curScene = static_cast<Scene *>(alpha);
+	//启动场景
 }
 
 void Game::setView(int width, int height)

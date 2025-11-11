@@ -9,6 +9,7 @@ class EditorLayout
 {
 private:
 	Scene* _scene;
+	void _initLoadUI();
 
 
 	Node2D* _ndMain;
@@ -73,13 +74,9 @@ private:
 	 */
 	void _updateModuleSize();
 
-	void _onLoadCallBack(const int complete, const int all, const float progress);
 public:
 	EditorLayout();
-	/**
-	 * @brief 加载布局
-	 */
-	void load();
+	
 	void setLoadProgress(float progress);
 	/**
 	 * @brief 启动布局

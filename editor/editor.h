@@ -23,13 +23,16 @@ private:
     Editor &operator=(const Editor &) = delete; // 禁用赋值操作符
 
     EditorLayout *_editorLayout;
-
+    void _initLayout();
+    void _initRes();
     bool _alphaAnimOK = false;
-    bool _loadComplete = false;
-    void _initEditorRes();
-    void _initEditorLayout();
+    int _scheduleID_AlphaAnim = -1;
     void _onAlphaAnimOK();
+    int _callID_LoadRes = -1;
+    bool _loadComplete = false;
     void _onLoadCallBack(const int complete, const int all, const float progress);
+
+
     void _launchEditor();
 
     /*EditorHierarchy *_hierarchy;

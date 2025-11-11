@@ -50,6 +50,10 @@ private:
      */
     AssetCache *_cache;
     /**
+     * @brief 资产任务ID
+     */
+    int _id = 0;
+    /**
      * @brief 资产路径
      */
     std::string _path;
@@ -104,7 +108,15 @@ private:
     void _loadError();
 
 public:
-    AssetTask(AssetsManager *mgr, AssetCache *cache);
+    AssetTask(AssetsManager *mgr, AssetCache *cache, int id);
+    /**
+     * @brief 获取资产任务ID
+     * @return int 资产任务ID
+     */
+    const int getID()
+    {
+        return this->_id;
+    }
     Asset *load(const std::string &path);
     template <typename T, typename Func>
     void loadAsync(const std::string &path, Func callback, T *instance)
@@ -113,7 +125,10 @@ public:
         this->_type = AssetTaskType::AsyncOnce;
         this->_callbackOnce = [instance, callback]()
         {
-            (instance->*callback)();
+            if (instance != nullptr && callback != nullptr)
+            {
+                (instance->*callback)();
+            }
         };
     }
     template <typename T, typename Func>
@@ -124,10 +139,14 @@ public:
         this->_result = result;
         this->_callbackList = [instance, callback](const int complete, const int all, const float progress)
         {
-            (instance->*callback)(complete, all, progress);
+            if (instance != nullptr && callback != nullptr)
+            {
+                (instance->*callback)(complete, all, progress);
+            }
         };
     }
     void run();
+    void clearCallback();
     bool isComplete()
     {
         return this->_isComplete;

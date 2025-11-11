@@ -8,11 +8,12 @@
 #include "asset-cache.h"
 #include "../utils/time-util.h"
 
-AssetTask::AssetTask(AssetsManager *mgr, AssetCache *cache)
+AssetTask::AssetTask(AssetsManager *mgr, AssetCache *cache, int id)
 {
 	this->_mgr = mgr;
 	this->_cache = cache;
 	this->_isComplete = false;
+	this->_id = id;
 }
 Asset *AssetTask::load(const std::string &path)
 {
@@ -21,20 +22,7 @@ Asset *AssetTask::load(const std::string &path)
 	this->run();
 	return this->_cache->getAsset(this->_path);
 }
-// void AssetTask::loadAsync(const std::string &path, std::function<void()> callback)
-// {
-// 	this->_path = path;
-// 	this->_callbackOnce = callback;
-// 	this->_type = AssetTaskType::AsyncOnce;
-// }
 
-// void AssetTask::loadSync(const std::string path, AssetLoadResult *result, std::function<void(const int complete, const int all, const float progress)> callback)
-// {
-// 	this->_path = path;
-// 	this->_result = result;
-// 	this->_callbackList = callback;
-// 	this->_type = AssetTaskType::AsyncList;
-// }
 
 void AssetTask::run()
 {
@@ -93,6 +81,14 @@ void AssetTask::_createSpirvShader(const std::string resKey, const std::string f
 	shader->loadSpv();
 	this->_cache->addAsset(resKey, shader);
 	this->_loadComplete();
+}
+/**
+ * @brief 清除资产任务回调
+ */
+void AssetTask::clearCallback()
+{
+	this->_callbackOnce = nullptr;
+	this->_callbackList = nullptr;
 }
 
 void AssetTask::_loadComplete()

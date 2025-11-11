@@ -9,8 +9,6 @@ class Asset;
 class Shader;
 class AssetsManager;
 
-
-
 class AssetLoad
 {
 private:
@@ -22,34 +20,43 @@ private:
     /**
      * @brief 最大加载数量
      */
-    int MAX_LOAD_COUNT = 3;
+    int _MAX_LOAD_COUNT = 30;
 
+    int _TaskNextID = 0;
     std::vector<AssetTask> _tasks;
 
 public:
     AssetLoad(AssetsManager *mgr);
+    void setMaxLoadCount(int count)
+    {
+        this->_MAX_LOAD_COUNT = count;
+    };
+
     Asset *load(const std::string path);
 
     template <typename T, typename Func>
-    void loadAsync(const std::string &path, Func callback, T *instance)
+    int loadAsync(const std::string &path, Func callback, T *instance)
     {
         std::filesystem::path key = std::filesystem::path(path);
         std::string normPath = key.generic_string();
         Asset *asset = this->_cache->getAsset(normPath);
+        int taskID = this->_TaskNextID++;
         if (asset != nullptr)
         {
             (instance->*callback)();
-            return;
+            return taskID;
         }
-        AssetTask task(this->_mgr, this->_cache);
+        AssetTask task(this->_mgr, this->_cache, taskID);
         task.loadAsync(normPath, callback, instance);
         this->_tasks.push_back(task);
+        return taskID;
     }
     template <typename T, typename Func>
-    void loadListAsync(const std::vector<std::string> &paths, Func callback, T *instance)
+    int loadListAsync(const std::vector<std::string> &paths, Func callback, T *instance)
     {
         AssetLoadResult *result = new AssetLoadResult();
         result->all = paths.size();
+        int taskID = this->_TaskNextID++;
         for (const std::string &path : paths)
         {
             std::filesystem::path key = std::filesystem::path(path);
@@ -60,7 +67,7 @@ public:
                 result->complete++;
                 continue;
             }
-            AssetTask task(this->_mgr, this->_cache);
+            AssetTask task(this->_mgr, this->_cache, taskID);
             task.loadASync(normPath, result, callback, instance);
             this->_tasks.push_back(task);
         }
@@ -73,8 +80,13 @@ public:
             (instance->*callback)(complete, all, progress);
             delete result;
         }
+        return taskID;
     }
-
+    /**
+     * @brief 清除加载任务回调
+     * @param loadId 加载任务ID
+     */
+    void clearLoadCall(const int loadId);
     Asset *getAsset(const std::string &path);
 
     /**

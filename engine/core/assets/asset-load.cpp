@@ -24,56 +24,14 @@ Asset *AssetLoad::load(const std::string path)
     {
         return asset1;
     }
+    int taskID = this->_TaskNextID++;
     // 创建加载任务
     long long time = TimeUtil::nowTime();
-    AssetTask task(this->_mgr, this->_cache);
+    AssetTask task(this->_mgr, this->_cache, taskID);
     Asset *asset2 = task.load(normPath);
     std::cout << "load asset " << normPath << " cost :" << TimeUtil::nowTime() - time << " ms" << std::endl;
     return asset2;
 }
-
-// void AssetLoad::loadAsync(const std::string &path, std::function<void()> callback)
-// {
-//     std::filesystem::path key = std::filesystem::path(path);
-//     std::string normPath = key.generic_string();
-//     Asset *asset = this->_cache->getAsset(normPath);
-//     if (asset != nullptr)
-//     {
-//         callback();
-//         return;
-//     }
-//     AssetTask task(this->_mgr, this->_cache);
-//     task.loadAsync(normPath, callback);
-//     this->_tasks.push_back(task);
-// }
-// void AssetLoad::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
-// {
-//     AssetLoadResult *result = new AssetLoadResult();
-//     result->all = paths.size();
-//     for (const std::string &path : paths)
-//     {
-//         std::filesystem::path key = std::filesystem::path(path);
-//         std::string normPath = key.generic_string();
-//         Asset *asset = this->_cache->getAsset(normPath);
-//         if (asset != nullptr)
-//         {
-//             result->complete++;
-//             continue;
-//         }
-//         AssetTask task(this->_mgr, this->_cache);
-//         task.loadSync(normPath, result, callback);
-//         this->_tasks.push_back(task);
-//     }
-//     // 所有任务完成
-//     if (result->complete >= result->all)
-//     {
-//         int complete = result->complete;
-//         int all = result->all;
-//         float progress = (float)complete / (float)all;
-//         callback(complete, all, progress);
-//         delete result;
-//     }
-// }
 
 Asset *AssetLoad::getAsset(const std::string &path)
 {
@@ -86,6 +44,22 @@ Asset *AssetLoad::getAsset(const std::string &path)
     }
     return nullptr;
 }
+/**
+ * @brief 清除加载任务回调
+ * @param loadId 加载任务ID
+ */
+void AssetLoad::clearLoadCall(const int loadId)
+{
+    for (AssetTask &task : this->_tasks)
+    {
+        if (task.getID() == loadId)
+        {
+            task.clearCallback();
+        }
+    }
+}
+
+
 
 /**
  * @brief 更新加载任务
@@ -111,7 +85,7 @@ void AssetLoad::updateLoadTasks()
     {
         task.run();
         loadCount++;
-        if (loadCount >= this->MAX_LOAD_COUNT)
+        if (loadCount >= this->_MAX_LOAD_COUNT)
         {
             break;
         }

@@ -66,14 +66,10 @@ Asset *AssetsManager::load(const std::string &path)
 {
 	return this->_assetLoad->load(path);
 }
-// void AssetsManager::loadAsync(const std::string &path, std::function<void()> callback)
-// {
-// 	this->_assetLoad->loadAsync(path, callback);
-// }
-// void AssetsManager::loadListAsync(const std::vector<std::string> &paths, std::function<void(const int complete, const int all, const float progress)> callback)
-// {
-// 	this->_assetLoad->loadListAsync(paths, callback);
-// }
+void AssetsManager::clearLoadCall(const int loadId)
+{
+	this->_assetLoad->clearLoadCall(loadId);
+}
 Asset *AssetsManager::get(const std::string &path)
 {
 	return this->_assetLoad->getAsset(path);
