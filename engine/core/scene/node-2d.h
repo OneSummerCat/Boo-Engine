@@ -30,8 +30,8 @@ public:
      * @param height
      */
     void setSize(float width, float height);
-    const Vec2 &anchor() { return this->_anchor; }
-    const Size &size() { return this->_size; }
+    const Vec2 &getAnchor() { return this->_anchor; }
+    const Size &getSize() { return this->_size; }
     const Mat4 &uiWorldMatrix()
     {
         this->_updateWorldTransform();

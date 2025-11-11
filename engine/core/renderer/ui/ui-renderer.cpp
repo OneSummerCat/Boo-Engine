@@ -5,6 +5,8 @@
 #include "../../scene/node.h"
 #include "../../scene/node-2d.h"
 #include "../../assets/material.h"
+#include "../../assets/asset.h"
+#include "../../assets/assets-manager.h"
 #include "../../assets/texture.h"
 
 UIRenderer::UIRenderer(Node *node, std::string uuid) : Component(node, uuid)
@@ -49,6 +51,7 @@ void UIRenderer::setTexture(Texture *texture)
 {
 	if (texture == nullptr)
 	{
+		std::cout << "UIRenderer::setTexture: texture is nullptr" << std::endl;
 		return;
 	}
 	if (this->_texture == texture)
@@ -57,6 +60,11 @@ void UIRenderer::setTexture(Texture *texture)
 	}
 	this->_texture = texture;
 	GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_texture->getUuid());
+}
+void UIRenderer::setTexture(std::string texture)
+{
+	Asset *tex = Game::getInstance()->assetsManager()->get(texture);
+	this->setTexture(dynamic_cast<Texture *>(tex));
 }
 void UIRenderer::update(float deltaTime)
 {

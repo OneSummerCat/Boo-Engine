@@ -47,8 +47,8 @@ void Alpha::_initAlpha()
     if (compLogo != nullptr)
     {
         this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
-        Asset *tex = Game::getInstance()->assetsManager()->get("resources/texture/logo.png");
-        this->_spriteLogo->setTexture(static_cast<Texture *>(tex));
+        // Asset *tex = Game::getInstance()->assetsManager()->get("resources/texture/logo.png");
+        this->_spriteLogo->setTexture("resources/texture/logo.png");
         this->_spriteLogo->setMaterial(nullptr);
         this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 0.0f);
     }
