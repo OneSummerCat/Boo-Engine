@@ -44,8 +44,6 @@ void GfxMgr::showVersion()
         uint32_t major = VK_VERSION_MAJOR(instanceVersion);
         uint32_t minor = VK_VERSION_MINOR(instanceVersion);
         uint32_t patch = VK_VERSION_PATCH(instanceVersion);
-       /*  // std::cout << "Vulkan Instance (Driver) Version: "
-        //           << major << "." << minor << "." << patch << std::endl; */
         GfxMgr::Log("GfxMgr", "Vulkan Instance (Driver) Version:" + std::to_string(major) + "." + std::to_string(minor) + "." + std::to_string(patch));
     }
 }
@@ -65,7 +63,7 @@ void GfxMgr::_testMSAASample()
     VkSampleCountFlags counts = physicalDeviceProperties.limits.framebufferColorSampleCounts &
                                 physicalDeviceProperties.limits.framebufferDepthSampleCounts;
     VkSampleCountFlagBits sampleCount = this->_getMaxMSAAUsableSampleCount();
-    GfxMgr::Log("GfxMgr", "GPU最大支持采样次数:" + std::to_string(sampleCount));
+    GfxMgr::Log("GfxMgr", "GPU Maximum supported sampling:" + std::to_string(sampleCount));
 }
 VkSampleCountFlagBits GfxMgr::_getMaxMSAAUsableSampleCount()
 {
@@ -122,18 +120,21 @@ bool GfxMgr::isExistTexture(std::string texture)
 {
     return this->_renderer->isExistTexture(texture);
 }
-
-void GfxMgr::createObject(std::string id, std::string renderPassType, std::string pipelineType, std::vector<float> points, std::vector<float> colors, std::vector<float> normals, std::vector<float> uvs, std::vector<uint32_t> indices)
+void GfxMgr::createShader(const std::string &shaderName,const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros)
 {
-    this->_renderer->createObject(id, renderPassType, pipelineType, points, colors, normals, uvs, indices);
+    this->_renderer->createShader(shaderName, shaderType, data, macros);
+}
+void GfxMgr::createObject(std::string id, std::string renderPassType, std::vector<float> points, std::vector<float> colors, std::vector<float> normals, std::vector<float> uvs, std::vector<uint32_t> indices)
+{
+    this->_renderer->createObject(id, renderPassType,  points, colors, normals, uvs, indices);
 }
 /* // void GfxMgr::resetGfxObjectRendererState(std::string id, std::string renderPassType, std::string pipelineType)
 // {
 //     this->_renderer->resetGfxObjectRendererState(id, renderPassType, pipelineType);
 // } */
-void GfxMgr::destroyGfxObject(std::string id)
+void GfxMgr::destroyObject(std::string id)
 {
-    this->_renderer->destroyGfxObject(id);
+    this->_renderer->destroyObject(id);
 }
 void GfxMgr::setObjectModelMatrix(std::string id, const std::array<float, 16> &modelMatrix)
 {
@@ -151,7 +152,7 @@ void GfxMgr::setObjectColor(std::string id, float r, float g, float b, float a)
 {
     this->_renderer->setObjectColor(id, r, g, b, a);
 }
-void GfxMgr::setObjectTexture(std::string id, std::string texture)
+void GfxMgr::setObjectTexture(const std::string& id, const  std::string& texture)
 {
     this->_renderer->setObjectTexture(id, texture);
 }
@@ -171,6 +172,7 @@ void GfxMgr::submit(std::string id)
 
 void GfxMgr::update()
 {
+    // std::cout << "renderer update" << std::endl;
     this->_context->frameFencesPrepare(this->_currentFrame);
     /* // 可用的图像的索引 */
     uint32_t imageIndex;
@@ -182,7 +184,7 @@ void GfxMgr::update()
    /*  // 如果交换链已过期（如窗口大小改变），会返回 VK_ERROR_OUT_OF_DATE_KHR，触发重建交换链 */
     if (result1 == VK_ERROR_OUT_OF_DATE_KHR || result1 == VK_SUBOPTIMAL_KHR)
     {
-      /*   // std::cout << "renderer update:'VK_ERROR_OUT_OF_DATE_KHR',The window size might have changed, and the swap chain needs to be recreated." << std::endl; */
+       std::cout << "renderer update:'VK_ERROR_OUT_OF_DATE_KHR',The window size might have changed, and the swap chain needs to be recreated." << std::endl;  
         this->resetSwapChain();
         return;
     }

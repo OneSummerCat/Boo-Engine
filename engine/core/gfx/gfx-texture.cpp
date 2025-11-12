@@ -19,6 +19,7 @@ GfxTexture::GfxTexture(GfxContext *context, const std::vector<uint8_t> *pixels, 
     this->_createTextureImage();
     this->_createTextureImageView();
     this->_createTextureSampler();
+    std::cout << "GfxTexture:id:" <<  " width:" << this->_width << " height:" << this->_height << " channels:" << this->_channels << std::endl;
 }
 
 void GfxTexture::_createTextureImage()
@@ -91,7 +92,7 @@ void GfxTexture::_createTextureSampler()
     {
         throw std::runtime_error("failed to create texture sampler!");
     }
-    /* // this->_Log("create texture sampler success..."); */
+    this->_Log("create texture sampler success...");
 }
 /* 
 // 以下实现辅助方法... */
