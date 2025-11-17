@@ -12,10 +12,19 @@ elseif(MSVC)
 endif()
 
 set(ENGINE_SOURCES
+    editor/assets/editor-assets-layout.cpp
+    editor/assets/editor-assets.cpp
     editor/editor-config.cpp
     editor/editor-layout.cpp
     editor/editor.cpp
+    editor/hierarchy/editor-hierarchy-layout.cpp
+    editor/hierarchy/editor-hierarchy.cpp
     editor/ipc/editor-ipc.cpp
+    editor/property/editor-property-layout.cpp
+    editor/property/editor-property.cpp
+    editor/property/out/editor-property-image-layout.cpp
+    editor/property/out/editor-property-node-layout.cpp
+    engine/boo.cpp
     engine/core/alpha/alpha.cpp
     engine/core/assets/asset-cache.cpp
     engine/core/assets/asset-load.cpp
@@ -25,8 +34,15 @@ set(ENGINE_SOURCES
     engine/core/assets/material.cpp
     engine/core/assets/shader.cpp
     engine/core/assets/texture.cpp
-    engine/core/component/component-factory.cpp
     engine/core/component/component.cpp
+    engine/core/component/ui/ui-layout-horizontal.cpp
+    engine/core/component/ui/ui-layout-vertical.cpp
+    engine/core/component/ui/ui-mask.cpp
+    engine/core/component/ui/ui-tree/file-tree.cpp
+    engine/core/component/ui/ui-tree/node-tree.cpp
+    engine/core/component/ui/ui-tree/ui-tree.cpp
+    engine/core/component/ui/ui-widget.cpp
+    engine/core/event/event.cpp
     engine/core/font/freetype-mgr.cpp
     engine/core/game.cpp
     engine/core/gfx/gfx-context.cpp
@@ -39,8 +55,8 @@ set(ENGINE_SOURCES
     engine/core/gfx/gfx-shader-compile.cpp
     engine/core/gfx/gfx-shader.cpp
     engine/core/gfx/gfx-texture.cpp
-    engine/core/global/event.cpp
     engine/core/global/global.cpp
+    engine/core/input/input.cpp
     engine/core/math/color.cpp
     engine/core/math/mat4.cpp
     engine/core/math/quat.cpp
@@ -49,14 +65,18 @@ set(ENGINE_SOURCES
     engine/core/math/vec3.cpp
     engine/core/renderer/ui/ui-renderer.cpp
     engine/core/renderer/ui/ui-sprite.cpp
+    engine/core/renderer/ui/ui-text.cpp
     engine/core/scene/node-2d.cpp
     engine/core/scene/node-3d.cpp
     engine/core/scene/node.cpp
     engine/core/scene/scene.cpp
+    engine/core/utils/file-util.cpp
+    engine/core/utils/fmt-util.cpp
+    engine/core/utils/sdf-util.cpp
     engine/core/utils/time-util.cpp
     engine/core/utils/uuid-util.cpp
     engine/engine.cpp
-    engine/window/window-mgr.cpp
+    engine/window/window.cpp
 )
 
 add_executable(
@@ -70,7 +90,7 @@ if(APPLE)
     find_package(glfw3 REQUIRED)
     # 查找Vulkan库
     find_package(Vulkan REQUIRED)
-    # 查找freetype库
+    # # 查找freetype库
     find_package(Freetype REQUIRED)
 
     # 头文件包含

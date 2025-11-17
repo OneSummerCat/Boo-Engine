@@ -6,8 +6,8 @@
                 "${workspaceFolder}/**",
                 "/usr/local/include",
                 "/opt/homebrew/include",
-                "/opt/homebrew/include/freetype2",
-                "/opt/homebrew/include/GLFW"
+                "/opt/homebrew/include/GLFW",
+                "${workspaceFolder}/engine/libs/freetype2/mac/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
