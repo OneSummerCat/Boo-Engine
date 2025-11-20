@@ -37,7 +37,6 @@ set(ENGINE_SOURCES
     engine/core/component/component.cpp
     engine/core/component/ui/ui-layout-horizontal.cpp
     engine/core/component/ui/ui-layout-vertical.cpp
-    engine/core/component/ui/ui-mask.cpp
     engine/core/component/ui/ui-tree/file-tree.cpp
     engine/core/component/ui/ui-tree/node-tree.cpp
     engine/core/component/ui/ui-tree/ui-tree.cpp
@@ -63,6 +62,7 @@ set(ENGINE_SOURCES
     engine/core/math/size.cpp
     engine/core/math/vec2.cpp
     engine/core/math/vec3.cpp
+    engine/core/renderer/ui/ui-mask.cpp
     engine/core/renderer/ui/ui-renderer.cpp
     engine/core/renderer/ui/ui-sprite.cpp
     engine/core/renderer/ui/ui-text.cpp
