@@ -4,7 +4,7 @@ int main()
 {
     Engine *engine = new Engine();
     engine->init();
-    engine->tick();
+    engine->run();
     delete engine;
     std::cout << "close" << std::endl;
     return 0;
