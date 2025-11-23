@@ -12,18 +12,19 @@ elseif(MSVC)
 endif()
 
 set(ENGINE_SOURCES
-    editor/assets/editor-assets-layout.cpp
-    editor/assets/editor-assets.cpp
-    editor/editor-config.cpp
-    editor/editor-layout.cpp
+    editor/boo-editor.cpp
+    editor/config/editor-config.cpp
+    editor/editor-main.cpp
     editor/editor.cpp
-    editor/hierarchy/editor-hierarchy-layout.cpp
-    editor/hierarchy/editor-hierarchy.cpp
-    editor/ipc/editor-ipc.cpp
-    editor/property/editor-property-layout.cpp
-    editor/property/editor-property.cpp
-    editor/property/out/editor-property-image-layout.cpp
-    editor/property/out/editor-property-node-layout.cpp
+    editor/layout/assets/editor-assets-layout.cpp
+    editor/layout/assets/editor-assets.cpp
+    editor/layout/hierarchy/editor-hierarchy-layout.cpp
+    editor/layout/hierarchy/editor-hierarchy.cpp
+    editor/layout/old/editor-layout.cpp
+    editor/layout/property/editor-property-layout.cpp
+    editor/layout/property/editor-property.cpp
+    editor/layout/property/out/editor-property-image-layout.cpp
+    editor/layout/property/out/editor-property-node-layout.cpp
     engine/boo.cpp
     engine/core/alpha/alpha.cpp
     engine/core/assets/asset-cache.cpp
