@@ -90,6 +90,7 @@
         "*.inc": "cpp",
         "*.hpp11": "cpp",
         "cinttypes": "cpp",
-        "version": "cpp"
+        "version": "cpp",
+        "*.ds_store": "cpp"
     }
 }

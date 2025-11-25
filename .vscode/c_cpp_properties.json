@@ -7,6 +7,7 @@
                 "/usr/local/include",
                 "/opt/homebrew/include",
                 "/opt/homebrew/include/GLFW",
+                "${workspaceFolder}/engine/libs/nativefiledialog",
                 "${workspaceFolder}/engine/libs/freetype2/mac/include"
             ],
             "defines": [],

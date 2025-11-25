@@ -13,18 +13,25 @@ endif()
 
 set(ENGINE_SOURCES
     editor/boo-editor.cpp
+    editor/cache/editor-assets-cache.cpp
+    editor/cache/editor-config-cache.cpp
+    editor/cache/editor-project-cache.cpp
+    editor/cache/editor-scene-cache.cpp
     editor/config/editor-config.cpp
     editor/editor-main.cpp
     editor/editor.cpp
     editor/layout/assets/editor-assets-layout.cpp
     editor/layout/assets/editor-assets.cpp
+    editor/layout/editor-layout.cpp
+    editor/layout/editor-loading.cpp
     editor/layout/hierarchy/editor-hierarchy-layout.cpp
     editor/layout/hierarchy/editor-hierarchy.cpp
-    editor/layout/old/editor-layout.cpp
     editor/layout/property/editor-property-layout.cpp
     editor/layout/property/editor-property.cpp
     editor/layout/property/out/editor-property-image-layout.cpp
     editor/layout/property/out/editor-property-node-layout.cpp
+    editor/layout/scene/editor-scene-layout.cpp
+    editor/layout/scene/editor-scene.cpp
     engine/boo.cpp
     engine/core/alpha/alpha.cpp
     engine/core/assets/asset-cache.cpp
@@ -33,6 +40,7 @@ set(ENGINE_SOURCES
     engine/core/assets/asset.cpp
     engine/core/assets/assets-manager.cpp
     engine/core/assets/material.cpp
+    engine/core/assets/scene-asset.cpp
     engine/core/assets/shader.cpp
     engine/core/assets/texture.cpp
     engine/core/component/component.cpp
@@ -71,6 +79,7 @@ set(ENGINE_SOURCES
     engine/core/scene/node-3d.cpp
     engine/core/scene/node.cpp
     engine/core/scene/scene.cpp
+    engine/core/utils/dialog-util.cpp
     engine/core/utils/file-util.cpp
     engine/core/utils/fmt-util.cpp
     engine/core/utils/sdf-util.cpp
@@ -93,10 +102,16 @@ if(APPLE)
     find_package(Vulkan REQUIRED)
     # # 查找freetype库
     find_package(Freetype REQUIRED)
+     
+    find_library(COCOA_LIBRARY Cocoa REQUIRED)
+    find_library(FOUNDATION_LIBRARY Foundation REQUIRED)
+    find_library(APPKIT_LIBRARY AppKit REQUIRED)
+    
 
     # 头文件包含
     target_include_directories(${PROJECT_NAME} PRIVATE 
         ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/stb
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/nativefiledialog/
     )
     # 库链接
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -104,6 +119,11 @@ if(APPLE)
         Vulkan::Vulkan
         shaderc_shared
         Freetype::Freetype
+        
+        ${COCOA_LIBRARY}
+        ${FOUNDATION_LIBRARY}
+        ${APPKIT_LIBRARY}
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/nativefiledialog/mac/lib/libnfd.a
     )
 else()
     message(FATAL_ERROR "Unsupported platform")
