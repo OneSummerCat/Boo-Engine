@@ -13,17 +13,18 @@ endif()
 
 set(ENGINE_SOURCES
     editor/boo-editor.cpp
-    editor/cache/editor-assets-cache.cpp
-    editor/cache/editor-config-cache.cpp
-    editor/cache/editor-project-cache.cpp
-    editor/cache/editor-scene-cache.cpp
+    editor/cache/editor-cache-task.cpp
+    editor/cache/editor-cache.cpp
+    editor/cache/old/editor-assets-cache.cpp
+    editor/cache/old/editor-config-cache.cpp
+    editor/cache/old/editor-project-cache.cpp
+    editor/cache/old/editor-scene-cache.cpp
     editor/config/editor-config.cpp
     editor/editor-main.cpp
     editor/editor.cpp
     editor/layout/assets/editor-assets-layout.cpp
     editor/layout/assets/editor-assets.cpp
     editor/layout/editor-layout.cpp
-    editor/layout/editor-loading.cpp
     editor/layout/hierarchy/editor-hierarchy-layout.cpp
     editor/layout/hierarchy/editor-hierarchy.cpp
     editor/layout/property/editor-property-layout.cpp
@@ -32,6 +33,7 @@ set(ENGINE_SOURCES
     editor/layout/property/out/editor-property-node-layout.cpp
     editor/layout/scene/editor-scene-layout.cpp
     editor/layout/scene/editor-scene.cpp
+    editor/loading/editor-loading.cpp
     engine/boo.cpp
     engine/core/alpha/alpha.cpp
     engine/core/assets/asset-cache.cpp
@@ -39,15 +41,16 @@ set(ENGINE_SOURCES
     engine/core/assets/asset-task.cpp
     engine/core/assets/asset.cpp
     engine/core/assets/assets-manager.cpp
-    engine/core/assets/material.cpp
+    engine/core/assets/material-asset.cpp
     engine/core/assets/scene-asset.cpp
     engine/core/assets/shader.cpp
-    engine/core/assets/texture.cpp
+    engine/core/assets/texture-asset.cpp
+    engine/core/component/component-factory.cpp
     engine/core/component/component.cpp
     engine/core/component/ui/ui-layout-horizontal.cpp
     engine/core/component/ui/ui-layout-vertical.cpp
     engine/core/component/ui/ui-tree/file-tree.cpp
-    engine/core/component/ui/ui-tree/node-tree.cpp
+    engine/core/component/ui/ui-tree/ui-node-tree.cpp
     engine/core/component/ui/ui-tree/ui-tree.cpp
     engine/core/component/ui/ui-widget.cpp
     engine/core/event/event.cpp
