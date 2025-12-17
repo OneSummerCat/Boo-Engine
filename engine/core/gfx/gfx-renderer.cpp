@@ -1,350 +1,83 @@
 #include "gfx-renderer.h"
 #include "gfx.h"
 #include "gfx-context.h"
-#include "pass/gfx-pass.h"
-#include "pass/gfx-pass-built.h"
-#include "pass/gfx-pass-built-ui.h"
-#include "pipeline/gfx-pipeline.h"
-#include "pipeline/gfx-pipeline-ui.h"
-#include "pipeline/gfx-pipeline-struct.h"
-#include "queue/gfx-render-queue.h"
-
-#include "gfx-descriptor.h"
-
-#include "gfx-shader.h"
-#include "gfx-shader-struct.h"
-#include "gfx-shader-compile.h"
-#include "gfx-texture.h"
+#include "base/gfx-shader.h"
+#include "base/gfx-shader-struct.h"
+#include "base/gfx-texture.h"
+#include "base/gfx-render-pass.h"
+#include "base/gfx-material.h"
+#include "base/gfx-mesh.h"
+#include "base/gfx-buffer-ubo.h"
+#include "base/gfx-buffer-instance.h"
+#include "base/gfx-render-texture.h"
+#include "default/gfx-renderer-default.h"
+#include "builtin/gfx-renderer-builtin.h"
 
 #include "../math/mat4.h"
 
 GfxRenderer::GfxRenderer()
 {
+    // 所有ui 默认绑定4个采样器
+    if (Gfx::uiTestMesh == nullptr)
+    {
+        Gfx::uiTestMesh = new GfxMesh("789abcde-f012-34a5-b678-901234567890");
+        Gfx::uiTestMesh->setInputVertices({-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+                                           -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+                                           0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+                                           0.5f, 0.5f, 0.0f, 1.0f, 0.0f},
+                                          {0, 1, 2, 0, 2, 3});
+    }
+
+    this->_defaultRenderer = new GfxRendererDefault("default");
+    this->_builtinRenderer = new GfxRendererBuiltin("builtin");
 }
 void GfxRenderer::init()
 {
-    std::cout << "Gfx : Renderer :: init" << std::endl;
-    // GfxShaderCompile::getInstance()->init();
-    // this->_descriptor = new GfxDescriptor();
-    this->_initDescriptor();
-    this->_initDefaultPasses();
-    this->_initDefaultShaders();
-    this->_initDefaultPipeline();
-    this->_initDefaultRenderQueue();
-    // this->_initDefaultUIMaskPipeline();
+    Gfx::bufferUBO = new GfxBufferUBO();
+    Gfx::bufferInstance = new GfxBufferInstance();
+    this->_defaultRenderer->init();
+    this->_builtinRenderer->init();
 }
-void GfxRenderer::_initDescriptor()
-{
-    this->_initDescriptorPool();
-    this->_initDescriptorSetLayout();
-    this->_initDescriptorSets();
-}
-void GfxRenderer::_initDescriptorPool()
-{
-    std::vector<VkImageView> &swapChainImageViews = Gfx::context->getSwapChainImageViews();
-
-    std::vector<VkDescriptorPoolSize> poolSizes(3);
-    // 1. UBO数量计算
-    // 每个帧：2个UBO（3D UBO + UI UBO）
-    // 可能需要额外：阴影UBO、后处理UBO
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSizes[0].descriptorCount = 30 * swapChainImageViews.size(); // 支持更多
-    // 2. 存储缓冲区数量计算
-    // 每个帧可能需要的存储缓冲区：
-    // - 模型数据buffer（所有物体的变换）
-    // - 材质数据buffer
-    // - 灯光数据buffer
-    // - 实例数据buffer
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    poolSizes[1].descriptorCount = 300 * swapChainImageViews.size(); // 支持更多
-    // 3. Bindless纹理：关键是这个要足够大！
-    poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    // ⚠️ 临时修复：增加容量（但这不是最佳方案，见下方建议）
-    poolSizes[2].descriptorCount = 500 * swapChainImageViews.size();
-
-    // 4. maxSets计算：需要多少个描述符集？
-    // 每个帧需要：
-    // - 3D渲染描述符集
-    // - UI渲染描述符集
-    // - 可能还有：阴影Pass描述符集、后处理描述符集
-    // int descriptorSetsPerFrame = 400;          // 3D + UI（最基本）
-    // uint32_t maxSets = descriptorSetsPerFrame; // 6个描述符集
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    // ✓ 关键：添加 UPDATE_AFTER_BIND 标志（Bindless 必需）
-    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;
-    poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
-    poolInfo.pPoolSizes = poolSizes.data();
-    poolInfo.maxSets = 10 * swapChainImageViews.size(); // 支持更多描述符集
-
-    if (vkCreateDescriptorPool(Gfx::context->vkDevice(), &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create descriptor pool!");
-    }
-
-    std::cout << "Gfx : Renderer ::   Created descriptor pool with UPDATE_AFTER_BIND support" << std::endl;
-    std::cout << "Gfx : Renderer ::   UBO descriptors: " << poolSizes[0].descriptorCount << std::endl;
-    std::cout << "Gfx : Renderer ::   Storage Buffer descriptors: " << poolSizes[1].descriptorCount << std::endl;
-    std::cout << "Gfx : Renderer ::   Texture descriptors: " << poolSizes[2].descriptorCount << std::endl;
-}
-void GfxRenderer::_initDescriptorSetLayout()
-{
-    // 动态 UBO 研究
-    std::vector<VkDescriptorSetLayoutBinding> bindings;
-    // ubo缓冲区绑定  -全局统一属性
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    bindings.push_back(uboLayoutBinding);
-    // 使用存储缓冲区绑定 - 物体单独属性
-    VkDescriptorSetLayoutBinding ssboBinding = {};
-    ssboBinding.binding = 1; // 对应shader中的 binding = 0
-    ssboBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    ssboBinding.descriptorCount = 1;
-    ssboBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT |   // 顶点着色器可以访问
-                             VK_SHADER_STAGE_FRAGMENT_BIT | // 片段着色器可以访问
-                             VK_SHADER_STAGE_COMPUTE_BIT;   // 计算着色器可以访问
-    bindings.push_back(ssboBinding);
-    // 绑定纹理数组采样器
-    VkDescriptorSetLayoutBinding textureArrayBinding{};
-    textureArrayBinding.binding = 2;
-    textureArrayBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    textureArrayBinding.descriptorCount = 500; // 你的池子大小
-    textureArrayBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
-    bindings.push_back(textureArrayBinding);
-
-    // ==================== 启用Bindless扩展 ====================
-    // 需要这些扩展标志
-    std::vector<VkDescriptorBindingFlags> bindingFlags(bindings.size(), 0);
-    bindingFlags[0] = 0;
-    bindingFlags[1] = 0;
-    // 为纹理数组启用部分绑定和更新后绑定
-    bindingFlags[2] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT |
-                      VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT |
-                      VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT; // 新增
-
-    // VkDescriptorSetLayoutBindingFlagsCreateInfoEXT bindingFlagsInfo;
-    // bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    // bindingFlagsInfo.bindingCount = static_cast<uint32_t>(bindingFlags.size());
-    // bindingFlagsInfo.pBindingFlags = bindingFlags.data();
-    VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
-    bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    bindingFlagsInfo.pNext = nullptr; // 如果还有其他扩展链，需要正确设置
-    bindingFlagsInfo.bindingCount = static_cast<uint32_t>(bindingFlags.size());
-    bindingFlagsInfo.pBindingFlags = bindingFlags.data();
-
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.pNext = &bindingFlagsInfo;                                              // 链接扩展结构
-    layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT; // 注意：这里使用 EXT 后缀
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
-
-    std::cout << "Gfx : Renderer ::   Texture Array Descriptors: " << textureArrayBinding.descriptorCount << std::endl;
-    std::cout << "Gfx : Renderer ::   Binding Flags: " << bindingFlags[2] << std::endl;
-    std::cout << "Gfx : Renderer ::   vkDevice: " << Gfx::context->vkDevice() << std::endl;
-
-    if (vkCreateDescriptorSetLayout(Gfx::context->vkDevice(),
-                                    &layoutInfo, nullptr, &this->_descriptorSetLayout) != VK_SUCCESS)
-    {
-        std::cout << "Gfx : Renderer :: create descriptor set layout failed " << std::endl;
-        return;
-    }
-    std::cout << "Gfx : Renderer :: create descriptor set layout success " << std::endl;
-}
-void GfxRenderer::_initDescriptorSets()
-{
-    // 每个帧需要一个描述符集
-    std::vector<VkImageView> &swapChainImageViews = Gfx::context->getSwapChainImageViews();
-
-    std::vector<VkDescriptorSetLayout> layouts(swapChainImageViews.size(), this->_descriptorSetLayout);
-
-    // 关键：设置可变描述符数量信息
-    VkDescriptorSetVariableDescriptorCountAllocateInfoEXT countInfo = {};
-    countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
-    countInfo.descriptorSetCount = swapChainImageViews.size();
-    // 每个描述符集实际使用的纹理数量（可以动态设置）
-    std::vector<uint32_t> counts(swapChainImageViews.size(), 500); // 每个集最多500个纹理
-    countInfo.pDescriptorCounts = counts.data();
-
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.pNext = &countInfo; // 链接可变数量信息
-    allocInfo.descriptorPool = this->_descriptorPool;
-    allocInfo.descriptorSetCount = swapChainImageViews.size();
-    allocInfo.pSetLayouts = layouts.data();
-    this->_descriptorSets.resize(swapChainImageViews.size());
-    if (vkAllocateDescriptorSets(Gfx::context->vkDevice(), &allocInfo, this->_descriptorSets.data()) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to allocate descriptor sets!");
-    }
-    std::cout << "Gfx : Renderer :: create descriptor sets success..." << std::endl;
-}
-/**
- * 创建内置默认的ui pass
- */
-void GfxRenderer::_initDefaultPasses()
-{
-    GfxPassBuilt *screenPass = new GfxPassBuilt("pass-built");
-    this->_passes["pass-built"] = screenPass;
-    // GfxPassBuiltUI *uiPass = new GfxPassBuiltUI("pass-built-ui");
-    // this->_passes["pass-built-ui"] = uiPass;
-}
-/**
- * 创建内置默认的ui shader
- */
-void GfxRenderer::_initDefaultShaders()
-{
-    std::string shaderVertName = "built.vert";
-    GfxShader *shader = new GfxShader(shaderVertName);
-    shader->createShaderModule(GfxShaderBuiltVertSPV, GfxShaderBuiltVertSPVSize);
-    this->_shaders[shaderVertName] = shader;
-
-    std::string shaderFragName = "built.frag";
-    shader = new GfxShader(shaderFragName);
-    shader->createShaderModule(GfxShaderBuiltFragSPV, GfxShaderBuiltFragSPVSize);
-    this->_shaders[shaderFragName] = shader;
-
-    // std::string shaderMaskVertName = "built-ui-mask.vert";
-    // shader = new GfxShader(shaderMaskVertName);
-    // shader->createShaderModule(GfxShaderUIMaskVertSPV, GfxShaderUIMaskVertSPVSzie);
-    // this->_shaders[shaderMaskVertName] = shader;
-
-    // std::string shaderMaskFragName = "built-ui-mask.frag";
-    // shader = new GfxShader(shaderMaskFragName);
-    // shader->createShaderModule(GfxShaderUIMaskFragSPV, GfxShaderUIMaskFragSPVSzie);
-    // this->_shaders[shaderMaskFragName] = shader;
-}
-/**
- * 创建内置默认的ui pipeline
- */
-void GfxRenderer::_initDefaultPipeline()
-{
-    GfxPipelineStruct screenPipelineStruct = {};
-    screenPipelineStruct.vert = "built.vert";
-    screenPipelineStruct.frag = "built.frag";
-    screenPipelineStruct.pass = "pass-built";
-    screenPipelineStruct.depthTest = 0;
-    screenPipelineStruct.depthWrite = 0;
-    screenPipelineStruct.depthCompareOp = GfxPipelineCompareOp::Always;
-    // 颜色混合 开启
-    screenPipelineStruct.colorBlend = 0;
-    screenPipelineStruct.srcColorBlendFactor = GfxPipelineColorBlendFactor::SrcAlpha;
-    screenPipelineStruct.dstColorBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    screenPipelineStruct.colorBlendOp = GfxPipelineColorBlendOp::Add;
-    screenPipelineStruct.srcAlphaBlendFactor = GfxPipelineColorBlendFactor::One;
-    screenPipelineStruct.dstAlphaBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    screenPipelineStruct.alphaBlendOp = GfxPipelineColorBlendOp::Add;
-    screenPipelineStruct.colorWriteMask = 4;
-    // 多边形模式 填充
-    screenPipelineStruct.polygonMode = GfxPipelinePolygonMode::Fill;
-    // 剔除模式 背面
-    screenPipelineStruct.cullMode = GfxPipelineCullMode::Back;
-    this->createPipeline("pipeline-built", screenPipelineStruct);
-
-    // GfxPipelineStruct uiPipelineStruct = {};
-    // uiPipelineStruct.vert = "built-ui.vert";
-    // uiPipelineStruct.frag = "built-ui.frag";
-    // uiPipelineStruct.pass = "pass-built-ui";
-    // uiPipelineStruct.depthTest = 0;
-    // uiPipelineStruct.depthWrite = 0;
-    // uiPipelineStruct.depthCompareOp = GfxPipelineCompareOp::Always;
-    // // 模版测试 启用（用于UI遮罩）
-    // uiPipelineStruct.stencilTest = 1;
-    // uiPipelineStruct.stencilFrontCompareOp = GfxPipelineCompareOp::Equal;  // 只在模板值相等时绘制
-    // uiPipelineStruct.stencilFrontFailOp = GfxPipelineStencilOp::Keep;      // 测试失败：保持
-    // uiPipelineStruct.stencilFrontDepthFailOp = GfxPipelineStencilOp::Keep; // 深度失败：保持
-    // uiPipelineStruct.stencilFrontPassOp = GfxPipelineStencilOp::Keep;      // 测试通过：保持（不修改模板值）
-    // uiPipelineStruct.stencilBackCompareOp = GfxPipelineCompareOp::Equal;
-    // uiPipelineStruct.stencilBackFailOp = GfxPipelineStencilOp::Keep;
-    // uiPipelineStruct.stencilBackDepthFailOp = GfxPipelineStencilOp::Keep;
-    // uiPipelineStruct.stencilBackPassOp = GfxPipelineStencilOp::Keep;
-    // // 颜色混合 开启
-    // uiPipelineStruct.colorBlend = 1;
-    // uiPipelineStruct.srcColorBlendFactor = GfxPipelineColorBlendFactor::SrcAlpha;
-    // uiPipelineStruct.dstColorBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    // uiPipelineStruct.colorBlendOp = GfxPipelineColorBlendOp::Add;
-    // uiPipelineStruct.srcAlphaBlendFactor = GfxPipelineColorBlendFactor::One;
-    // uiPipelineStruct.dstAlphaBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    // uiPipelineStruct.alphaBlendOp = GfxPipelineColorBlendOp::Add;
-    // uiPipelineStruct.colorWriteMask = 4;
-    // // 多边形模式 填充
-    // uiPipelineStruct.polygonMode = GfxPipelinePolygonMode::Fill;
-    // // 剔除模式 背面
-    // uiPipelineStruct.cullMode = GfxPipelineCullMode::Back;
-    // this->createUIPipeline("pass-built-ui", uiPipelineStruct);
-}
-void GfxRenderer::_initDefaultRenderQueue()
-{
-    this->_defaultQueue = new GfxRenderQueue();
-}
-
-void GfxRenderer::createPipeline(std::string name, GfxPipelineStruct pipelineStruct)
-{
-    if (this->_shaders.find(pipelineStruct.vert) == this->_shaders.end())
-    {
-        std::cout << "createPipeline:vert not found:" << pipelineStruct.vert << std::endl;
-        return;
-    }
-    if (this->_shaders.find(pipelineStruct.frag) == this->_shaders.end())
-    {
-        std::cout << "createPipeline:frag not found:" << pipelineStruct.frag << std::endl;
-        return;
-    }
-    if (this->_passes.find(pipelineStruct.pass) == this->_passes.end())
-    {
-        std::cout << "createPipeline:pass not found:" << pipelineStruct.pass << std::endl;
-        return;
-    }
-    GfxPipeline *pipeline = new GfxPipeline(name);
-    pipeline->create(this->_passes[pipelineStruct.pass], this->_shaders[pipelineStruct.vert], this->_shaders[pipelineStruct.frag], pipelineStruct);
-    this->_pipelines[name] = pipeline;
-}
-void GfxRenderer::createUIPipeline(std::string name, GfxPipelineStruct pipelineStruct)
-{
-    if (this->_shaders.find(pipelineStruct.vert) == this->_shaders.end())
-    {
-        std::cout << "Gfx : Renderer :: createPipeline:vert not found:" << pipelineStruct.vert << std::endl;
-        return;
-    }
-    if (this->_shaders.find(pipelineStruct.frag) == this->_shaders.end())
-    {
-        std::cout << "Gfx : Renderer :: createPipeline:frag not found:" << pipelineStruct.frag << std::endl;
-        return;
-    }
-    if (this->_passes.find(pipelineStruct.pass) == this->_passes.end())
-    {
-        std::cout << "Gfx : Renderer :: createPipeline:pass not found:" << pipelineStruct.pass << std::endl;
-        return;
-    }
-    GfxPipelineUI *pipeline = new GfxPipelineUI(name);
-    pipeline->create(this->_passes[pipelineStruct.pass], this->_shaders[pipelineStruct.vert], this->_shaders[pipelineStruct.frag], pipelineStruct);
-    this->_pipelines[name] = pipeline;
-}
-
 void GfxRenderer::createTexture(std::string textureUuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels)
 {
-    if (this->_textures.find(textureUuid) == this->_textures.end())
+    if (Gfx::textures.find(textureUuid) == Gfx::textures.end())
     {
-        GfxTexture *texture = new GfxTexture(pixels, width, height, channels);
-        this->_textures[textureUuid] = texture;
+        std::cout << "Gfx : Renderer :: createTexture:uuid:" << textureUuid << " width:" << width << " height:" << height << " channels:" << channels << std::endl;
+        GfxTexture *texture = new GfxTexture(textureUuid, pixels, width, height, channels);
+        Gfx::textures[textureUuid] = texture;
     }
+}
+void GfxRenderer::insertTexture(std::string textureUuid, GfxTexture *texture)
+{
+    if (Gfx::textures.find(textureUuid) != Gfx::textures.end())
+    {
+        std::cout << "Gfx : Renderer :: insertTexture:uuid:" << textureUuid << " already exists" << std::endl;
+        return;
+    }
+    Gfx::textures[textureUuid] = texture;
 }
 void GfxRenderer::destroyTexture(std::string textureUuid)
 {
-    if (this->_textures.find(textureUuid) != this->_textures.end())
+    if (Gfx::textures.find(textureUuid) != Gfx::textures.end())
     {
-        delete this->_textures[textureUuid];
-        this->_textures.erase(textureUuid);
+        delete Gfx::textures[textureUuid];
+        Gfx::textures.erase(textureUuid);
     }
 }
 bool GfxRenderer::isExistTexture(std::string textureUuid)
 {
-    return this->_textures.find(textureUuid) != this->_textures.end();
+    return Gfx::textures.find(textureUuid) != Gfx::textures.end();
 }
+GfxTexture *GfxRenderer::getTexture(std::string uuid)
+{
+    if (Gfx::textures.find(uuid) == Gfx::textures.end())
+    {
+        std::cout << "Gfx : Renderer :: Texture not found:" << uuid << std::endl;
+        return nullptr;
+    }
+    return Gfx::textures.at(uuid);
+}
+
 void GfxRenderer::createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros)
 {
     // 生成唯一的缓存键：shaderName + 宏定义
@@ -368,7 +101,7 @@ void GfxRenderer::createGlslShader(const std::string &shaderName, const std::str
 
     std::string finalCacheKey = cacheKey.str();
     //  检查是否已存在
-    if (this->_shaders.find(finalCacheKey) != this->_shaders.end())
+    if (Gfx::shaders.find(finalCacheKey) != Gfx::shaders.end())
     {
         std::cout << "Gfx : Renderer :: Shader already exists: " << finalCacheKey << std::endl;
         return;
@@ -379,7 +112,7 @@ void GfxRenderer::createGlslShader(const std::string &shaderName, const std::str
         std::vector<uint32_t> spirvCode = this->compileShaderGlslToSpirv(shaderType, finalCacheKey, data, macros);
         GfxShader *shader = new GfxShader(finalCacheKey);
         shader->createShaderModule(spirvCode);
-        this->_shaders[finalCacheKey] = shader;
+        Gfx::shaders[finalCacheKey] = shader;
     }
     catch (const std::exception &e)
     {
@@ -390,14 +123,14 @@ void GfxRenderer::createGlslShader(const std::string &shaderName, const std::str
 
 void GfxRenderer::createSpirvShader(const std::string &shaderName, const std::vector<char> &data)
 {
-    if (this->_shaders.find(shaderName) != this->_shaders.end())
+    if (Gfx::shaders.find(shaderName) != Gfx::shaders.end())
     {
         std::cout << "Gfx : Renderer :: Shader already exists: " << shaderName << std::endl;
         return;
     }
     GfxShader *shader = new GfxShader(shaderName);
     shader->createShaderModule(data);
-    this->_shaders[shaderName] = shader;
+    Gfx::shaders[shaderName] = shader;
 }
 std::vector<uint32_t> GfxRenderer::compileShaderGlslToSpirv(const std::string &type, const std::string &cacheKey, const std::string &source, const std::map<std::string, std::string> &macros)
 {
@@ -459,66 +192,243 @@ std::vector<uint32_t> GfxRenderer::compileShaderGlslToSpirv(const std::string &t
               << " (" << spirvCode.size() << " SPIR-V words)" << std::endl;
     return spirvCode;
 }
-
-void GfxRenderer::initRenderQueue(uint32_t renderId, std::array<float, 16> &viewMat, std::array<float, 16> &projMat)
+void GfxRenderer::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture)
 {
-    if (this->_queues.find(renderId) == this->_queues.end())
-    {
-        GfxRenderQueue *queue = new GfxRenderQueue();
-        this->_queues[renderId] = queue;
-    }
-    this->_queues[renderId]->init(viewMat, projMat);
+    this->_builtinRenderer->initRenderQueue(renderId, renderTexture);
 }
-void GfxRenderer::submitRenderObject(uint32_t renderId, GfxMaterial &material, GfxMesh &mesh)
+void GfxRenderer::delRenderQueue(std::string renderId)
 {
-    if (this->_queues.find(renderId) == this->_queues.end())
-    {
-        std::cout << "Gfx : Renderer :: submitRenderObject:renderId not found:" << renderId << std::endl;
-        return;
-    }
-    this->_queues[renderId]->submitObject(material, mesh);
+    this->_builtinRenderer->delRenderQueue(renderId);
 }
-
+void GfxRenderer::submitRenderMat(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix)
+{
+    this->_builtinRenderer->submitRenderMat(renderId, viewMatrix, projMatrix);
+}
+void GfxRenderer::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData)
+{
+    this->_builtinRenderer->submitRenderObject(renderId, material, mesh, instanceData);
+}
+/**
+ * @brief 渲染前处理
+ * 上一帧渲染完成，清空渲染目标，准备新帧渲染
+ */
+void GfxRenderer::frameRendererBefore()
+{
+    Gfx::bufferUBO->clear();
+    Gfx::bufferInstance->clear();
+    this->_defaultRenderer->frameRendererBefore();
+    this->_builtinRenderer->frameRendererBefore();
+}
 void GfxRenderer::frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers)
 {
-    // 渲染默认队列
-    // std::array<float, 16> viewMat = {1.0f};
-    // std::array<float, 16> projMat = {1.0f};
-    // this->_defaultQueue->init(viewMat, projMat);
-    // this->_defaultQueue->submitObject(defaultMaterial, defaultMesh);
-    this->_defaultQueue->render(imageIndex, commandBuffers);
+    // 先获取上一帧的离屏渲染输出提交到默认队列
+    std::vector<std::string> pipelineOutds;
+    this->_builtinRenderer->getOffScreenOutds(pipelineOutds);
+    this->_defaultRenderer->frameRenderer(imageIndex, commandBuffers, pipelineOutds);
 
-    // for (auto &queue : this->_queues)
+    // 离屏渲染队列
+    this->_builtinRenderer->frameRenderer(imageIndex, commandBuffers);
+
+    // this->_pipelineOutds.clear();
+    // // 渲染3d队列
+    // // 渲染ui队列
+    // this->_renderPipelineUI->frameRenderer(imageIndex, commandBuffers, this->_pipelineOutds);
+
+    // // 渲染默认队列屏幕输出
+    // for (auto &out : this->_pipelineOutds)
     // {
-    //     // queue.second->render(imageIndex, commandBuffers);
+    //     // std::cout << "Gfx : Renderer :: Rendering builtin pipeline output: " << out << std::endl;
+    //     this->_renderPipelineBuiltin->submitRenderObject(out);
     // }
+    // // this->_renderPipelineBuiltin->submitRenderObject("default-texture");
+    // this->_renderPipelineBuiltin->frameRenderer(imageIndex, commandBuffers);
+}
+void GfxRenderer::frameRendererAfter()
+{
+    this->_defaultRenderer->frameRendererAfter();
+    this->_builtinRenderer->frameRendererAfter();
+}
+GfxRenderer::~GfxRenderer()
+{
 }
 
-void GfxRenderer::cleanRendererState()
-{
-    // 渲染管线清除
-    for (auto &[name, pipeline] : this->_pipelines)
-    {
-        pipeline->clear();
-    }
-    /*  // 渲染pass清除 */
-    for (auto &[name, pass] : this->_passes)
-    {
-        pass->clear();
-    }
-}
-void GfxRenderer::resetRendererState()
-{
-    for (auto &[name, pass] : this->_passes)
-    {
-        pass->reset();
-    }
-    for (auto &[name, pipeline] : this->_pipelines)
-    {
-        pipeline->reset();
-    }
-}
+// void GfxRenderer::submitRenderObject(uint32_t renderId, GfxMaterial &material, GfxMesh &mesh)
+// {
+// }
 
+// void GfxRenderer::frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers)
+// {
+//     // // 渲染默认队列
+//     // // std::array<float, 16> viewMat = {1.0f};
+//     // // std::array<float, 16> projMat = {1.0f};
+//     // // this->_defaultQueue->init(viewMat, projMat);
+//     // // this->_defaultQueue->submitObject(defaultMaterial, defaultMesh);
+//     // this->_defaultQueue->render(imageIndex, commandBuffers);
+
+//     // // for (auto &queue : this->_queues)
+//     // // {
+//     // //     // queue.second->render(imageIndex, commandBuffers);
+//     // // }
+// }
+
+void GfxRenderer::_cleanRendererState()
+{
+    this->_defaultRenderer->_cleanRendererState();
+}
+void GfxRenderer::_resetRendererState()
+{
+    this->_defaultRenderer->_resetRendererState();
+}
+// void GfxRenderer::_initDescriptor()
+// {
+//     this->_initDescriptorPool();
+//     this->_initDescriptorSetLayout();
+//     this->_initDescriptorSets();
+// }
+// void GfxRenderer::_initDescriptorPool()
+// {
+//     // std::vector<VkImageView> &swapChainImageViews = Gfx::context->getSwapChainImageViews();
+
+//     // std::vector<VkDescriptorPoolSize> poolSizes(3);
+//     // // 1. UBO数量计算
+//     // // 每个帧：2个UBO（3D UBO + UI UBO）
+//     // // 可能需要额外：阴影UBO、后处理UBO
+//     // poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//     // poolSizes[0].descriptorCount = 30 * swapChainImageViews.size(); // 支持更多
+//     // // 2. 存储缓冲区数量计算
+//     // // 每个帧可能需要的存储缓冲区：
+//     // // - 模型数据buffer（所有物体的变换）
+//     // // - 材质数据buffer
+//     // // - 灯光数据buffer
+//     // // - 实例数据buffer
+//     // poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+//     // poolSizes[1].descriptorCount = 300 * swapChainImageViews.size(); // 支持更多
+//     // // 3. Bindless纹理：关键是这个要足够大！
+//     // poolSizes[2].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//     // // ⚠️ 临时修复：增加容量（但这不是最佳方案，见下方建议）
+//     // poolSizes[2].descriptorCount = 500 * swapChainImageViews.size();
+
+//     // // 4. maxSets计算：需要多少个描述符集？
+//     // // 每个帧需要：
+//     // // - 3D渲染描述符集
+//     // // - UI渲染描述符集
+//     // // - 可能还有：阴影Pass描述符集、后处理描述符集
+//     // // int descriptorSetsPerFrame = 400;          // 3D + UI（最基本）
+//     // // uint32_t maxSets = descriptorSetsPerFrame; // 6个描述符集
+
+//     // VkDescriptorPoolCreateInfo poolInfo{};
+//     // poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+//     // // ✓ 关键：添加 UPDATE_AFTER_BIND 标志（Bindless 必需）
+//     // poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;
+//     // poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+//     // poolInfo.pPoolSizes = poolSizes.data();
+//     // poolInfo.maxSets = 10 * swapChainImageViews.size(); // 支持更多描述符集
+
+//     // if (vkCreateDescriptorPool(Gfx::context->getVkDevice(), &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS)
+//     // {
+//     //     throw std::runtime_error("failed to create descriptor pool!");
+//     // }
+
+//     // std::cout << "Gfx : Renderer ::   Created descriptor pool with UPDATE_AFTER_BIND support" << std::endl;
+//     // std::cout << "Gfx : Renderer ::   UBO descriptors: " << poolSizes[0].descriptorCount << std::endl;
+//     // std::cout << "Gfx : Renderer ::   Storage Buffer descriptors: " << poolSizes[1].descriptorCount << std::endl;
+//     // std::cout << "Gfx : Renderer ::   Texture descriptors: " << poolSizes[2].descriptorCount << std::endl;
+// }
+// void GfxRenderer::_initDescriptorSetLayout()
+// {
+//     // // 动态 UBO 研究
+//     // std::vector<VkDescriptorSetLayoutBinding> bindings;
+//     // // ubo缓冲区绑定  -全局统一属性
+//     // VkDescriptorSetLayoutBinding uboLayoutBinding{};
+//     // uboLayoutBinding.binding = 0;
+//     // uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//     // uboLayoutBinding.descriptorCount = 1;
+//     // uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+//     // bindings.push_back(uboLayoutBinding);
+//     // // 使用存储缓冲区绑定 - 物体单独属性
+//     // VkDescriptorSetLayoutBinding ssboBinding = {};
+//     // ssboBinding.binding = 1; // 对应shader中的 binding = 0
+//     // ssboBinding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+//     // ssboBinding.descriptorCount = 1;
+//     // ssboBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT |   // 顶点着色器可以访问
+//     //                          VK_SHADER_STAGE_FRAGMENT_BIT | // 片段着色器可以访问
+//     //                          VK_SHADER_STAGE_COMPUTE_BIT;   // 计算着色器可以访问
+//     // bindings.push_back(ssboBinding);
+//     // // 绑定纹理数组采样器
+//     // VkDescriptorSetLayoutBinding textureArrayBinding{};
+//     // textureArrayBinding.binding = 2;
+//     // textureArrayBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//     // textureArrayBinding.descriptorCount = 500; // 你的池子大小
+//     // textureArrayBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+//     // bindings.push_back(textureArrayBinding);
+
+//     // // ==================== 启用Bindless扩展 ====================
+//     // // 需要这些扩展标志
+//     // std::vector<VkDescriptorBindingFlags> bindingFlags(bindings.size(), 0);
+//     // bindingFlags[0] = 0;
+//     // bindingFlags[1] = 0;
+//     // // 为纹理数组启用部分绑定和更新后绑定
+//     // bindingFlags[2] = VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT |
+//     //                   VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT |
+//     //                   VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT; // 新增
+
+//     // // VkDescriptorSetLayoutBindingFlagsCreateInfoEXT bindingFlagsInfo;
+//     // // bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+//     // // bindingFlagsInfo.bindingCount = static_cast<uint32_t>(bindingFlags.size());
+//     // // bindingFlagsInfo.pBindingFlags = bindingFlags.data();
+//     // VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
+//     // bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+//     // bindingFlagsInfo.pNext = nullptr; // 如果还有其他扩展链，需要正确设置
+//     // bindingFlagsInfo.bindingCount = static_cast<uint32_t>(bindingFlags.size());
+//     // bindingFlagsInfo.pBindingFlags = bindingFlags.data();
+
+//     // VkDescriptorSetLayoutCreateInfo layoutInfo{};
+//     // layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+//     // layoutInfo.pNext = &bindingFlagsInfo;                                              // 链接扩展结构
+//     // layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT; // 注意：这里使用 EXT 后缀
+//     // layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
+//     // layoutInfo.pBindings = bindings.data();
+
+//     // std::cout << "Gfx : Renderer ::   Texture Array Descriptors: " << textureArrayBinding.descriptorCount << std::endl;
+//     // std::cout << "Gfx : Renderer ::   Binding Flags: " << bindingFlags[2] << std::endl;
+//     // std::cout << "Gfx : Renderer ::   getVkDevice: " << Gfx::context->getVkDevice() << std::endl;
+
+//     // if (vkCreateDescriptorSetLayout(Gfx::context->getVkDevice(),
+//     //                                 &layoutInfo, nullptr, &this->_descriptorSetLayout) != VK_SUCCESS)
+//     // {
+//     //     std::cout << "Gfx : Renderer :: create descriptor set layout failed " << std::endl;
+//     //     return;
+//     // }
+//     // std::cout << "Gfx : Renderer :: create descriptor set layout success " << std::endl;
+// }
+// void GfxRenderer::_initDescriptorSets()
+// {
+//     // // 每个帧需要一个描述符集
+//     // std::vector<VkImageView> &swapChainImageViews = Gfx::context->getSwapChainImageViews();
+
+//     // std::vector<VkDescriptorSetLayout> layouts(swapChainImageViews.size(), this->_descriptorSetLayout);
+
+//     // // 关键：设置可变描述符数量信息
+//     // VkDescriptorSetVariableDescriptorCountAllocateInfoEXT countInfo = {};
+//     // countInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO_EXT;
+//     // countInfo.descriptorSetCount = swapChainImageViews.size();
+//     // // 每个描述符集实际使用的纹理数量（可以动态设置）
+//     // std::vector<uint32_t> counts(swapChainImageViews.size(), 500); // 每个集最多500个纹理
+//     // countInfo.pDescriptorCounts = counts.data();
+
+//     // VkDescriptorSetAllocateInfo allocInfo{};
+//     // allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+//     // allocInfo.pNext = &countInfo; // 链接可变数量信息
+//     // allocInfo.descriptorPool = this->_descriptorPool;
+//     // allocInfo.descriptorSetCount = swapChainImageViews.size();
+//     // allocInfo.pSetLayouts = layouts.data();
+//     // this->_descriptorSets.resize(swapChainImageViews.size());
+//     // if (vkAllocateDescriptorSets(Gfx::context->getVkDevice(), &allocInfo, this->_descriptorSets.data()) != VK_SUCCESS)
+//     // {
+//     //     throw std::runtime_error("Failed to allocate descriptor sets!");
+//     // }
+//     // std::cout << "Gfx : Renderer :: create descriptor sets success..." << std::endl;
+// }
 // void GfxRenderer::createObject(std::string id, std::string passName, std::vector<float> points, std::vector<float> colors, std::vector<float> normals, std::vector<float> uvs, std::vector<uint32_t> indices)
 // {
 //     // if (this->_objects.find(id) != this->_objects.end())
@@ -699,7 +609,7 @@ void GfxRenderer::resetRendererState()
 //     //     return;
 //     // }
 //     // GfxObject *object = this->_objects[id];
-//     // GfxPass *pass = object->getPass();
+//     // GfxRenderPass *pass = object->getPass();
 //     // if (pass == nullptr || this->_queues.find(pass->name()) == this->_queues.end())
 //     // {
 //     //     std::cerr << "GfxRenderer submitObjectRender:pass not found" << std::endl;
@@ -707,10 +617,6 @@ void GfxRenderer::resetRendererState()
 //     // }
 //     // this->_queues[pass->name()]->submit(object);
 // }
-
-GfxRenderer::~GfxRenderer()
-{
-}
 
 // void GfxRenderer::_initDefaultUIMaskPipeline()
 // {

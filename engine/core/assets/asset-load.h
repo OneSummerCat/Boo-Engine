@@ -29,7 +29,8 @@ public:
     };
 
 
-    Asset *loadByUuid(const std::string &uuid);
+    Asset *loadAsset(const std::string &uuid);
+    Asset *loadAssetByPath(const std::string &path);
 
     // template <typename T, typename Func>
     // int loadAsync(const std::string &path, Func callback, T *instance)

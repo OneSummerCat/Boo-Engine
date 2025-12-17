@@ -4,6 +4,9 @@
 #include "gfx-mgr.h"
 #include "gfx-context.h"
 #include "gfx-renderer.h"
+#include "base/gfx-material.h"
+#include "base/gfx-mesh.h"
+#include "base/gfx-render-texture.h"
 
 #include "../utils/time-util.h"
 
@@ -33,15 +36,27 @@ void GfxMgr::init()
     Gfx::renderer = new GfxRenderer();
     Gfx::renderer->init();
 }
-
-void GfxMgr::update()
+void GfxMgr::setLockRender(bool lock)
 {
+    this->_lockRender = lock;
+}
+
+void GfxMgr::update(float dt)
+{
+    Gfx::time += dt;
+    
+    if (this->_lockRender)
+    {
+        return;
+    }
+
     // Gfx::renderer->clearDestroyObjects();
     // std::cout << "renderer update" << std::endl;
     Gfx::context->frameFencesPrepare(this->_currentFrame);
     // std::cout << "renderer update1" << std::endl;
     /* // 可用的图像的索引 */
     uint32_t imageIndex;
+    Gfx::renderer->frameRendererBefore();
     /**
      * 从交换链申请一个可渲染的图像
      * 通过 _imageAvailableSemaphores[_currentFrame] 信号量，通知 GPU："必须等这个信号量触发后，才能开始渲染该图像"。
@@ -61,13 +76,13 @@ void GfxMgr::update()
     /*  // 准备渲染buffer */
     std::vector<VkCommandBuffer> commandBuffers;
     Gfx::renderer->frameRenderer(imageIndex, commandBuffers);
-
     /*  // 提交渲染命令 */
     Gfx::context->frameSubmitCommands(imageIndex, commandBuffers, this->_currentFrame);
     /*  // 显示图像 */
     VkResult result2 = Gfx::context->framePresentFrame(imageIndex, this->_currentFrame);
     if (result2 == VK_ERROR_OUT_OF_DATE_KHR || result2 == VK_SUBOPTIMAL_KHR)
     {
+        Gfx::renderer->frameRendererAfter();
         this->resetSwapChain();
         return;
     }
@@ -82,16 +97,19 @@ void GfxMgr::update()
      * 帧0	等待帧0栅栏，信号量A复用	渲染帧1完成，显示帧0
      */
     this->_currentFrame = (this->_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+    Gfx::renderer->frameRendererAfter();
 }
+/**
+ * 关键时刻手动重置交换链
+ */
 void GfxMgr::resetSwapChain()
 {
-    vkDeviceWaitIdle(Gfx::context->vkDevice()); /*  // 等待所有操作完成 */
-                                                /*  // 线清除， */
-    Gfx::renderer->cleanRendererState();
+    vkDeviceWaitIdle(Gfx::context->getVkDevice()); /*  // 等待所有操作完成 */
+    Gfx::renderer->_cleanRendererState();
     Gfx::context->cleanSwapChain();
     /*  // 后重置 */
     Gfx::context->resetSwapChain();
-    Gfx::renderer->resetRendererState();
+    Gfx::renderer->_resetRendererState();
     std::cout << "GfxMgr :reset swap chain end..." << std::endl;
 }
 
@@ -105,7 +123,7 @@ void GfxMgr::destroyTexture(std::string texture)
 }
 bool GfxMgr::isExistTexture(std::string texture)
 {
-   return Gfx::renderer->isExistTexture(texture);
+    return Gfx::renderer->isExistTexture(texture);
 }
 void GfxMgr::createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros)
 {
@@ -115,12 +133,105 @@ void GfxMgr::createSpirvShader(const std::string &shaderName, const std::vector<
 {
     Gfx::renderer->createSpirvShader(shaderName, data);
 }
-void GfxMgr:: initRenderQueue(uint32_t renderId, std::array<float, 16> &viewMat, std::array<float, 16> &projMat){
-    Gfx::renderer->initRenderQueue(renderId,viewMat, projMat);
+void GfxMgr::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture)
+{
+    Gfx::renderer->initRenderQueue(renderId, renderTexture);
 }
-void GfxMgr:: submitRenderObject(uint32_t renderId, GfxMaterial &material, GfxMesh &mesh){
-    Gfx::renderer->submitRenderObject(renderId, material, mesh);
+void GfxMgr::delRenderQueue(std::string renderId)
+{
+    Gfx::renderer->delRenderQueue(renderId);
 }
+void GfxMgr::submitRenderMat(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix)
+{
+    Gfx::renderer->submitRenderMat(renderId, viewMatrix, projMatrix);
+}
+void GfxMgr::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData)
+{
+    Gfx::renderer->submitRenderObject(renderId, material, mesh, instanceData);
+}
+std::vector<char> GfxMgr::readShaderFile(const std::string &filename)
+{
+    /*   // ate: 表示从文件末未开始读取
+      // binary: 表示以二进制方式读取 */
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
+    /*    // std::cout << filename << std::endl; */
+    if (!file.is_open())
+    {
+        throw std::runtime_error("failed to open file!");
+    }
+    /*  // tellg()返回当前定位指针的位置，也代表着输入流的大小。 */
+    size_t fileSize = (size_t)file.tellg();
+    /*  // std::cout << fileSize << std::endl; */
+    std::vector<char> buffer(fileSize);
+    /*  // seekg()是对输入流的操作 g是get缩写，0是代表从开头读起。 */
+    file.seekg(0);
+    /* // 读入到Buffer当中 */
+    file.read(buffer.data(), fileSize);
+    file.close();
+    /* // std::cout << "read file success: " << filename << std::endl; */
+    return buffer;
+}
+
+VkResult GfxMgr::createBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkBuffer *buffer, VkDeviceMemory *memory, VkDeviceSize size, void *data = nullptr)
+{
+    VkBufferCreateInfo bufferCreateInfo{};
+    bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferCreateInfo.usage = usageFlags;
+    bufferCreateInfo.size = size;
+    bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    vkCreateBuffer(Gfx::context->getVkDevice(), &bufferCreateInfo, nullptr, buffer);
+
+    VkMemoryRequirements memReqs;
+    VkMemoryAllocateInfo memAlloc{};
+    memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    vkGetBufferMemoryRequirements(Gfx::context->getVkDevice(), *buffer, &memReqs);
+    memAlloc.allocationSize = memReqs.size;
+    memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, memoryPropertyFlags);
+    vkAllocateMemory(Gfx::context->getVkDevice(), &memAlloc, nullptr, memory);
+
+    if (data != nullptr)
+    {
+        void *mapped;
+        vkMapMemory(Gfx::context->getVkDevice(), *memory, 0, size, 0, &mapped);
+        memcpy(mapped, data, size);
+        vkUnmapMemory(Gfx::context->getVkDevice(), *memory);
+    }
+
+    vkBindBufferMemory(Gfx::context->getVkDevice(), *buffer, *memory, 0);
+    return VK_SUCCESS;
+}
+uint32_t GfxMgr::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties)
+{
+    VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
+    vkGetPhysicalDeviceMemoryProperties(Gfx::context->getPhysicalDevice(), &deviceMemoryProperties);
+    for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
+    {
+        if ((typeBits & 1) == 1)
+        {
+            if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            {
+                return i;
+            }
+        }
+        typeBits >>= 1;
+    }
+    return 0;
+}
+GfxMgr::~GfxMgr()
+{
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // void GfxMgr::initTestInfo()
 // {
@@ -273,74 +384,3 @@ void GfxMgr:: submitRenderObject(uint32_t renderId, GfxMaterial &material, GfxMe
 // }
 
 /* // 读取shader内容 */
-std::vector<char> GfxMgr::readShaderFile(const std::string &filename)
-{
-    /*   // ate: 表示从文件末未开始读取
-      // binary: 表示以二进制方式读取 */
-    std::ifstream file(filename, std::ios::ate | std::ios::binary);
-    /*    // std::cout << filename << std::endl; */
-    if (!file.is_open())
-    {
-        throw std::runtime_error("failed to open file!");
-    }
-    /*  // tellg()返回当前定位指针的位置，也代表着输入流的大小。 */
-    size_t fileSize = (size_t)file.tellg();
-    /*  // std::cout << fileSize << std::endl; */
-    std::vector<char> buffer(fileSize);
-    /*  // seekg()是对输入流的操作 g是get缩写，0是代表从开头读起。 */
-    file.seekg(0);
-    /* // 读入到Buffer当中 */
-    file.read(buffer.data(), fileSize);
-    file.close();
-    /* // std::cout << "read file success: " << filename << std::endl; */
-    return buffer;
-}
-
-VkResult GfxMgr::createBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFlags memoryPropertyFlags, VkBuffer *buffer, VkDeviceMemory *memory, VkDeviceSize size, void *data = nullptr)
-{
-    VkBufferCreateInfo bufferCreateInfo{};
-    bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-    bufferCreateInfo.usage = usageFlags;
-    bufferCreateInfo.size = size;
-    bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    vkCreateBuffer(Gfx::context->vkDevice(), &bufferCreateInfo, nullptr, buffer);
-
-    VkMemoryRequirements memReqs;
-    VkMemoryAllocateInfo memAlloc{};
-    memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    vkGetBufferMemoryRequirements(Gfx::context->vkDevice(), *buffer, &memReqs);
-    memAlloc.allocationSize = memReqs.size;
-    memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, memoryPropertyFlags);
-    vkAllocateMemory(Gfx::context->vkDevice(), &memAlloc, nullptr, memory);
-
-    if (data != nullptr)
-    {
-        void *mapped;
-        vkMapMemory(Gfx::context->vkDevice(), *memory, 0, size, 0, &mapped);
-        memcpy(mapped, data, size);
-        vkUnmapMemory(Gfx::context->vkDevice(), *memory);
-    }
-
-    vkBindBufferMemory(Gfx::context->vkDevice(), *buffer, *memory, 0);
-    return VK_SUCCESS;
-}
-uint32_t GfxMgr::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties)
-{
-    VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(Gfx::context->physicalDevice(), &deviceMemoryProperties);
-    for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
-    {
-        if ((typeBits & 1) == 1)
-        {
-            if ((deviceMemoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
-            {
-                return i;
-            }
-        }
-        typeBits >>= 1;
-    }
-    return 0;
-}
-GfxMgr::~GfxMgr()
-{
-}

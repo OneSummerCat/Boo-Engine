@@ -13,10 +13,11 @@ class AssetsManager;
 class FreetypeMgr;
 class Input;
 class Camera;
+class Renderer;
+class UIRenderer;
 
 struct View
 {
-    bool isFlag;
     int width = 1280;
     int height = 720;
 };
@@ -49,7 +50,7 @@ private:
     // 调度器相关
     uint64_t _scheduleNextID_ = 0;
     std::unordered_map<int, ScheduleInfo> _schedules;
-   
+
     std::vector<int> _scheduleClearCaches;
     // 组件清理相关
     std::vector<Component *> _compClearCaches;
@@ -87,7 +88,11 @@ private:
     /**
      * @brief 相机系统
      */
-    std::vector<Camera *> _cameras;
+    std::unordered_map<std::string, Camera *> _cameras;
+
+    bool _viewChanged = false;
+
+    Renderer *_renderer;
 
     /**
      * @brief 初始化图形库
@@ -109,19 +114,24 @@ private:
      * @brief 初始化字体系统
      */
     void _initFont();
-    /**
+    /**_renderCameras
      * @brief 初始化资产系统
      */
     void _initAssets();
+
+    void _initRenderer();
+
     /**
      * @brief 初始化透明度系统
      */
     void _initAlpha();
 
+    void _viewChangeEnd();
     void _update(float dt);
     void _updateSchedules(float dt);
     void _lateUpdate(float dt);
     void _render(float dt);
+
     void _clear();
     void _updateClearCaches();
 
@@ -132,7 +142,7 @@ public:
      * @brief 初始化游戏
      */
     void init();
-    void setView(const int width, const int height);
+    void resizeView(const int width, const int height);
     View *view()
     {
         return this->_view;
@@ -166,6 +176,12 @@ public:
      * @param camera 相机指针
      */
     void extractCamera(Camera *camera);
+    /**
+     * @brief 从游戏中移除相机
+     *
+     * @param camera 相机指针
+     */
+    void removeCamera(Camera *camera);
 
     // typename T: 表示一个类型参数，通常指类的类型
     // typename Func: 表示另一个类型参数，通常指函数类型（函数指针、成员函数指针、函数对象等）
@@ -194,8 +210,6 @@ public:
         return id;
     }
     void unschedule(int scheduleID);
-
-    /* Scene *openScene(std::string sceneName);*/
 
     void addCompClearCaches(Component *comp);
     void addNodeClearCaches(Node *node);

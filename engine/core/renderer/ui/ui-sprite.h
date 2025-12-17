@@ -6,12 +6,13 @@
 #include "../../component/component-property-register.h"
 
 class Node;
+class Camera;
 
 class UISprite : public UIRenderer
 {
 public:
-    REGISTER_PROPERTY_STRING(UISprite, _texture, "纹理");
-    REGISTER_PROPERTY_STRING(UISprite, _material, "材质");
+    REGISTER_PROPERTY_TEXTURE(UISprite, _texture, "纹理");
+    REGISTER_PROPERTY_MATERIAL(UISprite, _material, "材质");
     
 protected:
     /**
@@ -19,14 +20,6 @@ protected:
      * 反序列化成功
      */
     void _deserialized() override;
-    /**
-     * 更新渲染状态
-     */
-    void _updateRendererState() override;
-    /**
-     * 更新模型矩阵
-     */
-    void _updateModelMatrix() override;
 
 public:
     UISprite(std::string name, Node *node, std::string uuid = "");
@@ -63,9 +56,13 @@ public:
     void setTextureAsset(std::string texture);
     void setTextureAsset(TextureAsset *texture);
 
+    void setTexture(std::string texture);
+    void setTexture(TextureAsset *texture);
+
     void Update(float deltaTime) override;
     void LateUpdate(float deltaTime) override;
-    void Render() override;
+    void Render(Camera *camera) override;
+    void Disable() override;
     void destroy() override;
     ~UISprite() override;
 };

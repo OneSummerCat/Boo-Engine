@@ -1,10 +1,12 @@
 #pragma once
 #include <iostream>
 #include "node.h"
+
 #include "../utils/uuid-util.h"
 #include "../math/vec2.h"
 #include "../math/size.h"
 #include "../math/mat4.h"
+#include "../renderer/ui/ui-renderer.h"
 
 struct NodeInputResult;
 enum class NodeInput;
@@ -49,6 +51,10 @@ public:
      * 添加组件
      */
     Component *addComponent(std::string name, std::string uuid = "") override;
+    /**
+     * 获取UI渲染组件
+     */
+    UIRenderer *getUIRenderComponent();
 
     void clearNodeFrameFlag() override;
 

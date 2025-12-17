@@ -3,7 +3,7 @@
 #include "texture-asset.h"
 #include <filesystem>
 #include <iostream>
-#include "shader.h"
+#include "shader-asset.h"
 #include "assets-manager.h"
 #include "asset-cache.h"
 #include "asset-task.h"
@@ -13,22 +13,47 @@ AssetLoad::AssetLoad(AssetsManager *mgr)
 {
     this->_mgr = mgr;
 }
-Asset *AssetLoad::loadByUuid(const std::string &uuid)
+Asset *AssetLoad::loadAsset(const std::string &uuid)
 {
     AssetCache *cache = this->_mgr->getAssetsCache();
     Asset *asset = nullptr;
-    asset = cache->getAssetByUuid(uuid);
+    asset = cache->getAsset(uuid);
     if (asset != nullptr)
     {
         return asset;
     }
     int taskID = this->_TaskNextID++;
     AssetTask task(this->_mgr, taskID);
-    const AssetDB &config = cache->getAssetDBByUuid(uuid);
-    asset = task.load(config);
+    AssetDB *db = cache->getAssetDB(uuid);
+    if(db == nullptr){
+        return nullptr;
+    }
+    asset = task.load(db);
     cache->addAsset(uuid,asset);
     return asset;
 }
+Asset *AssetLoad::loadAssetByPath(const std::string &path)
+{
+    // AssetCache *cache = this->_mgr->getAssetsCache();
+    // Asset *asset = nullptr;
+    // asset = cache->getAssetByPath(path);
+    // if (asset != nullptr)
+    // {
+    //     return asset;
+    // }
+    // int taskID = this->_TaskNextID++;
+    // AssetTask task(this->_mgr, taskID);
+    // AssetDB *db = cache->getAssetDBByPath(path);
+    // if(db == nullptr){
+    //     return nullptr;
+    // }
+    // asset = task.load(db);
+    // cache->addAsset(path,asset);
+    // return asset;
+    return nullptr;
+}
+
+
 // Asset *AssetLoad::load(const std::string path)
 // {
 //     // 从缓存中获取资产

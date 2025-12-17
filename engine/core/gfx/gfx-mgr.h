@@ -7,10 +7,11 @@
 #include <vector>
 #include <set>
 #include <map>
+#include "base/gfx-pipeline-struct.h"
 
-#include "gfx-struct.h"
-#include "pipeline/gfx-pipeline-struct.h"
-
+class GfxRenderTexture;
+class GfxMaterial;
+class GfxMesh;
 
 class GfxMgr
 {
@@ -19,7 +20,7 @@ private:
 	GfxMgr &operator=(const GfxMgr &) = delete; /* // 禁用赋值操作符 */
 	GfxMgr();
 	~GfxMgr();
-
+	bool _lockRender = false;
 	size_t _currentFrame = 0;
 
 public:
@@ -29,9 +30,10 @@ public:
 	 */
 	void init();
 
-	void update();
+	void update(float dt);
 	void resetSwapChain();
 
+	void setLockRender(bool lock);
 	/**
 	 * @brief 创建纹理
 	 *
@@ -76,7 +78,15 @@ public:
 	 * @param viewMat 视图矩阵
 	 * @param projMat 投影矩阵
 	 */
-	void initRenderQueue(uint32_t renderId, std::array<float, 16> &viewMat, std::array<float, 16> &projMat);
+	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture);
+	/**
+	 * @brief 销毁渲染队列
+	 *
+	 * @param renderId 渲染队列ID
+	 */
+	void delRenderQueue(std::string renderId);
+	
+	void submitRenderMat(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix);
 	/**
 	 * @brief 提交渲染对象
 	 *
@@ -86,7 +96,7 @@ public:
 	 * @param vertices 顶点数据
 	 * @param indices 索引数据
 	 */
-	void submitRenderObject(uint32_t renderId, GfxMaterial &material,GfxMesh &mesh);
+	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData);
 
 	// void initTestInfo();
 	// /*  // 采样次数 */

@@ -8,13 +8,15 @@
 class Node2D;
 class UISprite;
 class TextureAsset;
+class Camera;
 
 class EditorLoading : public Component
 {
 private:
 	float _width;
 	float _height;
-	TextureAsset* _textureDefault;
+	void _initCamera();
+	Camera* _uiCamera;
 
 	Node2D *_ndAlpha;
 	UISprite *_spriteAlpha;
@@ -23,7 +25,7 @@ private:
 	// logo
 	Node2D *_ndLogo;
 	UISprite *_spriteLogo;
-	TextureAsset* _textureLogo;
+	// TextureAsset* _textureLogo;
 	float _logoTxWidth;
 	float _logoTxHeight;
 	float _logoRatio;
@@ -40,7 +42,8 @@ private:
 	void _updateLoadBarSize(float width, float height);
 
 	void _initAssetsDB();
-	void _initAssetsDBCallback(int completedCount, int allCount, float progress);
+	void _initAssetsDBCallback(float progress, std::string file);
+	void _initAssetsDBCompleteCallback();
 
 	void _saveEditorCache();
 	int _launchEditorTaskId = -1;
@@ -61,7 +64,6 @@ public:
 	void Enable() override;
 	void Update(float deltaTime) override;
 	void LateUpdate(float deltaTime) override;
-	void Render() override;
 	void Disable() override;
 	void destroy() override;
 	~EditorLoading();

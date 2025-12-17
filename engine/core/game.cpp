@@ -12,7 +12,10 @@
 #include "alpha/alpha.h"
 #include "font/freetype-mgr.h"
 #include "input/input.h"
+#include "renderer/renderer.h"
 #include "renderer/camera.h"
+#include "renderer/ui/ui-renderer.h"
+
 #include "utils/time-util.h"
 #include "utils/json-util.h"
 #include "utils/file-util.h"
@@ -30,23 +33,12 @@ void Game::init()
 	this->_initView();
 	this->_initFont();
 	this->_initAssets();
-	/*this->_initAlpha();*/
-	// json scene;
-
-	// scene["data"] = {
-	// 	{"type", "Scene"},
-	// 	{"children", json::array()}};
-	// scene["data"]["children"].push_back({{{{"type", "Node"},
-	// 									   {"name", "3D"}}},
-	// 									 {{{"type", "Node"},
-	// 									   {"name", "2D"}}}});
-	// FileUtil::saveJsonToBinary(scene, "resources/scene.json");
+	this->_initRenderer();
 }
 void Game::_initGFX()
 {
 	std::cout << "INIT GFX" << std::endl;
 	GfxMgr::getInstance()->init();
-	// GfxMgr::getInstance()->createRenderPass("ui");
 }
 void Game::_initEvent()
 {
@@ -60,8 +52,8 @@ void Game::_initInput()
 void Game::_initView()
 {
 	this->_view = new View();
-	this->_view->width = 1280;
-	this->_view->height = 720;
+	this->_view->width = 0;
+	this->_view->height = 0;
 }
 void Game::_initFont()
 {
@@ -73,13 +65,11 @@ void Game::_initAssets()
 	std::cout << "INIT ASSETS MGR" << std::endl;
 	this->_assetsManager = new AssetsManager();
 	this->_assetsManager->init();
-	// 加载必加资源
-	// this->_assetsManager->load("resources/texture/logo.png");
-	// this->_assetsManager->load("resources/texture/ic-default.png");
-	// this->_assetsManager->load("resources/shader/ui/ui.vert.spv");
-	// this->_assetsManager->load("resources/shader/ui/ui.frag.spv");
-	// this->_assetsManager->load("resources/shader/ui/ui-mask.vert.spv");
-	// this->_assetsManager->load("resources/shader/ui/ui-mask.frag.spv");
+}
+void Game::_initRenderer()
+{
+	this->_renderer = new Renderer();
+	this->_renderer->init();
 }
 void Game::_initAlpha()
 {
@@ -87,20 +77,39 @@ void Game::_initAlpha()
 	Alpha *alpha = new Alpha("Editor-Alpha");
 	this->openScene(alpha);
 }
-
-void Game::setView(const int width, const int height)
+void Game::resizeView(const int width, const int height)
 {
-	std::cout << "setView: width:" << width << " height:" << height << std::endl;
+	std::cout << "resizeView: width:" << width << " height:" << height << std::endl;
 	if (this->_view->width == width && this->_view->height == height)
 	{
 		return;
 	}
-	this->_view->isFlag = true;
-	this->_view->width = width;
-	this->_view->height = height;
-	for (auto camera : this->_cameras)
+	if (this->_view->width == 0 || this->_view->height == 0)
 	{
-		camera->resize(width, height);
+		// 初始化视图尺寸
+		this->_view->width = width;
+		this->_view->height = height;
+		this->_viewChanged = false;
+		GfxMgr::getInstance()->setLockRender(false);
+	}
+	else
+	{
+		// 视图尺寸变化
+		this->_view->width = width;
+		this->_view->height = height;
+		this->_viewChanged = true;
+		GfxMgr::getInstance()->setLockRender(true);
+	}
+}
+void Game::_viewChangeEnd()
+{
+	this->_viewChanged = false;
+	GfxMgr::getInstance()->setLockRender(false);
+	// 重置交换链
+	GfxMgr::getInstance()->resetSwapChain();
+	for (auto &camera : this->_cameras)
+	{
+		camera.second->resize(this->_view->width, this->_view->height);
 	}
 }
 /**
@@ -119,6 +128,10 @@ void Game::openScene(Scene *scene)
 	// 销毁之前的场景
 	this->destroyScene();
 	std::cout << "openScene: scene: " << scene->getName() << std::endl;
+	if (scene == nullptr)
+	{
+		return;
+	}
 	this->_curScene = scene;
 	this->_curScene->setActive(true);
 }
@@ -126,10 +139,12 @@ void Game::destroyScene()
 {
 	if (this->_curScene)
 	{
+		std::cout << "destroyScene: scene: " << this->_curScene->getName() << std::endl;
 		this->_cameras.clear();
 		this->_curScene->destroy();
 		this->_curScene = nullptr;
 	}
+	std::cout << "destroyScene: scene submit complete: " << std::endl;
 }
 /**
  * @brief 挂在相机到游戏中
@@ -138,11 +153,29 @@ void Game::destroyScene()
  */
 void Game::extractCamera(Camera *camera)
 {
-	this->_cameras.push_back(camera);
+	if (this->_cameras.find(camera->getUuid()) != this->_cameras.end())
+	{
+		return;
+	}
+	std::cout << "extractCamera: camera: " << camera->getUuid() << std::endl;
+	this->_cameras[camera->getUuid()] = camera;
 	camera->resize(this->_view->width, this->_view->height);
+	std::cout << "extractCamera: camera resize: " << this->_cameras.size() << std::endl;
 }
-
-
+/**
+ * @brief 从游戏中移除相机
+ *
+ * @param camera 相机指针
+ */
+void Game::removeCamera(Camera *camera)
+{
+	if (this->_cameras.find(camera->getUuid()) == this->_cameras.end())
+	{
+		return;
+	}
+	this->_cameras.erase(camera->getUuid());
+	std::cout << "removeCamera: camera: " << camera->getUuid() << std::endl;
+}
 
 void Game::addCompClearCaches(Component *comp)
 {
@@ -169,40 +202,30 @@ void Game::tick(float dt)
 }
 void Game::_update(float dt)
 {
-	// if (this->_curScene)
-	// {
-	// 	this->_curScene->update(dt);
-	// }
-	// this->_updateSchedules(dt);
-	// if (this->_assetsManager)
-	// {
-	// 	this->_assetsManager->update(dt);
-	// }
+	if (this->_curScene)
+	{
+		this->_curScene->update(dt);
+	}
+	this->_updateSchedules(dt);
+	if (this->_assetsManager)
+	{
+		this->_assetsManager->update(dt);
+	}
 }
 void Game::_lateUpdate(float dt)
 {
-	// if (this->_curScene)
-	// {
-	// 	this->_curScene->lateUpdate(dt);
-	// }
+	if (this->_curScene)
+	{
+		this->_curScene->lateUpdate(dt);
+	}
 }
 void Game::_render(float dt)
 {
-	// // if (this->_curScene)
-	// // {
-	// // 	this->_curScene->render();
-	// // }
-	// // 相机排序 按照从小到大优先级
-	// std::sort(this->_cameras.begin(), this->_cameras.end(), [](Camera *a, Camera *b)
-	// 		  { return a->priority < b->priority; });
-	// // 渲染相机
-	// for (auto camera : this->_cameras)
-	// {
-	// 	camera->Render();
-	// }
-	// // 更新渲染器
-	GfxMgr::getInstance()->update();
+	// 更新渲染器
+	this->_renderer->render(this->_cameras, this->_curScene);
+	GfxMgr::getInstance()->update(dt);
 }
+
 void Game::_clear()
 {
 	if (this->_curScene)
@@ -210,20 +233,19 @@ void Game::_clear()
 		this->_curScene->clearNodeFrameFlag();
 	}
 	this->_updateClearCaches();
-	this->_view->isFlag = false;
 }
 
 void Game::_updateSchedules(float dt)
 {
 	// 待修复
-	for (auto it = this->_schedules.begin(); it != this->_schedules.end();++it)
+	for (auto it = this->_schedules.begin(); it != this->_schedules.end(); ++it)
 	{
 		if (it->second.clearFlag)
 		{
 			// 已经标记清除，跳过
 			continue;
 		}
-		ScheduleInfo &info = it->second; 
+		ScheduleInfo &info = it->second;
 		if (info.instance == nullptr || info.func == nullptr)
 		{
 			// 实例或函数为空，标记清除
@@ -278,10 +300,21 @@ void Game::_updateClearCaches()
 	}
 	this->_nodeClearCaches.clear();
 }
-
+/**
+ * @brief 鼠标按钮事件
+ * @param button 鼠标按钮 0: 左键 1: 右键 2: 中键
+ * @param action 事件动作 GLFW_PRESS: 按下 GLFW_RELEASE: 释放
+ * @param mods 按键修饰符
+ */
 void Game::updateMouseState(int button, int action, int mods)
 {
 	this->_input->onMouseButton(button, action, mods);
+	// 左键拖动释放
+	if (action == GLFW_RELEASE && button == GLFW_MOUSE_BUTTON_LEFT && this->_viewChanged)
+	{
+		std::cout << "Game::updateMouseState: left mouse button release" << std::endl;
+		this->_viewChangeEnd();
+	}
 }
 void Game::updateMousePos(double xpos, double ypos)
 {

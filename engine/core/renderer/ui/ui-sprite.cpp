@@ -6,33 +6,10 @@
 #include "../../assets/assets-manager.h"
 #include "../../assets/texture-asset.h"
 #include "../../assets/material-asset.h"
+#include "../../renderer/camera.h"
 
 UISprite::UISprite(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
 {
-    this->_positions = {
-        -0.5f, 0.5f, 0.0f,  /** @brief 左上 */
-        -0.5f, -0.5f, 0.0f, /** @brief 坐下 */
-        0.5f, -0.5f, 0.0f,  /** @brief 右下 */
-        0.5f, 0.5f, 0.0f    /** @brief 右上 */
-    };
-    this->_colors = {
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f, 1.0f};
-    this->_normals = {
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.0f};
-    this->_uvs = {
-        0.0f, 0.0f,
-        0.0f, 1.0f,
-        1.0f, 1.0f,
-        1.0f, 0.0f};
-    this->_indices = {
-        0, 1, 2,
-        0, 2, 3};
     // 纹理路径
     this->_texture = "";
     // 材质路径
@@ -99,9 +76,9 @@ void UISprite::setAlpha(float alpha)
     this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
 }
 
-void UISprite::setTextureAsset(std::string texture)
+void UISprite::setTextureAsset(std::string path)
 {
-    // TextureAsset *tex = dynamic_cast<TextureAsset *>(Boo::game->assetsManager()->get(texture));
+    // TextureAsset *tex = dynamic_cast<TextureAsset *>(Boo::game->assetsManager()->getAssetByPath(texture));
     // if (tex == nullptr)
     // {
     //     std::cout << "UISprite::setTexture: texture " << texture << " not found" << std::endl;
@@ -110,6 +87,26 @@ void UISprite::setTextureAsset(std::string texture)
     // this->_setTexture(tex);
 }
 void UISprite::setTextureAsset(TextureAsset *texture)
+{
+    if (texture == nullptr)
+    {
+        std::cout << "UISprite::setTexture: texture " << texture << " not found" << std::endl;
+        return;
+    }
+    this->_setTexture(texture);
+}
+
+void UISprite::setTexture(std::string path)
+{
+    // TextureAsset *tex = dynamic_cast<TextureAsset *>(Boo::game->assetsManager()->getAssetByPath(texture));
+    // if (tex == nullptr)
+    // {
+    //     std::cout << "UISprite::setTexture: texture " << texture << " not found" << std::endl;
+    //     return;
+    // }
+    // this->_setTexture(tex);
+}
+void UISprite::setTexture(TextureAsset *texture)
 {
     if (texture == nullptr)
     {
@@ -132,23 +129,23 @@ void UISprite::setMaterialAsset(std::string mtl)
 }
 void UISprite::setMaterialAsset(MaterialAsset *mtl)
 {
-    if (mtl == nullptr)
-    {
-        std::cout << "UISprite::setMaterial: material " << mtl << " not found" << std::endl;
-        return;
-    }
-    this->_setMaterial(mtl);
+    // if (mtl == nullptr)
+    // {
+    //     std::cout << "UISprite::setMaterial: material " << mtl << " not found" << std::endl;
+    //     return;
+    // }
+    // this->_setMaterial(mtl);
 }
 
 
-void UISprite::_updateRendererState()
-{
-    UIRenderer::_updateRendererState();
-}
-void UISprite::_updateModelMatrix()
-{
-    UIRenderer::_updateModelMatrix();
-}
+// void UISprite::_updateRendererState()
+// {
+//     UIRenderer::_updateRendererState();
+// }
+// void UISprite::_updateModelMatrix()
+// {
+//     UIRenderer::_updateModelMatrix();
+// }
 
 void UISprite::Update(float deltaTime)
 {
@@ -158,10 +155,15 @@ void UISprite::LateUpdate(float deltaTime)
 {
     UIRenderer::LateUpdate(deltaTime);
 }
-void UISprite::Render()
+void UISprite::Render(Camera *camera)
 {
-    UIRenderer::Render();
+    UIRenderer::Render(camera);
 }
+void UISprite::Disable()
+{
+    UIRenderer::Disable();
+}
+
 void UISprite::destroy()
 {
     UIRenderer::destroy();

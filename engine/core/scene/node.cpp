@@ -136,6 +136,7 @@ void Node::setParent(Node *parent)
 	}
 	this->_parent = parent;
 	this->_parent->_children.push_back(this);
+	this->_visibility = parent->_visibility;
 	// 更新节点结构激活状态
 	this->setActive(this->_active);
 }
@@ -183,6 +184,7 @@ void Node::_updateWorldTransform()
 		this->_worldMatrix = this->_localMatrix;
 	}
 	this->_worldPosition.set(this->_worldMatrix.getM30(), this->_worldMatrix.getM31(), this->_worldMatrix.getM32());
+	this->_worldScale.set(this->_worldMatrix.getM00(), this->_worldMatrix.getM11(), this->_worldMatrix.getM22());
 	this->_worldTransformFlag = NodeTransformFlag::NONE_FLAG;
 }
 
@@ -239,10 +241,13 @@ void Node::lateUpdate(float dt)
 		{
 			continue;
 		}
-		UIWidget *uiWidget = dynamic_cast<UIWidget *>(component);
-		if (uiWidget != nullptr)
+		if (this->_layer == NodeLayer::Node2D)
 		{
-			uiWidget->updateWidget();
+			UIWidget *uiWidget = dynamic_cast<UIWidget *>(component);
+			if (uiWidget != nullptr)
+			{
+				uiWidget->updateWidget();
+			}
 		}
 	}
 	// 更新组件

@@ -1,7 +1,6 @@
 #define GLFW_INCLUDE_VULKAN
 #include "gfx-context.h"
 #include "gfx-mgr.h"
-#include "gfx-struct.h"
 #include "../../window/window.h"
 #include "../../boo.h"
 
@@ -9,10 +8,8 @@
 const bool enableValidationLayers = true;
 std::vector<const char *> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 std::vector<const char *> DeviceExtensions = {
-    VK_KHR_SWAPCHAIN_EXTENSION_NAME,              // 交换链扩展
-    VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME, // 扩展动态状态
-    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,    // Vulkan Bindless实现
-    VK_KHR_MAINTENANCE3_EXTENSION_NAME,
+    VK_KHR_SWAPCHAIN_EXTENSION_NAME,             // 交换链扩展
+    VK_EXT_EXTENDED_DYNAMIC_STATE_EXTENSION_NAME // 扩展动态状态
 };
 
 GfxContext::GfxContext()
@@ -26,24 +23,44 @@ void GfxContext::init()
     this->_initPhysicalDevice();
     this->_createLogicalDevice();
     this->_createCommandPool();
+    // this->_createDescriptorPool();
     this->_createSwapChainKHR();
     this->_createImageViews();
     this->_createSyncObjects();
+    // this->_createMsaaAttachmentTexture();
+
+    // const std::vector<VkFormat> candidates = {
+    //     VK_FORMAT_D32_SFLOAT_S8_UINT,    // 32位深度 + 8位模板
+    //     VK_FORMAT_D24_UNORM_S8_UINT,     // 24位深度 + 8位模板
+    //     VK_FORMAT_D16_UNORM_S8_UINT,     // 16位深度 + 8位模板
+    //     VK_FORMAT_D32_SFLOAT,            // 只有深度（无模板）
+    //     VK_FORMAT_D16_UNORM              // 只有深度（无模板）
+    // };
+
+    // for (VkFormat format : candidates) {
+    //     VkFormatProperties props;
+    //     vkGetPhysicalDeviceFormatProperties(this->_physicalDevice, format, &props);
+
+    //     // 检查是否支持作为深度模板附件
+    //     if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+    //         std::cout << "Found supported depth stencil format: " << format << std::endl;
+    //     }
+    // }
 }
 void GfxContext::_createInstance()
 {
     if (!this->_checkValidationLayerSupport())
     {
-        throw std::runtime_error("Gfx : Context :: Validation layers requested, but not available!");
+        throw std::runtime_error("Validation layers requested, but not available!");
     }
     /**
      * 程序信息
      */
     VkApplicationInfo appInfo = {};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "Vulkan Engine";
+    appInfo.pApplicationName = "Boo Engine";
     appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "Vulkan Engine";
+    appInfo.pEngineName = "Boo Engine";
     appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
     appInfo.apiVersion = VK_API_VERSION_1_0;
 
@@ -55,6 +72,7 @@ void GfxContext::_createInstance()
     createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR; // 关键！
 
     createInfo.pApplicationInfo = &appInfo;
+    /*  GfxMgr::Log("VkInstanceCreateInfo..."); */
 
     auto extensions = this->_getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -74,9 +92,9 @@ void GfxContext::_createInstance()
 
     if (vkCreateInstance(&createInfo, nullptr, &this->_vkinstance) != VK_SUCCESS)
     {
-        throw std::runtime_error("Gfx : Context :: Failed to create instance!");
+        throw std::runtime_error("Failed to create instance!");
     }
-    std::cout << "Gfx : Context :: VkInstance Success..." << std::endl;
+    /* GfxMgr::Log("VkInstance  Success..."); */
 }
 bool GfxContext::_checkValidationLayerSupport()
 {
@@ -174,7 +192,7 @@ void GfxContext::_createSurface()
 {
     if (glfwCreateWindowSurface(this->_vkinstance, Boo::window->getWindow(), nullptr, &this->_surface) != VK_SUCCESS)
     {
-        throw std::runtime_error("Gfx : Context :: Failed to create window surface!");
+        throw std::runtime_error("failed to create window surface!");
     }
 }
 
@@ -186,8 +204,9 @@ void GfxContext::_initPhysicalDevice()
     vkEnumeratePhysicalDevices(this->_vkinstance, &deviceCount, nullptr);
     if (deviceCount == 0)
     {
-        throw std::runtime_error("Gfx : Context :: Failed to find any GPU with Vulkan Supported.");
+        throw std::runtime_error("Failed to find GPU with Vulkan Supported.");
     }
+    /* GfxMgr::Log("Physical Device Count: " + deviceCount); */
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(this->_vkinstance, &deviceCount, devices.data());
 
@@ -201,7 +220,7 @@ void GfxContext::_initPhysicalDevice()
     }
     if (this->_physicalDevice == VK_NULL_HANDLE)
     {
-        throw std::runtime_error("Gfx : Context :: Failed to find a suitable a GPU.");
+        throw std::runtime_error("Failed to find a suitable a GPU.");
     }
 }
 
@@ -216,6 +235,7 @@ bool GfxContext::_isDeviceSuitable(VkPhysicalDevice device)
 
     // 显卡支持集合着色器的判断条件
     bool isSupportSetShader = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) && deviceFeatures.geometryShader;
+    /*  std::cout << "isSupportSetShader: " << isSupportSetShader << std::endl; */
 
     QueueFamilyIndices indices = this->_findQueueFamilies(device);
 
@@ -242,10 +262,10 @@ bool GfxContext::_checkDeviceExtensionSupport(VkPhysicalDevice device)
 
     std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
 
-    for (auto extension : DeviceExtensions)
-    {
-        std::cout << "Gfx : Context :: extension: " << extension << std::endl;
-    }
+    // for (auto extension : DeviceExtensions)
+    // {
+    //     std::cout << "extension: " << extension << std::endl;
+    // }
 
     for (const auto &extension : availableExtensions)
     {
@@ -270,73 +290,17 @@ void GfxContext::_createLogicalDevice()
         queueCreateInfo.pQueuePriorities = &queuePriority;
         queueCreateInfos.push_back(queueCreateInfo);
     }
-
-    // ==================== 查询和启用 Descriptor Indexing Features ====================
-
-    // 1. 先查询硬件支持的 features
-    VkPhysicalDeviceDescriptorIndexingFeatures supportedIndexingFeatures{};
-    supportedIndexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-    supportedIndexingFeatures.pNext = nullptr;
-
-    VkPhysicalDeviceFeatures2 supportedFeatures2{};
-    supportedFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    supportedFeatures2.pNext = &supportedIndexingFeatures;
-
-    vkGetPhysicalDeviceFeatures2(this->_physicalDevice, &supportedFeatures2);
-
-    // 2. 打印支持情况
-    std::cout << "\n=== Descriptor Indexing Features Support ===" << std::endl;
-    std::cout << "  shaderSampledImageArrayNonUniformIndexing: "
-              << (supportedIndexingFeatures.shaderSampledImageArrayNonUniformIndexing ? "OK" : "Error") << std::endl;
-    std::cout << "  descriptorBindingPartiallyBound: "
-              << (supportedIndexingFeatures.descriptorBindingPartiallyBound ? "OK" : "Error") << std::endl;
-    std::cout << "  runtimeDescriptorArray: "
-              << (supportedIndexingFeatures.runtimeDescriptorArray ? "OK" : "Error") << std::endl;
-    std::cout << "  descriptorBindingVariableDescriptorCount: "
-              << (supportedIndexingFeatures.descriptorBindingVariableDescriptorCount ? "OK" : "Error") << std::endl;
-    std::cout << "  descriptorBindingSampledImageUpdateAfterBind: "
-              << (supportedIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind ? "OK" : "Error") << std::endl;
-
-    // 3. 启用支持的 features
-    VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
-    indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
-    indexingFeatures.pNext = nullptr;
-
-    // 只启用硬件支持的 features
-    indexingFeatures.shaderSampledImageArrayNonUniformIndexing = supportedIndexingFeatures.shaderSampledImageArrayNonUniformIndexing;
-    indexingFeatures.descriptorBindingPartiallyBound = supportedIndexingFeatures.descriptorBindingPartiallyBound;
-    indexingFeatures.runtimeDescriptorArray = supportedIndexingFeatures.runtimeDescriptorArray;
-    indexingFeatures.descriptorBindingVariableDescriptorCount = supportedIndexingFeatures.descriptorBindingVariableDescriptorCount;
-    indexingFeatures.descriptorBindingSampledImageUpdateAfterBind = supportedIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind;
-
-    // 检查关键 features 是否可用
-    if (!supportedIndexingFeatures.descriptorBindingSampledImageUpdateAfterBind)
-    {
-        std::cerr << "⚠️ WARNING: descriptorBindingSampledImageUpdateAfterBind not supported!" << std::endl;
-        std::cerr << "   Bindless texture dynamic updates will not work." << std::endl;
-    }
-
-    std::cout << "============================================\n"
-              << std::endl;
-
     /* 指定应用程序使用的设备特性 */
     VkPhysicalDeviceFeatures deviceFeatures = {};
     deviceFeatures.geometryShader = VK_FALSE;
     deviceFeatures.tessellationShader = VK_FALSE; // 例如禁用曲面细分
 
-    // 使用 Features2 结构来链接扩展 features
-    VkPhysicalDeviceFeatures2 deviceFeatures2{};
-    deviceFeatures2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-    deviceFeatures2.pNext = &indexingFeatures; // 链接 Descriptor Indexing features
-    deviceFeatures2.features = deviceFeatures;
-
     /*   // 创建逻辑设备 */
     VkDeviceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-    createInfo.pNext = &deviceFeatures2; // OK 使用 pNext 链接 features
     createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
-    createInfo.pEnabledFeatures = nullptr; // OK 使用 pNext 时设为 nullptr
+    createInfo.pEnabledFeatures = &deviceFeatures;
 
     /* // For macos */
     std::vector<const char *> localDeviceExtensions = DeviceExtensions;
@@ -367,8 +331,10 @@ void GfxContext::_createLogicalDevice()
 
     if (vkCreateDevice(this->_physicalDevice, &createInfo, nullptr, &this->_vkdevice) != VK_SUCCESS)
     {
-        throw std::runtime_error("Gfx : Context :: Failed to create logical device!");
+        throw std::runtime_error("Failed to create logical device!");
     }
+
+    /* / GfxMgr::Log("create logical device success"); */
     vkGetDeviceQueue(this->_vkdevice, indices.graphicsFamily, 0, &this->_graphicsQueue);
     vkGetDeviceQueue(this->_vkdevice, indices.presentFamily, 0, &this->_presentQueue);
 }
@@ -395,15 +361,46 @@ void GfxContext::_createCommandPool()
     }
     /* // GfxMgr::Log("create command pool success..."); */
 }
+
+// void GfxContext::_createDescriptorPool()
+// {
+//     const uint32_t TOTAL_OBJECTS = 3000;
+//     std::vector<VkDescriptorPoolSize> poolSizes(2);
+//     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//     poolSizes[0].descriptorCount = MAX_FRAMES_IN_FLIGHT * TOTAL_OBJECTS; // 支持更多
+//     poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+//     poolSizes[1].descriptorCount = MAX_FRAMES_IN_FLIGHT * TOTAL_OBJECTS * 8; // 一个描述符最多只是8张图
+
+//     VkDescriptorPoolCreateInfo poolInfo{};
+//     poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+//     poolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+//     poolInfo.pPoolSizes = poolSizes.data();
+//     poolInfo.maxSets = MAX_FRAMES_IN_FLIGHT * TOTAL_OBJECTS; // 支持更多描述符集
+//     if (vkCreateDescriptorPool(this->_vkdevice, &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS)
+
+//     {
+//         throw std::runtime_error("failed to create descriptor pool!");
+//     }
+//    /*  // GfxMgr::Log("create descriptor pool success...");
+
+//     // //需要销毁
+//     // if (this->_descriptorPool != VK_NULL_HANDLE) {
+//     //     vkDestroyDescriptorPool(this->_vkdevice, this->_descriptorPool, nullptr);
+//     //     this->_descriptorPool = VK_NULL_HANDLE;
+//     // } */
+// }
+
 void GfxContext::resetSwapChain()
 {
     this->_createSwapChainKHR();
     this->_createImageViews();
     this->_createSyncObjects();
+    // this->_createMsaaAttachmentTexture();
 }
 
 void GfxContext::cleanSwapChain()
 {
+    // this->_cleanMsaaAttachmentTexture();
     this->_cleanSyncObjects();
     this->_cleanImageViews();
     this->_cleanSwapChainKHR();
@@ -423,6 +420,14 @@ void GfxContext::_createSwapChainKHR()
     {
         imageCount = swapChainSupport.capabilities.maxImageCount;
     }
+    // uint32_t imageCount = 3; // 想用3个图像
+    // // 确保满足最小要求
+    // imageCount = std::max(imageCount, swapChainSupport.capabilities.minImageCount);
+    // // 如果硬件有最大限制，不能超过
+    // if (swapChainSupport.capabilities.maxImageCount > 0)
+    // {
+    //     imageCount = std::min(imageCount, swapChainSupport.capabilities.maxImageCount);
+    // }
 
     VkSwapchainCreateInfoKHR createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -433,11 +438,13 @@ void GfxContext::_createSwapChainKHR()
     createInfo.imageExtent = extent;
     createInfo.imageArrayLayers = 1;                             /* // 用于指定每个图像所包含的层次。除了VR场景外，一般都是1. */
     createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; /*  // 指定我们在图像上的操作，此处我们将图像作为颜色来使用 */
-    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    // 使用 pre-multiplied alpha 来支持窗口透明
+    createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
     /**
-     * VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR
-     * VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR
-     * VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR
+     * VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR - 不透明（之前的设置）
+     * VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR - 预乘 Alpha（用于透明窗口）
+     * VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR - 后乘 Alpha
+     * VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR - 继承
      */
 
     QueueFamilyIndices indices = this->_findQueueFamilies(this->_physicalDevice);
@@ -477,9 +484,8 @@ void GfxContext::_createSwapChainKHR()
     /*   // 同时还需要将这个格式和分辨率保存下来。 */
     this->_swapChainImageFormat = surfaceFormat.format;
     this->_swapChainExtent = extent;
-    std::cout << "Gfx : Context :: swap chain image count: " << imageCount << std::endl;
 }
-// 从 GPU 支持的格式中选择最合适的交换链图像格式
+
 /* // https://www.iogl.cn/tutorial/swapchain */
 VkSurfaceFormatKHR GfxContext::_chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats)
 {
@@ -590,11 +596,12 @@ void GfxContext::_cleanImageViews()
 
 void GfxContext::_createSyncObjects()
 {
+    /* // GfxMgr::Log("GfxContext", "create sync objects start..."); */
 
     size_t imageCount = this->_swapChainImages.size(); /* // 使用交换链图像数量 */
-    this->_imageAvailableSemaphores.resize(imageCount);
-    this->_renderFinishedSemaphores.resize(imageCount);
-    this->_inFlightFences.resize(imageCount);
+    this->_imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    this->_renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+    this->_inFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
     this->_imagesInFlight.resize(imageCount, VK_NULL_HANDLE);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
@@ -604,7 +611,7 @@ void GfxContext::_createSyncObjects()
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-    for (size_t i = 0; i < imageCount; i++)
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
         vkCreateSemaphore(this->_vkdevice, &semaphoreInfo, nullptr, &this->_imageAvailableSemaphores[i]);
         vkCreateSemaphore(this->_vkdevice, &semaphoreInfo, nullptr, &this->_renderFinishedSemaphores[i]);

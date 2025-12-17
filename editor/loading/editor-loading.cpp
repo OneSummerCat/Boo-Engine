@@ -1,17 +1,15 @@
 #include "editor-loading.h"
 #include "../boo-editor.h"
-#include "../layout/editor-layout.h"
-// #include "../cache/editor-assets-cache.h"
-// #include "../cache/editor-config-cache.h"
-// #include "../cache/editor-project-cache.h"
-// #include "../cache/editor-scene-cache.h"
 
 #include "../../engine/boo.h"
 #include "../../engine/core/assets/assets-manager.h"
+#include "../../engine/core/assets/asset.h"
+#include "../../engine/core/assets/texture-asset.h"
 #include "../../engine/core/renderer/ui/ui-sprite.h"
 #include "../../engine/core/scene/node-2d.h"
 #include "../../engine/core/scene/node.h"
 #include "../../engine/core/scene/scene.h"
+#include "../../engine/core/renderer/camera.h"
 
 #include "../../engine/core/utils/file-util.h"
 #include "../../engine/core/utils/json-util.h"
@@ -32,24 +30,29 @@ void EditorLoading::Awake()
 	this->_logoRatio = 0.35f;
 	this->_width = Boo::game->view()->width;
 	this->_height = Boo::game->view()->height;
-	this->_textureDefault = new TextureAsset("boo-default-texture");
-	std::filesystem::path defaultPath = (std::filesystem::path(BooEditor::editorPath) / "res/alpha/default.png").generic_string();
-	this->_textureDefault->create(defaultPath.string());
-	this->_textureLogo = new TextureAsset("boo-logo-texture");
-	std::filesystem::path logoPath = (std::filesystem::path(BooEditor::editorPath) / "res/alpha/logo.png").generic_string();
-	this->_textureLogo->create(logoPath.string());
-	this->_logoTxWidth = this->_textureLogo->width();
-	this->_logoTxHeight = this->_textureLogo->height();
-
+	this->_initCamera();
 	this->_initBg();
 	this->_initLogo();
 	this->_initLoadUI();
-	this->_initAssetsDB();
+	Boo::game->scheduleOnce(&EditorLoading::_initAssetsDB, this, 0.5f);
 }
 void EditorLoading::Enable() { Component::Enable(); }
 void EditorLoading::setOnLoadComplete(std::function<void()> onLoadComplete)
 {
 	this->_onLoadComplete = onLoadComplete;
+}
+void EditorLoading::_initCamera()
+{
+	Scene *scene = Boo::game->getScene();
+	if (scene == nullptr)
+	{
+		return;
+	}
+	Node2D *node2d = scene->getRoot2D();
+	Node2D *ndCamera = new Node2D("Editor-EditorLoading-Camera");
+	node2d->addChild(ndCamera);
+	ndCamera->setPosition(0.0f, 0.0f, -100.0f);
+	this->_uiCamera = dynamic_cast<Camera *>(ndCamera->addComponent("Camera"));
 }
 
 void EditorLoading::_initBg()
@@ -61,14 +64,17 @@ void EditorLoading::_initBg()
 	if (compAlpha != nullptr)
 	{
 		this->_spriteAlpha = dynamic_cast<UISprite *>(compAlpha);
-		this->_spriteAlpha->setTextureAsset(this->_textureDefault);
-		this->_spriteAlpha->setMaterialAsset(nullptr);
-		this->_spriteAlpha->setColor("#000000ff");
+		this->_spriteAlpha->setColor("#151515ff");
 	}
 	this->_ndAlpha->setSize(this->_width, this->_height);
 }
 void EditorLoading::_initLogo()
 {
+	Asset *text = Boo::game->assetsManager()->getAsset("123e4567-e89b-12d3-a456-426614174000");
+	TextureAsset *texture = dynamic_cast<TextureAsset *>(text);
+	this->_logoTxWidth = texture->width();
+	this->_logoTxHeight = texture->height();
+
 	// 添加logo
 	this->_ndLogo = new Node2D("Editor-EditorLoading-Logo");
 	this->_node->addChild(this->_ndLogo);
@@ -78,9 +84,8 @@ void EditorLoading::_initLogo()
 	{
 		this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
 		this->_spriteLogo->setEnabled(true);
-		this->_spriteLogo->setTextureAsset(this->_textureLogo);
-		this->_spriteLogo->setMaterialAsset(nullptr);
 		this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		// this->_spriteLogo->setTextureAsset(texture);
 	}
 	// 初始化logo大小
 	this->_updateLogoSize(this->_width, this->_height);
@@ -93,8 +98,6 @@ void EditorLoading::_initLoadUI()
 		dynamic_cast<UISprite *>(this->_ndLoad->addComponent("UISprite"));
 	if (this->_spriteLoad != nullptr)
 	{
-		this->_spriteLoad->setTextureAsset(this->_textureDefault);
-		this->_spriteLoad->setMaterialAsset(nullptr);
 		this->_spriteLoad->setColor("#0A2F36");
 	}
 	this->_ndLoadBar = new Node2D("Editor-LoadBar");
@@ -102,8 +105,6 @@ void EditorLoading::_initLoadUI()
 	this->_spriteLoadBar = dynamic_cast<UISprite *>(this->_ndLoadBar->addComponent("UISprite"));
 	if (this->_spriteLoadBar != nullptr)
 	{
-		this->_spriteLoadBar->setTextureAsset(this->_textureDefault);
-		this->_spriteLoadBar->setMaterialAsset(nullptr);
 		this->_spriteLoadBar->setColor(1.0f, 1.0f, 1.0f, 1.0f);
 		this->_spriteLoadBar->setColor("#AFF2FF");
 	}
@@ -124,24 +125,24 @@ void EditorLoading::_setLoadProgress(float progress)
 }
 void EditorLoading::_initAssetsDB()
 {
-	BooEditor::cache->initAssetsDBMaps(&EditorLoading::_initAssetsDBCallback, this);
+	BooEditor::cache->load([this](float progress, std::string file)
+						   { _initAssetsDBCallback(progress, file); },
+						   [this]()
+						   { _initAssetsDBCompleteCallback(); });
 }
-void EditorLoading::_initAssetsDBCallback(int completedCount, int allCount,
-										  float progress)
+void EditorLoading::_initAssetsDBCallback(float progress, std::string file)
 {
-	std::cout << "EditorLoading::_initAssetsDBCallback: " << completedCount << " " << allCount << " " << progress << std::endl;
+	std::cout << "EditorLoading::_initAssetsDBCallback: " << progress << " " << file << std::endl;
 	this->_setLoadProgress(progress * 0.9f);
-	if (completedCount == allCount)
-	{
-		// 加载完成
-		this->_saveEditorCache();
-	}
+}
+void EditorLoading::_initAssetsDBCompleteCallback()
+{
+	std::cout << "EditorLoading::_initAssetsDBCompleteCallback" << std::endl;
+	this->_saveEditorCache();
 }
 void EditorLoading::_saveEditorCache()
 {
 	std::cout << "EditorLoading::_saveEditorCache" << std::endl;
-	// 保存资产数据库
-	BooEditor::cache->saveAssetsDB();
 	// 加载 res/private 下边的所有资产
 	std::filesystem::path privatePath = (std::filesystem::path(BooEditor::editorPath) / "res/private").generic_string();
 	for (const auto &entry : std::filesystem::recursive_directory_iterator(privatePath))
@@ -178,7 +179,6 @@ void EditorLoading::Update(float deltaTime)
 		this->_height = height;
 		std::cout << "EditorLoading::update() width: " << width
 				  << " height: " << height << std::endl;
-		// Update logo size
 		this->_updateBgSize(width, height);
 		this->_updateLogoSize(width, height);
 		this->_updateLoadBarSize(width, height);
@@ -188,7 +188,6 @@ void EditorLoading::LateUpdate(float deltaTime)
 {
 	Component::LateUpdate(deltaTime);
 }
-void EditorLoading::Render() { Component::Render(); }
 
 void EditorLoading::_updateBgSize(float width, float height)
 {

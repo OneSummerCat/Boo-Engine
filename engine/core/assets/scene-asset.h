@@ -1,27 +1,26 @@
-// #pragma once
-// #include "asset.h"
-// #include "../utils/json-util.h"
+#pragma once
+#include "asset.h"
+#include "../utils/json-util.h"
 
-// class Scene;
-// class SceneAsset : public Asset
-// {
-// private:
-//     json _sceneData;
-//     std::string _name;
-//     Scene* _scene;
-// protected:
-   
+class Scene;
+class Node;
+class Node2D;
+class Node3D;
 
-// public:
-//     // /**
-//     //  * @brief 场景资产构造函数
-//     //  * 
-//     //  * @param uuid 资产UUID  相对工程的路径
-//     //  * @param path 资产路径  基于运行环境的全路径
-//     //  */
-//     // SceneAsset(const std::string uuid, const std::string path);
-//     // void createScene();
-//     // std::string getName() { return this->_name; }
-//     // Scene* getScene() { return this->_scene; }
-//     // ~SceneAsset();
-// };
+class SceneAsset : public Asset
+{
+private:
+    json _sceneData;
+    std::string _name;
+    Scene *_scene;
+    void _deserializeScene();
+    void _deserializeNode(Node *node, json &_nodeData);
+    void _deserializeComponent(Node *node, json &_nodeData);
+protected:
+public:
+    SceneAsset();
+    SceneAsset(const std::string uuid);
+    void create(std::string path) override;
+    Scene *getScene() { return this->_scene; }
+    ~SceneAsset();
+};

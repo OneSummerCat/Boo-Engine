@@ -1,6 +1,8 @@
 #include "ui-renderer.h"
 #include <filesystem>
+#include "../../gfx/gfx.h"
 #include "../../gfx/gfx-mgr.h"
+#include "../../gfx/base/gfx-mesh.h"
 #include "../../boo.h"
 #include "../../scene/node.h"
 #include "../../scene/node-2d.h"
@@ -8,11 +10,13 @@
 #include "../../assets/asset.h"
 #include "../../assets/assets-manager.h"
 #include "../../assets/texture-asset.h"
+#include "../../renderer/camera.h"
 
 UIRenderer::UIRenderer(std::string name, Node *node, std::string uuid) : Component(name, node, uuid)
 {
 	this->_layer = NodeLayer::Node2D;
 	this->_materialAsset = new MaterialAsset();
+	this->_materialAsset->createTest();
 }
 /**
  * @brief 反序列化组件属性-配置
@@ -31,11 +35,16 @@ void UIRenderer::Enable()
 	Component::Enable();
 	// 激活的时候创建渲染物体
 	// GfxMgr::getInstance()->createUIObject(this->_uuid, this->_positions, this->_colors, this->_normals, this->_uvs, this->_indices);
-	this->_updateRendererState();
-	this->_updateModelMatrix();
+	// this->_updateRendererState();
+	// this->_updateModelMatrix();
+}
+const int UIRenderer::getVisibility()
+{
+	return this->_node->getVisibility();
 }
 void UIRenderer::_setColor(float r, float g, float b, float a)
 {
+	// 透明度会影响到子节点的透明度
 	if (r == this->_color.getR() && g == this->_color.getG() && b == this->_color.getB() && a == this->_color.getA())
 	{
 		return;
@@ -48,13 +57,13 @@ void UIRenderer::_setColor(float r, float g, float b, float a)
 
 void UIRenderer::_setMaterial(MaterialAsset *mtl)
 {
-	if (this->_materialAsset == nullptr)
-	{
-		return;
-	}
-	this->_materialAsset = mtl;
-	if (!this->_isEnabledInHierarchy)
-		return;
+	// if (this->_materialAsset == nullptr)
+	// {
+	// 	return;
+	// }
+	// this->_materialAsset = mtl;
+	// if (!this->_isEnabledInHierarchy)
+	// 	return;
 	// GfxMgr::getInstance()->setObjectPass(this->_uuid, this->_materialAsset->getPass());
 	// GfxMgr::getInstance()->setObjectPipeline(this->_uuid, this->_materialAsset->getPipeline());
 	// // std::string vert = std::filesystem::path("resources/shader/ui/ui.vert.spv").generic_string();
@@ -70,37 +79,35 @@ void UIRenderer::_setTexture(TextureAsset *texture)
 		std::cout << "UIRenderer::setTexture: texture is nullptr" << std::endl;
 		return;
 	}
-	if (this->_textureAsset == texture)
+	if (this->_textureAsset != nullptr && this->_textureAsset->getUuid() == texture->getUuid())
 	{
 		return;
 	}
 	this->_textureAsset = texture;
-	if (!this->_isEnabledInHierarchy)
-		return;
-	// GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_textureAsset->getUuid());
+	this->_materialAsset->setTexture(0, texture->getUuid());
 }
 
-void UIRenderer::_updateRendererState()
-{
-	// 更新颜色状态
-	// GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getR(), this->_color.getG(), this->_color.getB(), this->_color.getA());
-	// 更新纹理状态
-	if (this->_textureAsset)
-	{
-		// GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_textureAsset->getUuid());
-	}
-	//
-	if (this->_materialAsset)
-	{
-		// GfxMgr::getInstance()->setObjectPass(this->_uuid, this->_materialAsset->getPass());
-		// GfxMgr::getInstance()->setObjectPipeline(this->_uuid, this->_materialAsset->getPipeline());
-	}
-}
-void UIRenderer::_updateModelMatrix()
-{
-	Node2D *node2D = dynamic_cast<Node2D *>(this->_node);
-	// GfxMgr::getInstance()->setObjectModelMatrix(this->_uuid, node2D->uiWorldMatrix().data());
-}
+// void UIRenderer::_updateRendererState()
+// {
+// 	// // 更新颜色状态
+// 	// // GfxMgr::getInstance()->setObjectColor(this->_uuid, this->_color.getR(), this->_color.getG(), this->_color.getB(), this->_color.getA());
+// 	// // 更新纹理状态
+// 	// if (this->_textureAsset)
+// 	// {
+// 	// 	// GfxMgr::getInstance()->setObjectTexture(this->_uuid, this->_textureAsset->getUuid());
+// 	// }
+// 	// //
+// 	// if (this->_materialAsset)
+// 	// {
+// 	// 	// GfxMgr::getInstance()->setObjectPass(this->_uuid, this->_materialAsset->getPass());
+// 	// 	// GfxMgr::getInstance()->setObjectPipeline(this->_uuid, this->_materialAsset->getPipeline());
+// 	// }
+// }
+// void UIRenderer::_updateModelMatrix()
+// {
+// 	// Node2D *node2D = dynamic_cast<Node2D *>(this->_node);
+// 	// GfxMgr::getInstance()->setObjectModelMatrix(this->_uuid, node2D->uiWorldMatrix().data());
+// }
 
 void UIRenderer::Update(float deltaTime)
 {
@@ -110,23 +117,48 @@ void UIRenderer::LateUpdate(float deltaTime)
 {
 	Component::LateUpdate(deltaTime);
 }
-void UIRenderer::Render()
+void UIRenderer::Render(Camera *camera)
 {
-	Component::Render();
-	if (this->_node->hasFrameTransformFlag())
+	// if (this->_node->hasFrameTransformFlag())
+	// {
+	// 	this->_updateModelMatrix();
+	// }
+	if (camera == nullptr)
 	{
-		this->_updateModelMatrix();
+		return; // 相机为空
 	}
-	if (this->_textureAsset == nullptr)
+	// if (this->_color.getA() <= 0)
+	// {
+	// 	return; // 颜色透明
+	// }
+	Node2D *node2D = dynamic_cast<Node2D *>(this->_node);
+	if (node2D == nullptr)
 	{
-		return;
+		return; // 节点不是Node2D类型
 	}
-	if (this->_color.getA() <= 0)
+	if (node2D->getSize().getHeight() <= 0 || node2D->getSize().getWidth() <= 0)
 	{
-		return; // 颜色透明
+		return; // 节点不可见
+	}
+	if (node2D->getScale().getX() <= 0 || node2D->getScale().getY() <= 0)
+	{
+		return; // 节点不可见
 	}
 	// 提交渲染对象
-	// GfxMgr::getInstance()->submitObjectRender(this->_uuid);
+	this->_instanceData.clear();
+	this->_instanceData.reserve(16 + 4);
+	// 1. 先添加模型矩阵 (16个float)
+	const auto &matrix = node2D->uiWorldMatrix().data();
+	_instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
+	// 2. 再添加颜色 (4个float)
+	_instanceData.push_back(_color.getR());
+	_instanceData.push_back(_color.getG());
+	_instanceData.push_back(_color.getB());
+	_instanceData.push_back(_color.getA());
+	
+	// std::cout << "UIRenderer::Render6:" << this->_node->getName() << std::endl;
+
+	GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_materialAsset->getGfxMaterial(), Gfx::uiTestMesh, this->_instanceData);
 }
 
 void UIRenderer::Disable()

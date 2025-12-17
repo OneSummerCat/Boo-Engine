@@ -26,6 +26,7 @@ Node2D::Node2D(const std::string name, const std::string uuid)
 	this->_worldMatrix = Mat4::identity();
 	this->_worldTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
 	this->_frameTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
+	this->_visibility = uint32_t(NodeVisibility::Node2D);
 }
 
 /**
@@ -97,7 +98,21 @@ Component *Node2D::addComponent(std::string name, std::string uuid)
 	}
 	return component;
 }
-
+/**
+ * 获取UI渲染组件
+ */
+UIRenderer *Node2D::getUIRenderComponent()
+{
+	for (auto &component : this->_components)
+	{
+		UIRenderer *uiRenderer = dynamic_cast<UIRenderer *>(component);
+		if (uiRenderer != nullptr)
+		{
+			return uiRenderer;
+		}
+	}
+	return nullptr;
+}
 
 void Node2D::update(float dt)
 {
