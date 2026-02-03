@@ -49,9 +49,6 @@ UIMask::UIMask(std::string name, Node *node, std::string uuid) : UIRenderer(name
     // GfxMgr::getInstance()->setObjectUIMaskBehavior(this->_subUuid, 0);
     // this->setTexture("resources/texture/ic-default.png");
 
-    this->_addMaterialAsset = new MaterialAsset();
-    this->_subMaterialAsset = new MaterialAsset();
-
     // this->_addMaterialAsset->createUIMaskTest(0);
     // this->_subMaterialAsset->createUIMaskTest(1);
 
@@ -70,6 +67,19 @@ void UIMask::Awake()
 {
     Component::Awake();
     // std::cout << "=================ui mask awake" << std::endl;
+    this->_addMaterialAsset = new MaterialAsset();
+    MaterialAsset *mtlAdd = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui-mask-add.mtl"));
+    if (mtlAdd != nullptr)
+    {
+        this->_addMaterialAsset->create(mtlAdd);
+    }
+
+    this->_subMaterialAsset = new MaterialAsset();
+    MaterialAsset *mtlSub = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui-mask-sub.mtl"));
+    if (mtlSub != nullptr)
+    {
+        this->_subMaterialAsset->create(mtlSub);
+    }
 }
 void UIMask::Enable()
 {

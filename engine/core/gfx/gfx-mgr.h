@@ -32,6 +32,7 @@ public:
 	void update(float dt);
 	void resetSwapChain();
 
+	void createPipeline(std::string pipelineName, GfxPipelineStruct pipelineStruct);
 	/**
 	 * @brief 创建纹理
 	 *
@@ -96,88 +97,6 @@ public:
 	 * @param indices 索引数据
 	 */
 	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData);
-
-	// void initTestInfo();
-	// /*  // 采样次数 */
-	// void _testMSAASample();
-	// VkSampleCountFlagBits _getMaxMSAAUsableSampleCount();
-	// /**
-	//  * @brief 测试Bindless
-	//  */
-	// void _testBindless();
-
-	// /**
-	//  * 创建渲染通道
-	//  */
-	// void createRenderPass(std::string name, GfxPassStruct passStruct);
-	// /**
-	//  * 创建管线
-	//  */
-	// void createPipeline(std::string pipelineName, GfxPipelineStruct pipelineStruct);
-
-	// /**
-	//  * @brief 创建模型渲染对象
-	//  *
-	//  * @param id  物体ID
-	//  * @param renderPassType 渲染通道类型
-	//  * @param pipelineType 管线类型
-	//  * @param points 顶点数据
-	//  * @param colors 颜色数据
-	//  * @param normals 法线数据
-	//  * @param uvs uv数据
-	//  * @param indices 索引数据
-	//  */
-	// void createObject(std::string id, std::string renderPassType, std::vector<float> points, std::vector<float> colors, std::vector<float> normals, std::vector<float> uvs, std::vector<uint32_t> indices);
-	// /**
-	//  * @brief 创建UI渲染对象
-	//  *
-	//  * @param id 物体ID
-	//  * @param pipelineType 管线类型
-	//  * @param points 顶点数据
-	//  * @param colors 颜色数据
-	//  * @param normals 法线数据
-	//  * @param uvs uv数据
-	//  * @param indices 索引数据
-	//  */
-	// void createUIObject(std::string id, std::vector<float> &points, std::vector<float> &colors, std::vector<float> &normals, std::vector<float> &uvs, std::vector<uint32_t> &indices);
-	// /**
-	//  * @brief 创建UI遮罩渲染对象
-	//  *
-	//  * @param id 物体ID
-	//  * @param pipelineType 管线类型
-	//  * @param points 顶点数据
-	//  * @param colors 颜色数据
-	//  * @param normals 法线数据
-	//  * @param uvs uv数据
-	//  * @param indices 索引数据
-	//  */
-	// void createUIMaskObject(std::string id, std::vector<float> &points, std::vector<float> &colors, std::vector<float> &normals, std::vector<float> &uvs, std::vector<uint32_t> &indices);
-	// void setObjectPass(std::string id, std::string pass);
-	// void setObjectPipeline(std::string id, std::string pipeline);
-	// /**
-	//  * @brief 设置UI遮罩行为
-	//  *
-	//  * @param id 物体ID
-	//  * @param behavior 行为 0 不遮罩 1 遮罩
-	//  */
-	// void setObjectUIMaskBehavior(std::string id, uint32_t behavior);
-	// /**
-	//  * @brief 销毁模型渲染对象
-	//  *
-	//  * @param id 物体ID
-	//  * @param renderPassType 渲染通道类型
-	//  * @param pipelineType 管线类型
-	//  */
-	// void destroyObject(std::string id);
-	// void setObjectModelMatrix(std::string id, const std::array<float, 16> &modelMatrix);
-	// void setObjectViewMatrix(std::string id, const std::array<float, 16> &viewMatrix);
-	// void setObjectProjMatrix(std::string id, const std::array<float, 16> &projMatrix);
-	// void setObjectTexture(const std::string &id, const std::string &texture);
-	// void setObjectColor(std::string id, float r, float g, float b, float a);
-
-	// void addUIObjectMask(std::string id, std::string maskId, std::vector<float> mask);
-	// void submitUIObjectMask(std::string id);
-
 	/**
 	 * @brief 提交渲染对象
 	 * @param id 物体ID

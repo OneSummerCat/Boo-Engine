@@ -52,6 +52,7 @@ protected:
      *
      */
     void _setColor(float r, float g, float b, float a);
+
 public:
     UIRenderer(std::string name, Node *node, std::string uuid = "");
 

@@ -177,9 +177,9 @@ void GfxRendererBuiltin::_initDefaultShader()
  */
 void GfxRendererBuiltin::_initDefaultPipeline()
 {
-    this->_initDefaultUIPipeline();
-    this->_initDefaultUIMaskAddPipeline();
-    this->_initDefaultUIMaskSubPipeline();
+    // this->_initDefaultUIPipeline();
+    // this->_initDefaultUIMaskAddPipeline();
+    // this->_initDefaultUIMaskSubPipeline();
 }
 void GfxRendererBuiltin::_initDefaultUIPipeline()
 {
@@ -218,7 +218,8 @@ void GfxRendererBuiltin::_initDefaultUIPipeline()
     // 推送常量 开启
     uiPipeline.pushConstant = 1;
     uiPipeline.pushConstantSize = 0;
-    this->createPipeline(uiPipeline.generateKey(), uiPipeline);
+    std::cout << "[Gfx : GfxRendererBuiltin] :: OK UI:" << uiPipeline.generateKey() << std::endl;
+    // this->createPipeline(uiPipeline.generateKey(), uiPipeline);
 
     // //mask test pipeline
     // GfxPipelineStruct uiMaskTestPipeline = {};
@@ -291,7 +292,7 @@ void GfxRendererBuiltin::_initDefaultUIMaskAddPipeline()
     // 推送常量 开启
     uiMaskAddPipeline.pushConstant = 1;
     uiMaskAddPipeline.pushConstantSize = 0;
-    this->createPipeline(uiMaskAddPipeline.generateKey(), uiMaskAddPipeline);
+    // this->createPipeline(uiMaskAddPipeline.generateKey(), uiMaskAddPipeline);
 }
 void GfxRendererBuiltin::_initDefaultUIMaskSubPipeline()
 {
@@ -325,11 +326,12 @@ void GfxRendererBuiltin::_initDefaultUIMaskSubPipeline()
     // 推送常量 开启
     uiMaskAddPipeline.pushConstant = 1;
     uiMaskAddPipeline.pushConstantSize = 0;
-    this->createPipeline(uiMaskAddPipeline.generateKey(), uiMaskAddPipeline);
+    // this->createPipeline(uiMaskAddPipeline.generateKey(), uiMaskAddPipeline);
 }
 
 void GfxRendererBuiltin::createPipeline(std::string name, GfxPipelineStruct pipelineStruct)
 {
+    // std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:name:" << name << std::endl;
     if (Gfx::shaders.find(pipelineStruct.vert) == Gfx::shaders.end())
     {
         std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:vert not found:" << pipelineStruct.vert << std::endl;
@@ -347,18 +349,20 @@ void GfxRendererBuiltin::createPipeline(std::string name, GfxPipelineStruct pipe
     }
     if (this->_pipelines.find(name) != this->_pipelines.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:name already exists:" << name << std::endl;
+        // std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:name already exists:" << name << std::endl;
         return;
     }
-    GfxPipelineBuiltin *pipeline = new GfxPipelineBuiltin(name);
+   
     if (pipelineStruct.render == uint32_t(GfxPipelineRender::_UI))
     {
+        GfxPipelineBuiltin *pipeline = new GfxPipelineBuiltin(name);
         pipeline->create(this->_pass, Gfx::shaders[pipelineStruct.vert], Gfx::shaders[pipelineStruct.frag], this->_uiDescriptorSetLayout, pipelineStruct);
         this->_pipelines[name] = pipeline;
         std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:ui pipeline created:" << name << std::endl;
     }
     else if (pipelineStruct.render == uint32_t(GfxPipelineRender::_3D))
     {
+        GfxPipelineBuiltin *pipeline = new GfxPipelineBuiltin(name);
         pipeline->create(this->_pass, Gfx::shaders[pipelineStruct.vert], Gfx::shaders[pipelineStruct.frag], this->_3DDescriptorSetLayout, pipelineStruct);
         this->_pipelines[name] = pipeline;
     }

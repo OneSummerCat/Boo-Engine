@@ -50,6 +50,16 @@ void UIRenderer::_setColor(float r, float g, float b, float a)
 
 void UIRenderer::_setMaterial(MaterialAsset *mtl)
 {
+	if (mtl == nullptr)
+	{
+		std::cout << "UIRenderer::setMaterial: mtl is nullptr" << std::endl;
+		return;
+	}
+	if (this->_materialAsset != nullptr && this->_materialAsset->getUuid() == mtl->getUuid())
+	{
+		return;
+	}
+	this->_materialAsset->create(mtl);
 }
 void UIRenderer::_setTexture(TextureAsset *texture)
 {
@@ -63,7 +73,7 @@ void UIRenderer::_setTexture(TextureAsset *texture)
 		return;
 	}
 	this->_textureAsset = texture;
-	this->_materialAsset->setTexture(0, texture->getUuid());
+	this->_materialAsset->setTexture(texture->getUuid());
 }
 void UIRenderer::Update(float deltaTime)
 {
@@ -88,7 +98,10 @@ void UIRenderer::Render(Camera *camera)
 	{
 		return; // 节点不可见
 	}
-	// std::cout << "UIRenderer::Render:" << node2D->getName() << std::endl;
+	if (this->_materialAsset == nullptr)
+	{
+		return; // 节点没有设置材质
+	}
 	// 提交渲染对象
 	this->_instanceData.clear();
 	this->_instanceData.reserve(16 + 4);
@@ -97,7 +110,6 @@ void UIRenderer::Render(Camera *camera)
 	_instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
 	// 2. 再添加颜色 (4个float)
 	_instanceData.insert(_instanceData.end(), {_color.getR(), _color.getG(), _color.getB(), _color.getA()});
-
 	GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_materialAsset->getGfxMaterial(), Gfx::uiTestMesh, this->_instanceData);
 }
 

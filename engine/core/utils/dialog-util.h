@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../libs/nativefiledialog/nfd.h"
+#include "nfd.h"
 
 // const nfdchar_t *SceneFilterList[] = {
 //     "Scene files", "scene",  // 第一组过滤器

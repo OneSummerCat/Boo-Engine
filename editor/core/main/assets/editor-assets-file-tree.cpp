@@ -85,7 +85,7 @@ void EditorAssetsFileTree::setRoot(std::string root)
     this->_root = root;
     this->_uiTreeData.uuid = root;
     this->_uiTreeData.layer = 0;
-    this->_uiTreeData.icon = "ic-project.png";
+    this->_uiTreeData.icon = "_private/textures/ic-project.png";
     this->_uiTreeData.isFold = false;
     this->_uiTreeData.name = std::filesystem::path(root).filename().string();
     std::vector<std::filesystem::directory_entry> entries;
@@ -107,7 +107,7 @@ void EditorAssetsFileTree::_setTrees(std::filesystem::directory_entry entry, Fil
         // 文件夹
         uiTreeData.uuid = entry.path().string();
         uiTreeData.layer = layer;
-        uiTreeData.icon = "ic-folder.png";
+        uiTreeData.icon = "_private/textures/ic-folder.png";
         uiTreeData.isFold = false;
         uiTreeData.name = entry.path().filename().string();
         std::vector<std::filesystem::directory_entry> entries;
@@ -131,27 +131,27 @@ void EditorAssetsFileTree::_setTrees(std::filesystem::directory_entry entry, Fil
         std::string extension = entry.path().extension().string();
         if (extension == ".png" || extension == ".PNG" || extension == ".jpg" || extension == ".JPG")
         {
-            uiTreeData.icon = "ic-image.png";
+            uiTreeData.icon = "_private/textures/ic-image.png";
         }
         else if (extension == ".vert")
         {
-            uiTreeData.icon = "ic-shader-v.png";
+            uiTreeData.icon = "_private/textures/ic-shader-v.png";
         }
         else if (extension == ".frag")
         {
-            uiTreeData.icon = "ic-shader-f.png";
+            uiTreeData.icon = "_private/textures/ic-shader-f.png";
         }
         else if (extension == ".mtl")
         {
-            uiTreeData.icon = "ic-material.png";
+            uiTreeData.icon = "_private/textures/ic-material.png";
         }
         else if (extension == ".md")
         {
-            uiTreeData.icon = "ic-readme.png";
+            uiTreeData.icon = "_private/textures/ic-readme.png";
         }
         else
         {
-            uiTreeData.icon = "ic-2d.png";
+            uiTreeData.icon = "_private/textures/ic-2d.png";
         }
         uiTreeData.isFold = false;
         uiTreeData.name = entry.path().filename().string();
@@ -323,11 +323,13 @@ void EditorAssetsFileTree::_updateTreeItemFold(Node2D *ndItem, FileTreeStructure
         {
             // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-arrow-right.png");
             // spFold->setTexture(tex);
+            spFold->setTexture("_private/textures/ic-arrow-right.png");
         }
         else
         {
             // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-arrow-bottom.png");
             // spFold->setTexture(tex);
+            spFold->setTexture("_private/textures/ic-arrow-bottom.png");
         }
     }
     else
@@ -346,6 +348,7 @@ void EditorAssetsFileTree::_updateTreeItemIcon(Node2D *ndItem, FileTreeStructure
     Node2D *ndIcon = dynamic_cast<Node2D *>(ndItem->getChildByName("NodeTreeItemIcon"));
     UISprite *spIcon = dynamic_cast<UISprite *>(ndIcon->getComponent("UISprite"));
     // TextureAsset *tex = BooEditor::cache->getEditorTexture(uiTreeData.icon);
+    spIcon->setTexture(uiTreeData.icon);
     // spIcon->setTexture(tex);
     _width += this->_itemElemBorder;
     const Size &size = ndIcon->getSize();
@@ -527,6 +530,7 @@ void EditorAssetsFileTree::_refreshTreeItemUI(FileTreeStructure *tree, int state
 }
 void EditorAssetsFileTree::_onTreeItemFoldTouchEvent(NodeInputResult &result)
 {
+    return;
     Node2D *ndFold = result.node;
     if (ndFold == nullptr)
     {

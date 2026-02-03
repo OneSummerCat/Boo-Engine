@@ -20,8 +20,8 @@
     "srcColorBlendFactor": 4,
     "dstColorBlendFactor": 6,
     "colorBlendOp": 0,
-    "srcAlphaBlendFactor": 6,
-    "dstAlphaBlendFactor": 0,
+    "srcAlphaBlendFactor": 0,
+    "dstAlphaBlendFactor": 6,
     "alphaBlendOp": 0,
     "pushConstant": [],
     "textures": []

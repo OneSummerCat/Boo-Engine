@@ -39,8 +39,8 @@ void EditorHierarchyLayout::_initContent()
     widget->setHorizontal(WidgetHorizontal::ALL, paramHorizontal);
     widget->setVertical(WidgetVertical::ALL, paramVertical);
     // 渲染组件 后续不需要
-    UISprite *sprite = dynamic_cast<UISprite *>(this->_content->addComponent("UISprite"));
-    sprite->setColor("#000000ff");
+    /* UISprite *sprite = dynamic_cast<UISprite *>(this->_content->addComponent("UISprite"));
+     sprite->setColor("#000000ff");*/
 }
 void EditorHierarchyLayout::_initTitle()
 {
@@ -68,7 +68,7 @@ void EditorHierarchyLayout::_initTitle()
     UISprite *spriteName = dynamic_cast<UISprite *>(ndTitleName->addComponent("UISprite"));
     spriteName->setColor("#ffffffff");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-title-hierarchy.png");
-    // spriteName->setTexture(tex);
+    spriteName->setTexture("_private/textures/ic-title-hierarchy.png");
     // 计算尺寸
     float width = ndTitle->getSize().getWidth() * 0.95f;
     float scale = width / 300.0f;
@@ -106,6 +106,7 @@ void EditorHierarchyLayout::_initOperateAdd()
     this->_spriteAdd = dynamic_cast<UISprite *>(this->_ndAdd->addComponent("UISprite"));
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-add.png");
     // this->_spriteAdd->setTexture(tex);
+    this->_spriteAdd->setTexture("_private/textures/ic-add.png");
 
     // 添加wedget组件
     UIWidget *widget = dynamic_cast<UIWidget *>(this->_ndAdd->addComponent("UIWidget"));
@@ -128,6 +129,7 @@ void EditorHierarchyLayout::_initOperateFold()
     // this->_spriteFold->setTexture("resources/texture/icon/ic-flod.png");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-flod.png");
     // this->_spriteFold->setTexture(tex);
+    this->_spriteFold->setTexture("_private/textures/ic-flod.png");
     // 添加wedget组件
     UIWidget *widget = dynamic_cast<UIWidget *>(this->_ndFold->addComponent("UIWidget"));
     WidgetHorizontalParam paramHorizontal{};
@@ -160,6 +162,7 @@ void EditorHierarchyLayout::_initOperateSearch()
     this->_spriteSearchIcon = dynamic_cast<UISprite *>(this->_ndSearchIcon->addComponent("UISprite"));
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-search.png");
     // this->_spriteSearchIcon->setTexture(tex);
+    this->_spriteSearchIcon->setTexture("_private/textures/ic-search.png");
     // 添加wedget组件
     UIWidget *widget0 = dynamic_cast<UIWidget *>(this->_ndSearchIcon->addComponent("UIWidget"));
     WidgetHorizontalParam paramHorizontal0{};
@@ -172,7 +175,8 @@ void EditorHierarchyLayout::_initOperateSearch()
     this->_ndSearchBox->setSize(100.0f, 18.0f);
     this->_spriteSearchBox = dynamic_cast<UISprite *>(this->_ndSearchBox->addComponent("UISprite"));
     this->_spriteSearchBox->setColor("#ffffffff");
-    this->_spriteSearchBox->setTexture(EditorConfig::txDefault);
+    // this->_spriteSearchBox->setTexture(EditorConfig::txDefault);
+    this->_spriteSearchBox->setMaterial("builtin::default.png");
     // 添加wedget组件
     UIWidget *widget1 = dynamic_cast<UIWidget *>(this->_ndSearchBox->addComponent("UIWidget"));
     WidgetHorizontalParam paramHorizontal1{};
@@ -199,17 +203,16 @@ void EditorHierarchyLayout::_initNodeTree()
     widget->setHorizontal(WidgetHorizontal::ALL, paramHorizontal);
     widget->setVertical(WidgetVertical::ALL, paramVertical);
     // //添加mask组件
-    // 
+    //
     this->_nodeTree = dynamic_cast<EditorHierarchyNodeTree *>(this->_ndNodeTree->addComponent("EditorHierarchyNodeTree"));
     this->_nodeTree->onSelectEvent([this](std::string uuid)
                                        { this->_onNodeTreeSelectEvent(uuid); });
 }
 void EditorHierarchyLayout::setScene(Scene *scene)
 {
-    if (this->_nodeTree != nullptr)
-    {
-        this->_nodeTree->setScene(scene);
-    }
+    if (this->_nodeTree == nullptr)
+        return;
+    this->_nodeTree->setScene(scene);
 }
 void EditorHierarchyLayout::_onNodeTreeSelectEvent(std::string uuid)
 {

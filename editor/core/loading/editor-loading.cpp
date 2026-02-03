@@ -58,35 +58,36 @@ void EditorLoading::_initCamera()
 
 void EditorLoading::_initBg()
 {
-	this->_ndAlpha = new Node2D("Editor-EditorLoading");
+	this->_ndAlpha = new Node2D("Editor-Loading-Bg");
 	this->_node->addChild(this->_ndAlpha);
 	// 背景
 	Component *compAlpha = this->_ndAlpha->addComponent("UISprite");
 	if (compAlpha != nullptr)
 	{
 		this->_spriteAlpha = dynamic_cast<UISprite *>(compAlpha);
+		this->_spriteAlpha->setTexture("builtin::default.png");
 		this->_spriteAlpha->setColor("#151515ff");
 	}
 	this->_ndAlpha->setSize(this->_width, this->_height);
 }
 void EditorLoading::_initLogo()
 {
-	Asset *text = Boo::game->assetsManager()->getAsset("_private/logo.png");
+	Asset *text = Boo::game->assetsManager()->getAsset("builtin::logo.png");
 	TextureAsset *texture = dynamic_cast<TextureAsset *>(text);
 	this->_logoTxWidth = texture->width();
 	this->_logoTxHeight = texture->height();
 
 	// 添加logo
-	this->_ndLogo = new Node2D("Editor-EditorLoading-Logo");
+	this->_ndLogo = new Node2D("Editor-Loading-Logo");
 	this->_node->addChild(this->_ndLogo);
 	this->_ndLogo->setPosition(0.0f, 100.0f, 0.0f);
 	Component *compLogo = this->_ndLogo->addComponent("UISprite");
 	if (compLogo != nullptr)
 	{
 		this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
+		this->_spriteLogo->setTexture("builtin::logo.png");
 		this->_spriteLogo->setEnabled(true);
 		this->_spriteLogo->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		this->_spriteLogo->setTexture(texture);
 	}
 	// 初始化logo大小
 	this->_updateLogoSize(this->_width, this->_height);
@@ -95,10 +96,10 @@ void EditorLoading::_initLoadUI()
 {
 	this->_ndLoad = new Node2D("Editor-Load");
 	this->_node->addChild(this->_ndLoad);
-	this->_spriteLoad =
-		dynamic_cast<UISprite *>(this->_ndLoad->addComponent("UISprite"));
+	this->_spriteLoad =dynamic_cast<UISprite *>(this->_ndLoad->addComponent("UISprite"));
 	if (this->_spriteLoad != nullptr)
 	{
+		this->_spriteLoad->setTexture("builtin::default.png");
 		this->_spriteLoad->setColor("#0A2F36");
 	}
 	this->_ndLoadBar = new Node2D("Editor-LoadBar");
@@ -106,7 +107,7 @@ void EditorLoading::_initLoadUI()
 	this->_spriteLoadBar = dynamic_cast<UISprite *>(this->_ndLoadBar->addComponent("UISprite"));
 	if (this->_spriteLoadBar != nullptr)
 	{
-		this->_spriteLoadBar->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+		this->_spriteLoadBar->setTexture("builtin::default.png");
 		this->_spriteLoadBar->setColor("#AFF2FF");
 	}
 	this->_setLoadProgress(0.0f);
@@ -133,7 +134,7 @@ void EditorLoading::_initAssetsDB()
 }
 void EditorLoading::_initAssetsDBCallback(float progress, std::string file)
 {
-	// std::cout << "EditorLoading::_initAssetsDBCallback: " << progress << " " << file << std::endl;
+	std::cout << "EditorLoading::_initAssetsDBCallback: " << progress << " " << file << std::endl;
 	this->_setLoadProgress(progress * 0.9f);
 }
 void EditorLoading::_initAssetsDBCompleteCallback()
@@ -153,7 +154,7 @@ void EditorLoading::_saveEditorCache()
 			std::string relativePath = std::filesystem::relative(entry.path(), resPath).generic_string();
 			std::cout << "EditorLoading::_saveEditorCache:" << relativePath << std::endl;
 			AssetTask task(0);
-			Asset *asset = task.load(resPath, relativePath);
+			Asset *asset = task.load(resPath.generic_string(), relativePath);
 			if (asset != nullptr)
 			{
 				Boo::game->assetsManager()->getAssetsCache()->addAsset(relativePath, asset);

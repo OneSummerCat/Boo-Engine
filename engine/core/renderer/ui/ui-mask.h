@@ -18,7 +18,6 @@ class MaterialAsset;
 class UIMask : public UIRenderer
 {
 private:
-    MaterialAsset *_testMaterialAsset;
     MaterialAsset *_addMaterialAsset;
     MaterialAsset *_subMaterialAsset;
     GfxMesh *_maskMesh;

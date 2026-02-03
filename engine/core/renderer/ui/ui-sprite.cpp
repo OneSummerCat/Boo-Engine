@@ -15,9 +15,6 @@ UISprite::UISprite(std::string name, Node *node, std::string uuid) : UIRenderer(
     this->_texture = "";
     // 材质路径
     this->_material = "";
-
-    this->_materialAsset = new MaterialAsset();
-    // this->_materialAsset->createUITest();
 }
 /**
  * @brief 反序列化组件属性-配置
@@ -31,6 +28,8 @@ void UISprite::_deserialized()
 void UISprite::Awake()
 {
     UIRenderer::Awake();
+    this->_materialAsset = new MaterialAsset();
+    this->setMaterial("builtin::ui.mtl");
 }
 
 void UISprite::Enable()
@@ -80,13 +79,13 @@ void UISprite::setAlpha(float alpha)
 }
 void UISprite::setMaterial(std::string material)
 {
-    // MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAssetByPath(material));
-    // if (mtl == nullptr)
-    // {
-    //     std::cout << "UISprite::setMaterial: material " << material << " not found" << std::endl;
-    //     return;
-    // }
-    // this->_setMaterial(mtl);
+    MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset(material));
+    if (mtl == nullptr)
+    {
+        std::cout << "UISprite::setMaterial: material " << material << " not found" << std::endl;
+        return;
+    }
+    this->setMaterial(mtl);
 }
 void UISprite::setMaterial(MaterialAsset *material)
 {
@@ -100,6 +99,13 @@ void UISprite::setMaterial(MaterialAsset *material)
 
 void UISprite::setTexture(std::string path)
 {
+    TextureAsset *texture = dynamic_cast<TextureAsset *>(Boo::game->assetsManager()->getAsset(path));
+    if (texture == nullptr)
+    {
+        std::cout << "UISprite::setTexture: texture " << path << " not found" << std::endl;
+        return;
+    }
+    this->setTexture(texture);
 }
 void UISprite::setTexture(TextureAsset *texture)
 {
@@ -112,12 +118,11 @@ void UISprite::setTexture(TextureAsset *texture)
 }
 void UISprite::setRenderTexture(GfxRenderTexture *renderTexture)
 {
-    this->_renderTexture = renderTexture;
-    if (this->_renderTexture != nullptr)
-    {
-        // std::cout << "UISprite::setRenderTexture: renderTexture: " << this->_renderTexture->getColorTextureUuid() << std::endl;
-        this->_materialAsset->setTexture(0, this->_renderTexture->getColorTextureUuid());
-    }
+    // this->_renderTexture = renderTexture;
+    // if (this->_renderTexture != nullptr)
+    // {
+    //     this->_materialAsset->setTexture(this->_renderTexture->getColorTextureUuid());
+    // }
 }
 
 void UISprite::Update(float deltaTime)

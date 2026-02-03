@@ -18,6 +18,228 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="app.cpp" />
+    <ClCompile Include="editor\boo-editor.cpp" />
+    <ClCompile Include="editor\core\cache\assets\editor-cache-assets-task.cpp" />
+    <ClCompile Include="editor\core\cache\assets\editor-cache-assets.cpp" />
+    <ClCompile Include="editor\core\cache\editor-cache.cpp" />
+    <ClCompile Include="editor\core\cache\scene\editor-cache-scene.cpp" />
+    <ClCompile Include="editor\core\config\editor-config.cpp" />
+    <ClCompile Include="editor\core\editor-boot.cpp" />
+    <ClCompile Include="editor\core\loading\editor-loading.cpp" />
+    <ClCompile Include="editor\core\main\assets\editor-assets-file-tree.cpp" />
+    <ClCompile Include="editor\core\main\assets\editor-assets-layout.cpp" />
+    <ClCompile Include="editor\core\main\assets\editor-assets.cpp" />
+    <ClCompile Include="editor\core\main\editor-layout.cpp" />
+    <ClCompile Include="editor\core\main\editor-main.cpp" />
+    <ClCompile Include="editor\core\main\hierarchy\editor-hierarchy-layout.cpp" />
+    <ClCompile Include="editor\core\main\hierarchy\editor-hierarchy-node-tree.cpp" />
+    <ClCompile Include="editor\core\main\hierarchy\editor-hierarchy.cpp" />
+    <ClCompile Include="editor\core\main\property\editor-property-layout.cpp" />
+    <ClCompile Include="editor\core\main\property\editor-property.cpp" />
+    <ClCompile Include="editor\core\main\scene\editor-scene-renderer.cpp" />
+    <ClCompile Include="editor\core\main\scene\editor-scene-renderer2d.cpp" />
+    <ClCompile Include="editor\core\main\scene\editor-scene-renderer3d.cpp" />
+    <ClCompile Include="editor\core\main\scene\editor-scene.cpp" />
+    <ClCompile Include="editor\editor.cpp" />
+    <ClCompile Include="engine\boo.cpp" />
+    <ClCompile Include="engine\core\alpha\alpha.cpp" />
+    <ClCompile Include="engine\core\assets\asset-cache.cpp" />
+    <ClCompile Include="engine\core\assets\asset-load.cpp" />
+    <ClCompile Include="engine\core\assets\asset-task.cpp" />
+    <ClCompile Include="engine\core\assets\asset.cpp" />
+    <ClCompile Include="engine\core\assets\assets-manager.cpp" />
+    <ClCompile Include="engine\core\assets\assst-builtin.cpp" />
+    <ClCompile Include="engine\core\assets\material-asset.cpp" />
+    <ClCompile Include="engine\core\assets\mesh-asset.cpp" />
+    <ClCompile Include="engine\core\assets\scene-asset.cpp" />
+    <ClCompile Include="engine\core\assets\shader-asset.cpp" />
+    <ClCompile Include="engine\core\assets\texture-asset.cpp" />
+    <ClCompile Include="engine\core\component\component-factory.cpp" />
+    <ClCompile Include="engine\core\component\component.cpp" />
+    <ClCompile Include="engine\core\component\ui\ui-layout-horizontal.cpp" />
+    <ClCompile Include="engine\core\component\ui\ui-layout-vertical.cpp" />
+    <ClCompile Include="engine\core\component\ui\ui-widget.cpp" />
+    <ClCompile Include="engine\core\event\event.cpp" />
+    <ClCompile Include="engine\core\font\freetype-mgr.cpp" />
+    <ClCompile Include="engine\core\game.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-buffer-instance.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-buffer-ubo.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-buffer.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-material.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-mesh.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-pipeline.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-push-constants.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-render-pass.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-render-texture.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-shader.cpp" />
+    <ClCompile Include="engine\core\gfx\base\gfx-texture.cpp" />
+    <ClCompile Include="engine\core\gfx\builtin\gfx-batch-builtin.cpp" />
+    <ClCompile Include="engine\core\gfx\builtin\gfx-pipeline-builtin.cpp" />
+    <ClCompile Include="engine\core\gfx\builtin\gfx-queue-builtin.cpp" />
+    <ClCompile Include="engine\core\gfx\builtin\gfx-render-pass-builtin.cpp" />
+    <ClCompile Include="engine\core\gfx\builtin\gfx-renderer-builtin.cpp" />
+    <ClCompile Include="engine\core\gfx\default\gfx-pipeline-default.cpp" />
+    <ClCompile Include="engine\core\gfx\default\gfx-queue-default.cpp" />
+    <ClCompile Include="engine\core\gfx\default\gfx-render-pass-default.cpp" />
+    <ClCompile Include="engine\core\gfx\default\gfx-renderer-default.cpp" />
+    <ClCompile Include="engine\core\gfx\gfx-context.cpp" />
+    <ClCompile Include="engine\core\gfx\gfx-mgr.cpp" />
+    <ClCompile Include="engine\core\gfx\gfx-renderer.cpp" />
+    <ClCompile Include="engine\core\gfx\gfx.cpp" />
+    <ClCompile Include="engine\core\global\global.cpp" />
+    <ClCompile Include="engine\core\input\input.cpp" />
+    <ClCompile Include="engine\core\math\color.cpp" />
+    <ClCompile Include="engine\core\math\mat4.cpp" />
+    <ClCompile Include="engine\core\math\quat.cpp" />
+    <ClCompile Include="engine\core\math\size.cpp" />
+    <ClCompile Include="engine\core\math\vec2.cpp" />
+    <ClCompile Include="engine\core\math\vec3.cpp" />
+    <ClCompile Include="engine\core\renderer\camera.cpp" />
+    <ClCompile Include="engine\core\renderer\renderer.cpp" />
+    <ClCompile Include="engine\core\renderer\ui\ui-mask.cpp" />
+    <ClCompile Include="engine\core\renderer\ui\ui-renderer.cpp" />
+    <ClCompile Include="engine\core\renderer\ui\ui-sprite.cpp" />
+    <ClCompile Include="engine\core\renderer\ui\ui-text.cpp" />
+    <ClCompile Include="engine\core\scene\node-2d.cpp" />
+    <ClCompile Include="engine\core\scene\node-3d.cpp" />
+    <ClCompile Include="engine\core\scene\node.cpp" />
+    <ClCompile Include="engine\core\scene\scene.cpp" />
+    <ClCompile Include="engine\core\utils\dialog-util.cpp" />
+    <ClCompile Include="engine\core\utils\file-util.cpp" />
+    <ClCompile Include="engine\core\utils\fmt-util.cpp" />
+    <ClCompile Include="engine\core\utils\sdf-util.cpp" />
+    <ClCompile Include="engine\core\utils\time-util.cpp" />
+    <ClCompile Include="engine\core\utils\uuid-util.cpp" />
+    <ClCompile Include="engine\engine.cpp" />
+    <ClCompile Include="engine\window\window.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="editor\boo-editor.h" />
+    <ClInclude Include="editor\core\cache\assets\editor-cache-assets-task.h" />
+    <ClInclude Include="editor\core\cache\assets\editor-cache-assets.h" />
+    <ClInclude Include="editor\core\cache\editor-cache.h" />
+    <ClInclude Include="editor\core\cache\scene\editor-cache-scene.h" />
+    <ClInclude Include="editor\core\config\editor-config.h" />
+    <ClInclude Include="editor\core\editor-boot.h" />
+    <ClInclude Include="editor\core\loading\editor-loading.h" />
+    <ClInclude Include="editor\core\main\assets\editor-assets-file-tree.h" />
+    <ClInclude Include="editor\core\main\assets\editor-assets-layout.h" />
+    <ClInclude Include="editor\core\main\assets\editor-assets.h" />
+    <ClInclude Include="editor\core\main\editor-layout.h" />
+    <ClInclude Include="editor\core\main\editor-main.h" />
+    <ClInclude Include="editor\core\main\hierarchy\editor-hierarchy-layout.h" />
+    <ClInclude Include="editor\core\main\hierarchy\editor-hierarchy-node-tree.h" />
+    <ClInclude Include="editor\core\main\hierarchy\editor-hierarchy.h" />
+    <ClInclude Include="editor\core\main\property\editor-property-layout.h" />
+    <ClInclude Include="editor\core\main\property\editor-property.h" />
+    <ClInclude Include="editor\core\main\scene\editor-scene-renderer.h" />
+    <ClInclude Include="editor\core\main\scene\editor-scene-renderer2d.h" />
+    <ClInclude Include="editor\core\main\scene\editor-scene-renderer3d.h" />
+    <ClInclude Include="editor\core\main\scene\editor-scene.h" />
+    <ClInclude Include="editor\editor.h" />
+    <ClInclude Include="engine\boo.h" />
+    <ClInclude Include="engine\core\alpha\alpha.h" />
+    <ClInclude Include="engine\core\assets\asset-cache.h" />
+    <ClInclude Include="engine\core\assets\asset-load.h" />
+    <ClInclude Include="engine\core\assets\asset-struct.h" />
+    <ClInclude Include="engine\core\assets\asset-task.h" />
+    <ClInclude Include="engine\core\assets\asset.h" />
+    <ClInclude Include="engine\core\assets\assets-manager.h" />
+    <ClInclude Include="engine\core\assets\assst-builtin.h" />
+    <ClInclude Include="engine\core\assets\material-asset.h" />
+    <ClInclude Include="engine\core\assets\mesh-asset.h" />
+    <ClInclude Include="engine\core\assets\scene-asset.h" />
+    <ClInclude Include="engine\core\assets\shader-asset.h" />
+    <ClInclude Include="engine\core\assets\texture-asset.h" />
+    <ClInclude Include="engine\core\component\component-factory-impl.h" />
+    <ClInclude Include="engine\core\component\component-factory.h" />
+    <ClInclude Include="engine\core\component\component-property-reflect.h" />
+    <ClInclude Include="engine\core\component\component-property-register.h" />
+    <ClInclude Include="engine\core\component\component-register.h" />
+    <ClInclude Include="engine\core\component\component.h" />
+    <ClInclude Include="engine\core\component\ui\ui-layout-horizontal.h" />
+    <ClInclude Include="engine\core\component\ui\ui-layout-vertical.h" />
+    <ClInclude Include="engine\core\component\ui\ui-widget.h" />
+    <ClInclude Include="engine\core\event\event.h" />
+    <ClInclude Include="engine\core\font\freetype-mgr.h" />
+    <ClInclude Include="engine\core\game.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-buffer-instance.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-buffer-ubo.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-buffer.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-material.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-mesh-struct.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-mesh.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-pipeline-struct.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-pipeline.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-push-constants.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-render-pass.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-render-texture.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-shader-struct.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-shader.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-struct.h" />
+    <ClInclude Include="engine\core\gfx\base\gfx-texture.h" />
+    <ClInclude Include="engine\core\gfx\builtin\gfx-batch-builtin.h" />
+    <ClInclude Include="engine\core\gfx\builtin\gfx-pipeline-builtin.h" />
+    <ClInclude Include="engine\core\gfx\builtin\gfx-queue-builtin.h" />
+    <ClInclude Include="engine\core\gfx\builtin\gfx-render-pass-builtin.h" />
+    <ClInclude Include="engine\core\gfx\builtin\gfx-renderer-builtin.h" />
+    <ClInclude Include="engine\core\gfx\default\gfx-pipeline-default.h" />
+    <ClInclude Include="engine\core\gfx\default\gfx-queue-default.h" />
+    <ClInclude Include="engine\core\gfx\default\gfx-render-pass-default.h" />
+    <ClInclude Include="engine\core\gfx\default\gfx-renderer-default.h" />
+    <ClInclude Include="engine\core\gfx\gfx-context.h" />
+    <ClInclude Include="engine\core\gfx\gfx-mgr.h" />
+    <ClInclude Include="engine\core\gfx\gfx-renderer.h" />
+    <ClInclude Include="engine\core\gfx\gfx.h" />
+    <ClInclude Include="engine\core\global\global.h" />
+    <ClInclude Include="engine\core\input\input-impl.h" />
+    <ClInclude Include="engine\core\input\input-struct.h" />
+    <ClInclude Include="engine\core\input\input.h" />
+    <ClInclude Include="engine\core\math\color.h" />
+    <ClInclude Include="engine\core\math\mat4.h" />
+    <ClInclude Include="engine\core\math\quat.h" />
+    <ClInclude Include="engine\core\math\size.h" />
+    <ClInclude Include="engine\core\math\vec2.h" />
+    <ClInclude Include="engine\core\math\vec3.h" />
+    <ClInclude Include="engine\core\renderer\camera.h" />
+    <ClInclude Include="engine\core\renderer\renderer.h" />
+    <ClInclude Include="engine\core\renderer\ui\ui-mask.h" />
+    <ClInclude Include="engine\core\renderer\ui\ui-renderer.h" />
+    <ClInclude Include="engine\core\renderer\ui\ui-sprite.h" />
+    <ClInclude Include="engine\core\renderer\ui\ui-text.h" />
+    <ClInclude Include="engine\core\scene\node-2d-impl.h" />
+    <ClInclude Include="engine\core\scene\node-2d.h" />
+    <ClInclude Include="engine\core\scene\node-3d-impl.h" />
+    <ClInclude Include="engine\core\scene\node-3d.h" />
+    <ClInclude Include="engine\core\scene\node-struct.h" />
+    <ClInclude Include="engine\core\scene\node.h" />
+    <ClInclude Include="engine\core\scene\scene.h" />
+    <ClInclude Include="engine\core\utils\dialog-util.h" />
+    <ClInclude Include="engine\core\utils\file-util.h" />
+    <ClInclude Include="engine\core\utils\fmt-util.h" />
+    <ClInclude Include="engine\core\utils\json-util.h" />
+    <ClInclude Include="engine\core\utils\sdf-util.h" />
+    <ClInclude Include="engine\core\utils\time-util.h" />
+    <ClInclude Include="engine\core\utils\uuid-util.h" />
+    <ClInclude Include="engine\engine.h" />
+    <ClInclude Include="engine\libs\nlohmann\fifo_map.hpp" />
+    <ClInclude Include="engine\libs\nlohmann\json.hpp" />
+    <ClInclude Include="engine\window\window.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="editor\core\cache\assets\readme.md" />
+    <None Include="editor\core\cache\readme.md" />
+    <None Include="editor\readme.md" />
+    <None Include="engine\core\assets\readme.md" />
+    <None Include="engine\core\component\readme.md" />
+    <None Include="engine\core\gfx\readme.md" />
+    <None Include="engine\core\input\readme.md" />
+    <None Include="engine\core\renderer\readme.md" />
+    <None Include="engine\readme.md" />
+    <None Include="engine\window\readme.md" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
@@ -102,11 +324,26 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs/glfw/include;$(SolutionDir)/engine/libs/stb;E:\software\vulkan\Include;$(SolutionDir)libs/freetype2/include;$(SolutionDir)libs/nativefiledialog/include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>$(SolutionDir)libs/glfw/lib-vc2022;E:\software\vulkan\Lib;$(SolutionDir)libs/freetype2/lib;$(SolutionDir)libs/nativefiledialog/lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;shaderc_combinedd.lib;freetype.lib;nfd.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(TargetDir)resources" rmdir /s /q "$(TargetDir)resources"
+if exist "$(ProjectDir)engine\resources" (
+    xcopy /Y /I /E "$(ProjectDir)engine\resources\*" "$(TargetDir)resources\"
+)
+
+if exist "$(TargetDir)res" rmdir /s /q "$(TargetDir)res"
+if exist "$(ProjectDir)editor\res" (
+    xcopy /Y /I /E "$(ProjectDir)editor\res\*" "$(TargetDir)res\"
+)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

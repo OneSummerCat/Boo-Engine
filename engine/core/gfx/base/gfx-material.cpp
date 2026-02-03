@@ -1,12 +1,16 @@
 #include "gfx-material.h"
 
+#include "../gfx-mgr.h"
+#include "../gfx.h"
+#include "../gfx-context.h"
+
 GfxMaterial::GfxMaterial()
 {
 }
 void GfxMaterial::setPipelineStruct(const GfxPipelineStruct pipelineStruct)
 {
     this->_pipelineStruct = pipelineStruct;
-    
+    GfxMgr::getInstance()->createPipeline(this->_pipelineStruct.generateKey(), this->_pipelineStruct);
 }
 void GfxMaterial::setTextures(const std::vector<std::string> textures)
 {

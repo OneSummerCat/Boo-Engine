@@ -20,7 +20,7 @@ GfxTexture::GfxTexture(std::string uuid, const std::vector<uint8_t> *pixels, uin
     this->_createTextureImage();
     this->_createTextureImageView();
     this->_createTextureSampler();
-    // std::cout << "[Gfx : Texture]:: create success" << std::endl;
+    std::cout << "[Gfx : Texture]:: create  " << this->_uuid << "   success..." << std::endl;
 }
 
 void GfxTexture::_createTextureImage()
@@ -46,7 +46,7 @@ void GfxTexture::_createTextureImage()
     {
         format = VK_FORMAT_R8_UNORM;
     }
-   /*  // 创建纹理图像 */
+    /*  // 创建纹理图像 */
     this->createImage(this->_width, this->_height, format, VK_IMAGE_TILING_OPTIMAL,
                       VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
                       VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT,
@@ -57,7 +57,7 @@ void GfxTexture::_createTextureImage()
     this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
     this->_transitionImageLayout(this->_textureImage, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-   /*  // 清理暂存资源 */
+    /*  // 清理暂存资源 */
     vkDestroyBuffer(Gfx::context->getVkDevice(), stagingBuffer, nullptr);
     vkFreeMemory(Gfx::context->getVkDevice(), stagingBufferMemory, nullptr);
 }
@@ -92,9 +92,9 @@ void GfxTexture::_createTextureSampler()
     if (vkCreateSampler(Gfx::context->getVkDevice(), &samplerInfo, nullptr, &this->_textureSampler) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture sampler!");
-    }    
+    }
 }
-/* 
+/*
 // 以下实现辅助方法... */
 void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
                              VkImageTiling tiling, VkImageUsageFlags usage,
@@ -338,7 +338,6 @@ void GfxTexture::setBindlessIndex(uint32_t index)
 }
 void GfxTexture::destroy()
 {
-    
 }
 
 bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t height)
@@ -423,7 +422,7 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
     this->_endSingleTimeCommands(commandBuffer);
 
     /* // 6. 映射内存并读取数据 */
-    void* data;
+    void *data;
     vkMapMemory(Gfx::context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
 
     /* // 7. 保存为图片文件 */
@@ -473,7 +472,7 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
 GfxTexture::~GfxTexture()
 {
     // std::cout << "[Gfx : Texture]::~Texture: uuid:" << this->_uuid << std::endl;
-   /*  // 销毁采样器 */
+    /*  // 销毁采样器 */
     if (this->_textureSampler != VK_NULL_HANDLE)
     {
         vkDestroySampler(Gfx::context->getVkDevice(), this->_textureSampler, nullptr);
@@ -487,14 +486,14 @@ GfxTexture::~GfxTexture()
         this->_textureImageView = VK_NULL_HANDLE;
     }
 
-   /*  // 销毁图像 */
+    /*  // 销毁图像 */
     if (this->_textureImage != VK_NULL_HANDLE)
     {
         vkDestroyImage(Gfx::context->getVkDevice(), this->_textureImage, nullptr);
         this->_textureImage = VK_NULL_HANDLE;
     }
 
-   /*  // 释放图像内存 */
+    /*  // 释放图像内存 */
     if (this->_textureImageMemory != VK_NULL_HANDLE)
     {
         vkFreeMemory(Gfx::context->getVkDevice(), this->_textureImageMemory, nullptr);

@@ -94,7 +94,7 @@ void EditorHierarchyNodeTree::setScene(Scene *scene)
     this->_uiTreeData.uuid = scene->getUuid();
     this->_uiTreeData.isFold = false;
     this->_uiTreeData.ndBind = nullptr;
-    this->_uiTreeData.icon = "ic-scene.png";
+    this->_uiTreeData.icon = "_private/textures/ic-scene.png";
     this->_uiTreeData.layer = 0;
     this->_uiTreeData.children.resize(scene->getChildren().size());
     std::cout << "EditorHierarchyNodeTree::setScene: " << scene->getName() << std::endl;
@@ -105,17 +105,16 @@ void EditorHierarchyNodeTree::setScene(Scene *scene)
 }
 void EditorHierarchyNodeTree::_setTrees(Node *root, NodeTreeStructure &uiTreeData, int layer)
 {
-    // this->_nodes[root->getUuid()] = root;
     std::cout << "EditorHierarchyNodeTree::_setTrees: " << root->getName() << std::endl;
     uiTreeData.name = root->getName();
     uiTreeData.uuid = root->getUuid();
     if (root->getLayer() == NodeLayer::Node2D)
     {
-        uiTreeData.icon = "ic-2d.png";
+        uiTreeData.icon = "_private/textures/ic-2d.png";
     }
     else
     {
-        uiTreeData.icon = "ic-3d.png";
+        uiTreeData.icon = "_private/textures/ic-3d.png";
     }
     uiTreeData.isFold = false;
     uiTreeData.ndBind = nullptr;
@@ -298,11 +297,13 @@ void EditorHierarchyNodeTree::_updateTreeItemFold(Node2D *ndItem, NodeTreeStruct
         {
             // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-arrow-right.png");
             // spFold->setTexture(tex);
+            spFold->setTexture("_private/textures/ic-arrow-right.png");
         }
         else
         {
             // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-arrow-bottom.png");
             // spFold->setTexture(tex);
+            spFold->setTexture("_private/textures/ic-arrow-bottom.png");
         }
     }
     else
@@ -321,6 +322,7 @@ void EditorHierarchyNodeTree::_updateTreeItemIcon(Node2D *ndItem, NodeTreeStruct
     Node2D *ndIcon = dynamic_cast<Node2D *>(ndItem->getChildByName("NodeTreeItemIcon"));
     UISprite *spIcon = dynamic_cast<UISprite *>(ndIcon->getComponent("UISprite"));
     // TextureAsset *tex = BooEditor::cache->getEditorTexture(uiTreeData.icon);
+    spIcon->setTexture(uiTreeData.icon);
     // spIcon->setTexture(tex);
     _width += this->_itemElemBorder;
     const Size &size = ndIcon->getSize();

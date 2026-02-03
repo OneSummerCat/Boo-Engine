@@ -38,7 +38,7 @@ void GfxQueueBuiltin::submitObject(GfxMaterial *material, GfxMesh *mesh, std::ve
         std::cout << "[Gfx : GfxQueueBuiltin] :: submitObject: material or mesh is nullptr" << std::endl;
         return;
     }
-
+    // std::cout << "GfxQueueBuiltin::submitObject() instanceData size is :" << material->getPipelineStruct().generateKey() << std::endl;
     if (this->_batches.empty())
     {
         GfxBatchBuiltin *batch = new GfxBatchBuiltin(this->_renderer, this->_renderTexture, material, mesh);
@@ -109,11 +109,6 @@ void GfxQueueBuiltin::_beginRenderPass()
     renderPassInfo.renderArea.extent = {this->_renderTexture->getWidth(), this->_renderTexture->getHeight()};
     renderPassInfo.renderPass = pass->getVKRenderPass();
     renderPassInfo.renderArea.offset = {0, 0};
-
-    // VkClearValue clearColor{};
-    // clearColor.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-    // renderPassInfo.pClearValues = &clearColor;
-    // renderPassInfo.clearValueCount = 1;
 
     std::array<VkClearValue, 2> clearValues = {}; /*  // 至少4个，因为最高索引是3 */
     clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};

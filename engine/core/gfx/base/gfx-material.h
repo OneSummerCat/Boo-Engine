@@ -36,7 +36,6 @@ private:
 
 public:
     GfxMaterial();
-    // void setRenderPass(const std::string pass);
     void setPipelineStruct(const GfxPipelineStruct pipelineStruct);
     void setTextures(const std::vector<std::string> textures);
     void setPushConstants(const GfxPushConstants pushConstants);

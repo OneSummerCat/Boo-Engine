@@ -23,6 +23,28 @@ private:
      */
     int _visibility = 1;
     /**
+     * 相机类型
+     * 0：正交相机
+     * 1：透视相机
+     */
+     int _type = 0;
+     /**
+     * 相机视场角度
+     */
+     float _fieldOfView = 45.0f;
+     /**
+     * 相机近裁剪平面距离
+     */
+     float _nearClip = 0.1f;
+     /**
+     * 相机远裁剪平面距离
+     */
+     float _farClip = 100.0f;
+     /**
+     * 相机正交高度
+     */
+     float _orthoHeight = 1.0f;
+    /**
      * 相机是否在屏幕上
      */
     bool _isOnScreen = false;

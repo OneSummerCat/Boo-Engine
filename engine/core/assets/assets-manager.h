@@ -9,6 +9,7 @@
 #include "asset-struct.h"
 #include "asset-load.h"
 #include "asset-cache.h"
+#include "assst-builtin.h"
 #include "texture-asset.h"
 #include "material-asset.h"
 #include "shader-asset.h"
@@ -31,28 +32,16 @@ private:
 	 */
 	AssetCache *_assetsCache;
 
+	AssetBuiltin *_assetsBuiltin;
 
-	void _initDefaultBuiltinAssets();
+
 public:
 	AssetsManager();
 	/**
 	 * @brief 初始化资产管理器
 	 */
 	void init();
-
-	void initAssetsMeta(const std::string &path);
-	// /**
-	//  * @brief 获取资产数据库
-	//  * @return
-	//  */
-	// std::unordered_map<std::string, std::vector<AssetDB>> &getAssetsDB();
-	// /**
-	//  * @brief 更新资产数据库
-	//  * @param path 资产路径
-	//  * @param configs 资产配置
-	//  */
-	// void updateAssetsDB(const std::string path, const std::vector<AssetDB> configs);
-
+	
 	void setAssetsRoot(const std::string &root);
 	const std::string &getAssetsRoot();
 	void setMaxLoadCount(int count);
@@ -61,16 +50,6 @@ public:
 
 	Asset *loadAsset(const std::string &uuid);
 	Asset *getAsset(const std::string &uuid);
-	
-	// /**
-	//  * @brief 通过获取场景配置
-	//  * @param sceneName 场景名称
-	//  */
-	// json* _getSceneAssetMate(const std::string &sceneName);
-	// Asset *getAssetByPath(const std::string &path);
-	// Asset *loadAssetByPath(const std::string &path);
-
-	void clearLoadCall(const int loadId);
 
 	void update(float deltaTime);
 

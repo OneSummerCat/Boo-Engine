@@ -15,6 +15,7 @@ public:
     REGISTER_PROPERTY_TEXTURE(UISprite, _texture, "纹理");
     REGISTER_PROPERTY_MATERIAL(UISprite, _material, "材质");
 private:
+    
     GfxRenderTexture *_renderTexture = nullptr;
 protected:
     /**

@@ -32,6 +32,7 @@ void GfxBatchBuiltin::addObject(std::vector<float> &instanceData)
     {
         throw std::runtime_error("GfxBatchBuiltin::addObject() instanceData size is not multiple of vertex size!");
     }
+    // std::cout << "GfxBatchBuiltin::addObject() instanceData size is " << instanceData.size() << std::endl;
     this->_instanceDatas.insert(this->_instanceDatas.end(), instanceData.begin(), instanceData.end());
     this->_instanceCount++;
 }
@@ -77,6 +78,7 @@ void GfxBatchBuiltin::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo
     {
         this->_bind3DDescriptorSets(queueCommandBuffer, pipeline, ubo);
     }
+    // std::cout << "GfxBatchBuiltin::render() instanceCount is " << this->_instanceCount << std::endl;
 
     GfxBuffer *instanceBuffer = Gfx::bufferInstance->getBuffer(this->_instanceDatas.size());
     memcpy(instanceBuffer->getMappedData(), this->_instanceDatas.data(), this->_instanceDatas.size() * sizeof(float));
@@ -145,7 +147,7 @@ void GfxBatchBuiltin::_bindUIDescriptorSets(VkCommandBuffer &queueCommandBuffer,
     for (size_t i = 0; i < 4; i++)
     {
         imageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        std::string textureUuid = "_private/default.png";
+        std::string textureUuid = "builtin::default.png";
         if (i < this->_material->getTextures().size())
         {
             textureUuid = this->_material->getTextures()[i];

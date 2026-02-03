@@ -18,9 +18,6 @@ UIText::UIText(std::string name, Node *node, std::string uuid) : UIRenderer(name
   this->_fontSize = 30;
   // 行高
   this->_lineHeight = 30;
-
-  this->_materialAsset = new MaterialAsset();
-  // this->_materialAsset->createUITest();
 }
 /**
  * @brief 反序列化组件属性-配置
@@ -34,6 +31,12 @@ void UIText::_deserialized()
 void UIText::Awake()
 {
   UIRenderer::Awake();
+  this->_materialAsset = new MaterialAsset();
+  MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui.mtl"));
+  if (mtl != nullptr)
+  {
+    this->_materialAsset->create(mtl);
+  }
 }
 void UIText::Enable()
 {

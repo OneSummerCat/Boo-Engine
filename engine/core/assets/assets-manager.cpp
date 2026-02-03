@@ -9,29 +9,17 @@
 #include "../utils/time-util.h"
 #include "asset.h"
 
+
 AssetsManager::AssetsManager()
 {
+	// 默认资产
+	this->_assetsBuiltin = new AssetBuiltin();
 	this->_assetsCache = new AssetCache();
 	this->_assetsLoad = new AssetLoad(this);
-	this->_initDefaultBuiltinAssets();
 }
 void AssetsManager::init()
 {
-}
-void AssetsManager::_initDefaultBuiltinAssets()
-{
-	//默认纹理
-	TextureAsset *texture = new TextureAsset("_private/default.png");
-	texture->create(GfxTextureDefault, sizeof(GfxTextureDefault));
-	this->_assetsCache->addAsset("_private/default.png", texture);
-	TextureAsset *logo = new TextureAsset("_private/logo.png");
-	logo->create(GfxTextureLogo, sizeof(GfxTextureLogo));
-	this->_assetsCache->addAsset("_private/logo.png", logo);
-	// 默认材质
-	// MaterialAsset *material = new MaterialAsset("_private/default");
-	// material->create();
-	// this->_assetsCache->addAsset("_private/default", material);
-
+	this->_assetsBuiltin->init();
 }
 void AssetsManager::setAssetsRoot(const std::string &root)
 {

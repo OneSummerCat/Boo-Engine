@@ -35,10 +35,10 @@ void EditorLayout::init()
     this->_initMenuUI();
     this->_initHierarchyUI();
     this->_initAssetsUI();
-    // this->_initPropertyUI();
+    this->_initPropertyUI();
     this->_initSceneUI();
-    // this->_initToolUI();
-    // this->_initBottomUI();
+    this->_initToolUI();
+    this->_initBottomUI();
 }
 void EditorLayout::_initMainUI()
 {
@@ -50,6 +50,7 @@ void EditorLayout::_initMainUI()
     if (this->_spriteMain != nullptr)
     {
         std::cout << "EditorLayout::_initMainUI1" << std::endl;
+        this->_spriteMain->setTexture("builtin::default.png");
         this->_spriteMain->setColor(0.1f, 0.1f, 0.1f, 1.0f);
     }
 }
@@ -64,6 +65,7 @@ void EditorLayout::_initMenuUI()
     this->_spriteMenu = dynamic_cast<UISprite *>(this->_ndMenu->addComponent("UISprite"));
     if (this->_spriteMenu != nullptr)
     {
+        this->_spriteMenu->setTexture("builtin::default.png");
         this->_spriteMenu->setColor(EditorConfig::theme);
     }
 }
@@ -76,6 +78,7 @@ void EditorLayout::_initHierarchyUI()
     this->_spriteHierarchy = dynamic_cast<UISprite *>(this->_ndHierarchy->addComponent("UISprite"));
     if (this->_spriteHierarchy != nullptr)
     {
+        this->_spriteHierarchy->setTexture("builtin::default.png");
         this->_spriteHierarchy->setColor(EditorConfig::theme);
     }
 }
@@ -88,6 +91,7 @@ void EditorLayout::_initAssetsUI()
     this->_spriteAsset = dynamic_cast<UISprite *>(this->_ndAsset->addComponent("UISprite"));
     if (this->_spriteAsset != nullptr)
     {
+        this->_spriteAsset->setTexture("builtin::default.png");
         this->_spriteAsset->setColor(EditorConfig::theme);
     }
 }
@@ -100,6 +104,7 @@ void EditorLayout::_initPropertyUI()
     this->_spriteProperty = dynamic_cast<UISprite *>(this->_ndProperty->addComponent("UISprite"));
     if (this->_spriteProperty != nullptr)
     {
+        this->_spriteProperty->setTexture("builtin::default.png");
         this->_spriteProperty->setColor(EditorConfig::theme);
     }
 }
@@ -112,6 +117,7 @@ void EditorLayout::_initSceneUI()
     this->_spriteScene = dynamic_cast<UISprite *>(this->_ndScene->addComponent("UISprite"));
     if (this->_spriteScene != nullptr)
     {
+        this->_spriteScene->setTexture("builtin::default.png");
         this->_spriteScene->setColor(EditorConfig::theme);
     }
 }
@@ -124,6 +130,7 @@ void EditorLayout::_initToolUI()
     this->_spriteTool = dynamic_cast<UISprite *>(this->_ndTool->addComponent("UISprite"));
     if (this->_spriteTool != nullptr)
     {
+        this->_spriteTool->setTexture("builtin::default.png");
         this->_spriteTool->setColor(EditorConfig::theme);
     }
 }
@@ -136,6 +143,7 @@ void EditorLayout::_initBottomUI()
     this->_spriteBottom = dynamic_cast<UISprite *>(this->_ndBottom->addComponent("UISprite"));
     if (this->_spriteBottom != nullptr)
     {
+        this->_spriteBottom->setTexture("builtin::default.png");
         this->_spriteBottom->setColor(EditorConfig::theme);
     }
 }

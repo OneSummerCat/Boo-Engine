@@ -6,7 +6,6 @@
 #include "../cache/scene/editor-cache-scene.h"
 #include "../cache/assets/editor-cache-assets.h"
 
-
 #include "editor-layout.h"
 #include "hierarchy/editor-hierarchy.h"
 #include "assets/editor-assets.h"
@@ -40,9 +39,11 @@ void EditorMain::Awake()
     this->_initLayout();
     this->_initHierarchy();
     this->_initAssets();
-    this->_initScene();
+    // this->_initScene();
 
-    
+    BooEditor::cache->SceneCache()->openScene("");
+    Scene *scene = BooEditor::cache->SceneCache()->getScene();
+    this->_hierarchy->setScene(scene);
 }
 void EditorMain::Enable()
 {
@@ -93,9 +94,18 @@ void EditorMain::_initScene()
 void EditorMain::Update(float deltaTime)
 {
     Component::Update(deltaTime);
-    this->_layout->update(deltaTime);
-    this->_hierarchy->update(deltaTime);
-    this->_scene->update(deltaTime);
+    if (this->_layout != nullptr)
+    {
+        this->_layout->update(deltaTime);
+    }
+    if (this->_hierarchy != nullptr)
+    {
+        this->_hierarchy->update(deltaTime);
+    }
+    if (this->_scene)
+    {
+        this->_scene->update(deltaTime);
+    }
 }
 void EditorMain::LateUpdate(float deltaTime)
 {

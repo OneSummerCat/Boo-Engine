@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include "../../../../engine/core/math/mat4.h"
 
 class Scene;

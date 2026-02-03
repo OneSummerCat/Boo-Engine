@@ -69,6 +69,7 @@ void EditorAssetsLayout::_initTitle()
     ndTitleName->setPosition(-5.0f, 0.0f, 0.0f);
     UISprite *spriteName = dynamic_cast<UISprite *>(ndTitleName->addComponent("UISprite"));
     spriteName->setColor("#ffffffff");
+    spriteName->setTexture("_private/textures/ic-title-assets.png");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-title-assets.png");
     // spriteName->setTexture(tex);
     // 计算尺寸
@@ -106,7 +107,7 @@ void EditorAssetsLayout::_initOperateAdd()
     this->_ndOperate->addChild(this->_ndAdd);
     this->_ndAdd->setSize(16.0f, 16.0f);
     this->_spriteAdd = dynamic_cast<UISprite *>(this->_ndAdd->addComponent("UISprite"));
-    // this->_spriteAdd->setTexture("resources/texture/ic-add.png");
+    this->_spriteAdd->setTexture("_private/textures/ic-add.png");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-add.png");
     // this->_spriteAdd->setTexture(tex);
 
@@ -128,6 +129,7 @@ void EditorAssetsLayout::_initOperateFold()
     this->_ndOperate->addChild(this->_ndFold);
     this->_ndFold->setSize(16, 16);
     this->_spriteFold = dynamic_cast<UISprite *>(this->_ndFold->addComponent("UISprite"));
+    this->_spriteFold->setTexture("_private/textures/ic-flod.png");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-flod.png");
     // this->_spriteFold->setTexture(tex);
     // 添加wedget组件
@@ -160,6 +162,7 @@ void EditorAssetsLayout::_initOperateSearch()
     this->_ndOperate->addChild(this->_ndSearchIcon);
     this->_ndSearchIcon->setSize(14.0f, 14.0f);
     this->_spriteSearchIcon = dynamic_cast<UISprite *>(this->_ndSearchIcon->addComponent("UISprite"));
+    this->_spriteSearchIcon->setTexture("_private/textures/ic-search.png");
     // TextureAsset *tex = BooEditor::cache->getEditorTexture("ic-search.png");
     // this->_spriteSearchIcon->setTexture(tex);
     // 添加wedget组件
@@ -206,6 +209,8 @@ void EditorAssetsLayout::_initNodeTree()
 }
 void EditorAssetsLayout::setRoot(std::string root)
 {
+    if(this->_fileTree==nullptr)
+        return;
     this->_fileTree->setRoot(root);
 }
 void EditorAssetsLayout::_onFileTreeSelectEvent(std::string uuid)
