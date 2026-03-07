@@ -3,6 +3,9 @@
 #include "../gfx-context.h"
 #include "../gfx-mgr.h"
 #include "../../../libs/stb/stb_image_write.h"
+#include "../../log.h"
+
+
 
 /* // 主要用于创建附件贴图 */
 GfxTexture::GfxTexture(std::string uuid)
@@ -20,7 +23,7 @@ GfxTexture::GfxTexture(std::string uuid, const std::vector<uint8_t> *pixels, uin
     this->_createTextureImage();
     this->_createTextureImageView();
     this->_createTextureSampler();
-    std::cout << "[Gfx : Texture]:: create  " << this->_uuid << "   success..." << std::endl;
+    LOGI("[Gfx : Texture]:: create  %s   success...", this->_uuid.c_str());
 }
 
 void GfxTexture::_createTextureImage()
@@ -459,11 +462,11 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
 
     if (success)
     {
-        std::cout << "[Gfx : Texture]:: Saved to " << filePath << std::endl;
+        LOGI("[Gfx : Texture]:: Saved to %s", filePath.c_str());
     }
     else
     {
-        std::cerr << "[Gfx : Texture]:: Failed to save to " << filePath << std::endl;
+        LOGI("[Gfx : Texture]:: Failed to save to %s", filePath.c_str());
     }
 
     return success;

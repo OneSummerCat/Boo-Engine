@@ -5,19 +5,24 @@
 #include "gfx-texture.h"
 #include "gfx-render-pass.h"
 #include "gfx-pipeline.h"
+#include "../../log.h"
 
-GfxRenderTexture::GfxRenderTexture(std::string uuid)
+GfxRenderTexture::GfxRenderTexture(std::string uuid, int width, int height)
 {
+    LOGI("[Gfx : RenderTexture]::createRenderTexture: uuid:%s width:%d height:%d", uuid.c_str(), width, height);
     this->_uuid = uuid;
     this->_colorUuid = uuid + "_color";
     this->_depthUuid = uuid + "_depth";
-    this->_width = 0;
-    this->_height = 0;
+    this->_width = (uint32_t)width;
+    this->_height = (uint32_t)height;
     this->_colorTexture = nullptr;
     this->_depthTexture = nullptr;
+    this->_framebuffer = VK_NULL_HANDLE;
+    this->_commandBuffer = VK_NULL_HANDLE;
     this->_pass = nullptr;
+    this->_createTextures();
 }
-const std::string& GfxRenderTexture::getUuid() const
+const std::string &GfxRenderTexture::getUuid() const
 {
     return this->_uuid;
 }
@@ -25,21 +30,27 @@ void GfxRenderTexture::bindRenderPass(GfxRenderPass *pass)
 {
     if (pass == nullptr)
     {
-        std::cout << "[Gfx : GfxRenderTexture]::bindRenderPass: pass is null" << std::endl;
+        LOGI("[Gfx : RenderTexture]::bindRenderPass: pass is null %s", this->_uuid.c_str());
         return;
     }
     this->_pass = pass;
     if (this->_colorTexture == nullptr || this->_depthTexture == nullptr)
     {
-        std::cout << "[Gfx : GfxRenderTexture]::bindRenderPass: colorTexture or depthTexture is null" << std::endl;
+        LOGI("[Gfx : RenderTexture]::bindRenderPass: colorTexture or depthTexture is null %s", this->_uuid.c_str());
         return;
     }
+    LOGI("[Gfx : RenderTexture]:: bindRenderPass");
     this->_createFrameBuffer();
     this->_createCommandBuffer();
 }
 void GfxRenderTexture::_createFrameBuffer()
 {
-    if (this->_framebuffer)
+    if (this->_pass == nullptr)
+    {
+        LOGI("[Gfx : RenderTexture]::bindRenderPass: pass is null %s", this->_uuid.c_str());
+        return;
+    }
+    if (this->_framebuffer!= VK_NULL_HANDLE)
     {
         vkDestroyFramebuffer(Gfx::context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;
@@ -60,11 +71,16 @@ void GfxRenderTexture::_createFrameBuffer()
     {
         throw std::runtime_error("failed to create framebuffer!");
     }
-    std::cout << "[Gfx : GfxRenderTexture]:: create framebuffer success" << std::endl;
+    LOGI("[Gfx : RenderTexture]:: create framebuffer success %s", this->_uuid.c_str());
 }
 void GfxRenderTexture::_createCommandBuffer()
 {
-    if (this->_commandBuffer)
+    if (this->_pass == nullptr)
+    {
+        LOGI("[Gfx : RenderTexture]::bindRenderPass: pass is null %s", this->_uuid.c_str());
+        return;
+    }
+    if (this->_commandBuffer!= VK_NULL_HANDLE)
     {
         vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &this->_commandBuffer);
         this->_commandBuffer = VK_NULL_HANDLE;
@@ -78,7 +94,7 @@ void GfxRenderTexture::_createCommandBuffer()
     {
         throw std::runtime_error("Failed to allocate command buffers!");
     }
-    std::cout << "[Gfx : GfxRenderTexture]:: create commandbuffer success" << std::endl;
+    LOGI("[Gfx : RenderTexture]:: create commandbuffer success %s", this->_uuid.c_str());
 }
 VkFramebuffer &GfxRenderTexture::getFramebuffer()
 {
@@ -92,12 +108,23 @@ VkCommandBuffer &GfxRenderTexture::getCommandBuffer()
 void GfxRenderTexture::resize(uint32_t width, uint32_t height)
 {
     // std::cout << "[Gfx : GfxRenderTexture]::resize:" << this->_uuid << " width:" << width << " height:" << height << std::endl;
-    if (this->_colorTexture)
+    LOGI("[Gfx : RenderTexture]::resize: %s width:%d height:%d", this->_uuid.c_str(), width, height);
+    if (width == 0 || height == 0)
+    {
+        LOGI("[Gfx : RenderTexture]::resize: width or height is 0 %s", this->_uuid.c_str());
+        return;
+    }
+    if (this->_width == width && this->_height == height)
+    {
+        LOGI("[Gfx : RenderTexture]::resize: width and height is same %s", this->_uuid.c_str());
+        return;
+    }
+    if (this->_colorTexture!=nullptr)
     {
         Gfx::renderer->destroyTexture(this->_colorUuid);
         this->_colorTexture = nullptr;
     }
-    if (this->_depthTexture)
+    if (this->_depthTexture != nullptr)
     {
         Gfx::renderer->destroyTexture(this->_depthUuid);
         this->_depthTexture = nullptr;
@@ -106,11 +133,8 @@ void GfxRenderTexture::resize(uint32_t width, uint32_t height)
     this->_width = width;
     this->_height = height;
     this->_createTextures();
-    if (this->_pass != nullptr)
-    {
-        this->_createFrameBuffer();
-        this->_createCommandBuffer();
-    }
+    this->_createFrameBuffer();
+    this->_createCommandBuffer();
 }
 const uint32_t &GfxRenderTexture::getWidth() const
 {
@@ -125,7 +149,12 @@ const uint32_t &GfxRenderTexture::getHeight() const
  */
 void GfxRenderTexture::_createTextures()
 {
-
+    if (this->_width == 0 || this->_height == 0)
+    {
+        LOGI("[Gfx : RenderTexture]::createTextures: width or height is 0 %s", this->_uuid.c_str());
+        return;
+    }
+    LOGI("[Gfx : RenderTexture]:: create textures success %s width:%d height:%d", this->_uuid.c_str(), this->_width, this->_height);
     this->_colorTexture = new GfxTexture(this->_colorUuid);
     this->_colorTexture->createImage(
         this->_width, this->_height,
@@ -151,13 +180,13 @@ void GfxRenderTexture::_createTextures()
         VK_FORMAT_D32_SFLOAT_S8_UINT,                             // 32位深度 + 8位模板
         VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT); // 包含深度和模板aspect
     this->_depthTexture->crateImageSampler();
+
+    LOGI("[Gfx : RenderTexture]:: create textures success");
     Gfx::renderer->insertTexture(this->_colorUuid, this->_colorTexture);
     Gfx::renderer->insertTexture(this->_depthUuid, this->_depthTexture);
 
     // ✅ 初始化纹理：转换布局并清除为透明黑色
     this->_initializeRenderTexture();
-
-    std::cout << "[Gfx : GfxRenderTexture]:: create textures success" << std::endl;
 }
 
 /**
@@ -248,7 +277,7 @@ void GfxRenderTexture::_initializeRenderTexture()
     // 清理命令缓冲区
     vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &commandBuffer);
 
-    std::cout << "[Gfx : GfxRenderTexture]:: initialized render texture (cleared to transparent)" << std::endl;
+    LOGI("[Gfx : RenderTexture]:: initialized render texture (cleared to transparent) %s", this->_uuid.c_str());
 }
 
 const std::string &GfxRenderTexture::getColorTextureUuid() const
@@ -285,7 +314,7 @@ bool GfxRenderTexture::saveToFile1(std::string filePath)
 {
     if (this->_colorTexture == nullptr)
     {
-        std::cerr << "[Gfx : GfxRenderTexture]:: Cannot save, color texture is null" << std::endl;
+        LOGI("[Gfx : RenderTexture]:: Cannot save, color texture is null %s", this->_uuid.c_str());
         return false;
     }
     return this->_colorTexture->saveToFile(filePath, this->_width, this->_height);
@@ -302,12 +331,12 @@ void GfxRenderTexture::destroy()
         delete this->_depthTexture;
         this->_depthTexture = nullptr;
     }
-    if (this->_framebuffer)
+    if (this->_framebuffer!= VK_NULL_HANDLE)
     {
         vkDestroyFramebuffer(Gfx::context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;
     }
-    if (this->_commandBuffer)
+    if (this->_commandBuffer != VK_NULL_HANDLE)
     {
         vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &this->_commandBuffer);
         this->_commandBuffer = VK_NULL_HANDLE;

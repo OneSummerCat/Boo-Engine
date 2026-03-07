@@ -1,11 +1,18 @@
 #pragma once
-class AssetBuiltin
+
+namespace Boo
 {
-private:
-    void _initDefaultTextures();
-    void _initDefaultMaterials();
-public:
-	AssetBuiltin();
-    void init();
-	~AssetBuiltin();
-};
+
+    class AssetBuiltin
+    {
+    private:
+        void _initDefaultTextures();
+        void _initDefaultMaterials();
+
+    public:
+        AssetBuiltin();
+        void init();
+        ~AssetBuiltin();
+    };
+
+} // namespace Boo

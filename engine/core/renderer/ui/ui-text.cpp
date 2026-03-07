@@ -1,38 +1,25 @@
 #include "ui-text.h"
-#include "../../assets/asset.h"
-#include "../../assets/assets-manager.h"
-#include "../../assets/material-asset.h"
-#include "../../assets/texture-asset.h"
+
 #include "../../boo.h"
 #include "../../scene/node-2d.h"
-#include "../../scene/node.h"
 #include "../../renderer/camera.h"
+#include "../../assets/assets-manager.h"
 
-UIText::UIText(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
+namespace Boo {
+
+UIText::UIText(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid),
+    _texture(nullptr),
+    _text(""),
+    _fontSize(30),
+    _lineHeight(30)
 {
-  // 纹理路径
-  this->_text = "";
-  // 材质路径
-  this->_material = "";
-  // 字体大小
-  this->_fontSize = 30;
-  // 行高
-  this->_lineHeight = 30;
-}
-/**
- * @brief 反序列化组件属性-配置
- * 反序列化成功后，设置文本和材质
- */
-void UIText::_deserialized()
-{
-  UIRenderer::_deserialized();
-  this->setText(this->_text);
+ 
 }
 void UIText::Awake()
 {
   UIRenderer::Awake();
   this->_materialAsset = new MaterialAsset();
-  MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui.mtl"));
+  MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset("builtin::ui.mtl"));
   if (mtl != nullptr)
   {
     this->_materialAsset->create(mtl);
@@ -45,15 +32,15 @@ void UIText::Enable()
 
 void UIText::setText(std::string text)
 {
-  this->_clearTexture();
-  this->_text = text;
-  Boo::game->fontMgr()->crateFont(this->_fontTexture, this->_text,
-                                  this->_fontSize, this->_lineHeight);
-  this->_texture = new TextureAsset(this->_fontTexture.uuid);
-  this->_texture->create(this->_fontTexture.width, this->_fontTexture.height,
-                         this->_fontTexture.channels, this->_fontTexture.datas);
-  this->_setTexture(this->_texture);
-  this->_updateNodeSize();
+  // this->_clearTexture();
+  // this->_text = text;
+  // Boo::fontMgr->crateFont(this->_fontTexture, this->_text,
+  //                         this->_fontSize, this->_lineHeight);
+  // this->_texture = new TextureAsset(this->_fontTexture.uuid);
+  // this->_texture->create(this->_fontTexture.width, this->_fontTexture.height,
+  //                        this->_fontTexture.channels, this->_fontTexture.datas);
+  // this->_setTexture(this->_texture);
+  // this->_updateNodeSize();
 }
 void UIText::setSize(int fontSize) { this->_fontSize = fontSize; }
 void UIText::setLineHeight(int lineHeight) { this->_lineHeight = lineHeight; }
@@ -105,10 +92,10 @@ void UIText::_updateNodeSize()
     return;
   }
   const Size &size = node2d->getSize();
-  float width = this->_fontTexture.width;
-  float height = this->_fontTexture.height;
-  float scale = size.getHeight() / height;
-  node2d->setSize(width * scale, height * scale);
+  // float width = this->_fontTexture.width;
+  // float height = this->_fontTexture.height;
+  // float scale = size.getHeight() / height;
+  // node2d->setSize(width * scale, height * scale);
 }
 void UIText::_clearTexture()
 {
@@ -128,3 +115,5 @@ void UIText::destroy()
   UIRenderer::destroy();
 }
 UIText::~UIText() {}
+
+} // namespace Boo

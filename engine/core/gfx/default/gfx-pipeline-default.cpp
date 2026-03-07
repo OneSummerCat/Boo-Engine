@@ -2,6 +2,7 @@
 #include "../gfx.h"
 #include "../gfx-context.h"
 #include "../gfx-renderer.h"
+#include "../../log.h"
 
 #include "../base/gfx-pipeline.h"
 #include "../base/gfx-shader.h"
@@ -13,7 +14,7 @@ GfxPipelineDefault::GfxPipelineDefault(const std::string &name) : GfxPipeline(na
 
 void GfxPipelineDefault::_createPipeline()
 {
-    std::cout << "[Gfx : GfxPipelineDefault]:: create pipeline " <<" start..." << std::endl;
+    LOGI("[Gfx : PipelineDefault]:: create pipeline %s start...", this->_name.c_str());
     GfxPipeline::_createPipeline();
 }
 
@@ -179,10 +180,10 @@ void GfxPipelineDefault::_initPipelineLayout()
     // 第八步：管线布局
     if (vkCreatePipelineLayout(Gfx::context->getVkDevice(), &this->_pipelineLayoutInfo, nullptr, &this->_vkPipelineLayout) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxPipelineDefault]:: create pipeline layout failed " << std::endl;
+        LOGI("[Gfx : PipelineDefault]:: create pipeline layout failed ");
         return;
     }
-    std::cout << "[Gfx : GfxPipelineDefault]:: create pipeline layout success " << std::endl;
+    LOGI("[Gfx : PipelineDefault]:: create pipeline layout success ");
 }
 void GfxPipelineDefault::_initPipeline()
 {
@@ -203,10 +204,10 @@ void GfxPipelineDefault::_initPipeline()
     this->_pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     if (vkCreateGraphicsPipelines(Gfx::context->getVkDevice(), VK_NULL_HANDLE, 1, &this->_pipelineInfo, nullptr, &this->_vkPipeline) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxPipelineDefault]:: create pipeline failed " << std::endl;
+        LOGI("[Gfx : PipelineDefault]:: create pipeline failed ");
         return;
     }
-    std::cout << "[Gfx : GfxPipelineDefault]:: create pipeline success " << std::endl;
+    LOGI("[Gfx : PipelineDefault]:: create pipeline success ");
 }
 
 GfxPipelineDefault::~GfxPipelineDefault()

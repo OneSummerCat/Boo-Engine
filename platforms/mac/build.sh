@@ -1,4 +1,7 @@
 #!/bin/bash
+# Boo-Engine macOS Build Script
+# Author: 杨宗宝
+
 # 检查build目录是否存在，不存在则创建
 if [ ! -d "build" ]; then
     mkdir build
@@ -11,4 +14,5 @@ cd build
 cmake ..
 make
 # python3 ../campile_shader.py
-./app
+./BooEngine
+

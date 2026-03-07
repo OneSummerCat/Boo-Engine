@@ -1,6 +1,7 @@
 #include "gfx-render-pass-default.h"
 #include "../gfx.h"
 #include "../gfx-context.h"
+#include "../../log.h"
 
 GfxRenderPassDefault::GfxRenderPassDefault(std::string name) : GfxRenderPass(name)
 {
@@ -9,7 +10,7 @@ GfxRenderPassDefault::GfxRenderPassDefault(std::string name) : GfxRenderPass(nam
 }
 void GfxRenderPassDefault::_create()
 {
-    std::cout << "[Gfx : GfxRenderPassDefault]:: _create " << this->_name << std::endl;
+    LOGI("[Gfx : RenderPassDefault] :: _create %s", this->_name.c_str());
     VkAttachmentDescription colorAttachment = {};
     colorAttachment.format = Gfx::context->getSwapChainImageFormat(); // 颜色缓冲附着(VkImageView)的格式
     colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;                  // 指定采样数，没有使用多重采样，设置为1
@@ -49,10 +50,11 @@ void GfxRenderPassDefault::_create()
 
     if (vkCreateRenderPass(Gfx::context->getVkDevice(), &renderPassInfo, nullptr, &this->_vkRenderPass) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRenderPassDefault]:: create render pass failed " << this->_name << std::endl;
+        // std::cout << "[Gfx : RenderPassDefault]:: create render pass failed " << this->_name << std::endl;
+        LOGE("[Gfx : RenderPassDefault]:: create render pass failed %s", this->_name.c_str());
         return;
     }
-    std::cout << "[Gfx : GfxRenderPassDefault]:: create render pass success " << this->_name << " " << this->_vkRenderPass << std::endl;
+    LOGI("[Gfx : RenderPassDefault]:: create render pass success %s %d", this->_name.c_str(), this->_vkRenderPass);
 }
 
 GfxRenderPassDefault::~GfxRenderPassDefault()

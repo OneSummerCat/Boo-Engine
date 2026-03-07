@@ -4,6 +4,9 @@
 #include "../gfx-renderer.h"
 #include "../gfx-mgr.h"
 #include "../base/gfx-texture.h"
+#include "../../log.h"
+
+
 
 #include "gfx-renderer-default.h"
 #include "gfx-render-pass-default.h"
@@ -50,7 +53,7 @@ void GfxQueueDefault::_createFramebuffers()
             throw std::runtime_error("Gfx : RenderQueue :: Failed to create framebuffer!");
         }
     }
-    std::cout << "[Gfx : GfxQueueDefault]:: Created " << this->_framebuffers.size() << " framebuffers." << std::endl;
+    LOGI("[Gfx : RenderQueueDefault]:: Created %d framebuffers.", this->_framebuffers.size());
 }
 void GfxQueueDefault::_createCommandBuffers()
 {
@@ -65,7 +68,7 @@ void GfxQueueDefault::_createCommandBuffers()
     {
         throw std::runtime_error("Gfx : RenderQueue :: Failed to allocate command buffers!");
     }
-    std::cout << "[Gfx : GfxQueueDefault]:: Created " << this->_commandBuffers.size() << " command buffers." << std::endl;
+    LOGI("[Gfx : RenderQueueDefault]:: Created %d command buffers.", this->_commandBuffers.size());
 }
 void GfxQueueDefault::_createVertexBuffers()
 {
@@ -97,7 +100,7 @@ void GfxQueueDefault::_createVertexBuffers()
         &this->_indexMemory,
         indices.size() * sizeof(uint32_t),
         indices.data());
-    std::cout << "[Gfx : GfxQueueDefault]:: Created vertex buffer with " << interleavedVertices.size() << " vertices." << std::endl;
+    LOGI("[Gfx : RenderQueueDefault]:: Created vertex buffer with %d vertices.", interleavedVertices.size());
 }
 void GfxQueueDefault::render(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers, std::vector<std::string> &pipelineOutds)
 {

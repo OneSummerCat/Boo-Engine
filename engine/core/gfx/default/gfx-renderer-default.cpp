@@ -8,6 +8,7 @@
 #include "gfx-render-pass-default.h"
 #include "gfx-pipeline-default.h"
 #include "gfx-queue-default.h"
+#include "../../log.h"
 
 GfxRendererDefault::GfxRendererDefault(std::string name)
 {
@@ -16,7 +17,8 @@ GfxRendererDefault::GfxRendererDefault(std::string name)
 }
 void GfxRendererDefault::init()
 {
-    std::cout << "[Gfx : GfxRendererDefault] :: init " << this->_name << std::endl;
+    LOGI("[Gfx : RendererDefault] :: init %s", this->_name.c_str());
+    
     this->_initDescriptorSetLayout();
     this->_initDefaultDescriptor();
     this->_initDefaultRenderPass();
@@ -42,10 +44,10 @@ void GfxRendererDefault::_initDescriptorSetLayout()
     if (vkCreateDescriptorSetLayout(Gfx::context->getVkDevice(),
                                     &layoutInfo, nullptr, &this->_descriptorSetLayout) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererDefault]::create descriptor set layout failed " << std::endl;
+        LOGE("[Gfx : RendererDefault]::create descriptor set layout failed ");
         return;
     }
-    std::cout << "[Gfx : GfxRendererDefault]::create descriptor set layout success " << std::endl;
+    LOGI("[Gfx : RendererDefault]::create descriptor set layout success ");
 }
 void GfxRendererDefault::_initDefaultDescriptor()
 {
@@ -62,10 +64,10 @@ void GfxRendererDefault::_initDefaultDescriptor()
     poolInfo.maxSets = swapChainImageCount * (this->_maxObjectCount + 3); // 描述符集的最大数量
     if (vkCreateDescriptorPool(Gfx::context->getVkDevice(), &poolInfo, nullptr, &this->_descriptorPool) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererDefault]::create descriptor pool failed " << std::endl;
+        LOGE("[Gfx : RendererDefault]::create descriptor pool failed ");
         return;
     }
-    std::cout << "[Gfx : GfxRendererDefault]::create descriptor pool success " << std::endl;
+    LOGI("[Gfx : RendererDefault]::create descriptor pool success ");
 }
 
 /**
@@ -84,7 +86,6 @@ GfxRenderPassDefault *GfxRendererDefault::getRenderPass()
  */
 void GfxRendererDefault::_initDefaultShader()
 {
-    std::cout << "[Gfx : GfxRendererDefault]::_initDefaultShader:v0:" << std::endl;
     std::string shaderVertName = "default.vert";
     GfxShader *shader = new GfxShader(shaderVertName);
     std::vector<uint32_t> vertSPV(std::begin(GfxShaderDefaultVertSPV), std::end(GfxShaderDefaultVertSPV));
@@ -97,7 +98,6 @@ void GfxRendererDefault::_initDefaultShader()
     shader->createShaderModule(fragSPV);
     Gfx::shaders[shaderFragName] = shader;
 
-    std::cout << "[Gfx : GfxRendererDefault]::_initDefaultShader:v1:" << std::endl;
 }
 /**
  * 创建内置默认的ui pipeline
@@ -140,17 +140,17 @@ void GfxRendererDefault::createPipeline(std::string name, GfxPipelineStruct pipe
 {
     if (Gfx::shaders.find(pipelineStruct.vert) == Gfx::shaders.end())
     {
-        std::cout << "[Gfx : GfxRendererDefault]::createPipeline:vert not found:" << pipelineStruct.vert << std::endl;
+        LOGE("[Gfx : RendererDefault]::createPipeline:vert not found:%s", pipelineStruct.vert.c_str());
         return;
     }
     if (Gfx::shaders.find(pipelineStruct.frag) == Gfx::shaders.end())
     {
-        std::cout << "[Gfx : GfxRendererDefault]::createPipeline:frag not found:" << pipelineStruct.frag << std::endl;
+        LOGE("[Gfx : RendererDefault]::createPipeline:frag not found:%s", pipelineStruct.frag.c_str());
         return;
     }
     if (this->_pass == nullptr)
     {
-        std::cout << "[Gfx : GfxRendererDefault]::createPipeline:pass not found:" << std::endl;
+        LOGE("[Gfx : RendererDefault]::createPipeline:pass not found:");
         return;
     }
     this->_pipeline = new GfxPipelineDefault(name);
@@ -161,7 +161,7 @@ GfxPipelineDefault *GfxRendererDefault::getPipeline()
 {
     if (this->_pipeline == nullptr)
     {
-        std::cout << "[Gfx : GfxRendererDefault]::getPipeline:not found:" << std::endl;
+        LOGE("[Gfx : RendererDefault]::getPipeline:not found:");
         return nullptr;
     }
     return this->_pipeline;
@@ -194,7 +194,7 @@ std::vector<VkDescriptorSet> GfxRendererDefault::getDescriptorSets()
     descriptorSets.resize(swapChainImageCount);
     if (vkAllocateDescriptorSets(Gfx::context->getVkDevice(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererDefault]::create descriptor sets failed " << std::endl;
+        std::cout << "[Gfx : RendererDefault]::create descriptor sets failed " << std::endl;
     }
     GfxRenderxDescriptorSets renderxDescriptorSets = {descriptorSets, true};
     this->_descriptorSets.push_back(renderxDescriptorSets);
@@ -229,7 +229,7 @@ void GfxRendererDefault::_cleanRendererState()
     if (this->_descriptorPool != VK_NULL_HANDLE)
     {
         vkDestroyDescriptorPool(Gfx::context->getVkDevice(), this->_descriptorPool, nullptr);
-        this->_descriptorPool = nullptr;
+        this->_descriptorPool = VK_NULL_HANDLE;
     }
     this->_descriptorSets.clear();
 }
@@ -240,6 +240,12 @@ void GfxRendererDefault::_resetRendererState()
     this->_pipeline->_reset();
     this->_queue->_reset();
 }
+
+
+GfxRendererDefault::~GfxRendererDefault()
+{
+}
+
 
 // void GfxRendererBuilt::_initDescriptor()
 // {
@@ -579,10 +585,6 @@ void GfxRendererDefault::_resetRendererState()
 //     // }
 //     // this->_queues[pass->name()]->submit(object);
 // }
-
-GfxRendererDefault::~GfxRendererDefault()
-{
-}
 
 // void GfxRendererDefault::_initDefaultUIMaskPipeline()
 // {

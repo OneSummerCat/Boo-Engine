@@ -1,5 +1,8 @@
 
 #pragma once
+
+namespace Boo {
+
 class Quat;
 
 class Vec3
@@ -38,3 +41,5 @@ public:
      */
     ~Vec3();
 };
+
+} // namespace Boo

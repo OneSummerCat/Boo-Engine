@@ -1,4 +1,7 @@
 #pragma once
+
+namespace Boo {
+
 class Quat
 {
 private:
@@ -17,3 +20,5 @@ public:
     float getW();
     ~Quat();
 };
+
+} // namespace Boo

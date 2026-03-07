@@ -13,6 +13,8 @@ class GfxMesh;
 
 namespace Gfx
 {
+	extern int viewWidth;
+	extern int viewHeight;
 	extern GfxContext *context;
 	extern GfxRenderer *renderer;
 	extern float time;

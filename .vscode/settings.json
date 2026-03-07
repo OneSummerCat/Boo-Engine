@@ -92,7 +92,13 @@
     "cinttypes": "cpp",
     "version": "cpp",
     "*.ds_store": "cpp",
-    "any": "cpp"
+    "any": "cpp",
+    "cfenv": "cpp",
+    "condition_variable": "cpp",
+    "csignal": "cpp",
+    "future": "cpp",
+    "scoped_allocator": "cpp",
+    "__config_site": "cpp"
   },
   "C_Cpp_Runner.msvcBatchPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvarsall.bat",
   "C_Cpp_Runner.cCompilerPath": "gcc",

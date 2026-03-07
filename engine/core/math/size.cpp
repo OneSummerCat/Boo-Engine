@@ -1,5 +1,7 @@
 #include "size.h"
 
+namespace Boo {
+
 Size Size::Default{0,0};
 
 Size::Size(){
@@ -37,3 +39,4 @@ void Size::setHeight(float height)
 Size::~Size()
 {
 }
+} // namespace Boo

@@ -9,73 +9,31 @@
 #include "../../assets/material-asset.h"
 #include "../../assets/assets-manager.h"
 #include "../../renderer/camera.h"
-UIMask::UIMask(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
+
+namespace Boo {
+
+UIMask::UIMask(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid),
+                                                                 _maskMesh(nullptr),
+                                                                 _addMaterialAsset(nullptr),
+                                                                 _subMaterialAsset(nullptr)
 {
-    // this->_positions = {
-    //     -0.5f, 0.5f, 0.0f,  /** @brief 左上 */
-    //     -0.5f, -0.5f, 0.0f, /** @brief 坐下 */
-    //     0.5f, -0.5f, 0.0f,  /** @brief 右下 */
-    //     0.5f, 0.5f, 0.0f    /** @brief 右上 */
-    // };
-    // this->_colors = {
-    //     1.0f, 1.0f, 1.0f, 1.0f,
-    //     1.0f, 1.0f, 1.0f, 1.0f,
-    //     1.0f, 1.0f, 1.0f, 1.0f,
-    //     1.0f, 1.0f, 1.0f, 1.0f};
-    // this->_normals = {
-    //     0.0f, 0.0f, 0.0f,
-    //     0.0f, 0.0f, 0.0f,
-    //     0.0f, 0.0f, 0.0f,
-    //     0.0f, 0.0f, 0.0f};
-    // this->_uvs = {
-    //     0.0f, 0.0f,
-    //     0.0f, 1.0f,
-    //     1.0f, 1.0f,
-    //     1.0f, 0.0f};
-    // this->_indices = {
-    //     0, 1, 2,
-    //     0, 2, 3};
-    // this->_addUuid = this->_uuid + "-add";
-    // this->_subUuid = this->_uuid + "-sub";
-
-    // // 默认裁剪区域为整个UI对象
-    // GfxMgr::getInstance()->createUIMaskObject(this->_addUuid, this->_positions, this->_colors, this->_normals, this->_uvs, this->_indices);
-    // GfxMgr::getInstance()->createUIMaskObject(this->_subUuid, this->_positions, this->_colors, this->_normals, this->_uvs, this->_indices);
-    // GfxMgr::getInstance()->setObjectPass(this->_addUuid, "built-ui");
-    // GfxMgr::getInstance()->setObjectPass(this->_subUuid, "built-ui");
-    // GfxMgr::getInstance()->setObjectPipeline(this->_addUuid, "built-ui-mask-add");
-    // GfxMgr::getInstance()->setObjectPipeline(this->_subUuid, "built-ui-mask-sub");
-    // GfxMgr::getInstance()->setObjectUIMaskBehavior(this->_addUuid, 1);
-    // GfxMgr::getInstance()->setObjectUIMaskBehavior(this->_subUuid, 0);
-    // this->setTexture("resources/texture/ic-default.png");
-
-    // this->_addMaterialAsset->createUIMaskTest(0);
-    // this->_subMaterialAsset->createUIMaskTest(1);
-
-    // this->_testMaterialAsset = new MaterialAsset();
-    // this->_testMaterialAsset->createMaskUITest();
-
-    std::string meshUuid = this->_uuid + "-mask";
-    this->_maskMesh = new GfxMesh(meshUuid);
-}
-void UIMask::_deserialized()
-{
-    Component::_deserialized();
+    
 }
 
 void UIMask::Awake()
 {
     Component::Awake();
-    // std::cout << "=================ui mask awake" << std::endl;
+    std::string meshUuid = this->_uuid + "-mask";
+    this->_maskMesh = new GfxMesh(meshUuid);
     this->_addMaterialAsset = new MaterialAsset();
-    MaterialAsset *mtlAdd = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui-mask-add.mtl"));
+    MaterialAsset *mtlAdd = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskAdd));
     if (mtlAdd != nullptr)
     {
         this->_addMaterialAsset->create(mtlAdd);
     }
 
     this->_subMaterialAsset = new MaterialAsset();
-    MaterialAsset *mtlSub = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset("builtin::ui-mask-sub.mtl"));
+    MaterialAsset *mtlSub = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskSub));
     if (mtlSub != nullptr)
     {
         this->_subMaterialAsset->create(mtlSub);
@@ -84,7 +42,6 @@ void UIMask::Awake()
 void UIMask::Enable()
 {
     Component::Enable();
-    // std::cout << "=================ui mask enable" << std::endl;
     this->_setColor(1.0, 1.0, 1.0, 1.0);
     this->_updateNodeMask();
 }
@@ -161,7 +118,6 @@ void UIMask::Render(Camera *camera)
     _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
 
     GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_addMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
-    // GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_testMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
 }
 void UIMask::lateRender(Camera *camera)
 {
@@ -189,7 +145,6 @@ void UIMask::lateRender(Camera *camera)
     _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
 
     GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_subMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
-    // GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_testMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
 }
 void UIMask::Disable()
 {
@@ -202,3 +157,5 @@ void UIMask::destroy()
 UIMask::~UIMask()
 {
 }
+
+} // namespace Boo

@@ -6,6 +6,7 @@
 #include "../base/gfx-pipeline-struct.h"
 #include "../base/gfx-shader.h"
 #include "../base/gfx-render-pass.h"
+#include "../../log.h"
 
 GfxPipelineBuiltin::GfxPipelineBuiltin(const std::string &name) : GfxPipeline(name)
 {
@@ -13,7 +14,7 @@ GfxPipelineBuiltin::GfxPipelineBuiltin(const std::string &name) : GfxPipeline(na
 
 void GfxPipelineBuiltin::_createPipeline()
 {
-    std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline " << " start..." << std::endl;
+    LOGI("[Gfx : PipelineBuiltin] :: create pipeline %s start...", this->_name.c_str());
     GfxPipeline::_createPipeline();
 }
 
@@ -27,64 +28,6 @@ void GfxPipelineBuiltin::_initShaderState()
  */
 void GfxPipelineBuiltin::_initVertexInputState()
 {
-
-    // 顶点 位置输入属性描述
-    // this->_vInputAttribDescriptionPos = {};
-    // this->_vInputAttribDescriptionPos.location = 0;
-    // this->_vInputAttribDescriptionPos.binding = 0;
-    // this->_vInputAttribDescriptionPos.format = VK_FORMAT_R32G32B32_SFLOAT;
-    // this->_vInputAttribDescriptionPos.offset = 0;
-    // // 顶点 纹理坐标输入属性描述
-    // this->_vInputAttribDescriptionTexCoord = {};
-    // this->_vInputAttribDescriptionTexCoord.location = 1;
-    // this->_vInputAttribDescriptionTexCoord.binding = 0;
-    // this->_vInputAttribDescriptionTexCoord.format = VK_FORMAT_R32G32_SFLOAT;
-    // this->_vInputAttribDescriptionTexCoord.offset = sizeof(float) * 3;
-
-    // this->_vertexInputAttributes.push_back(this->_vInputAttribDescriptionPos);
-    // this->_vertexInputAttributes.push_back(this->_vInputAttribDescriptionTexCoord);
-    // 顶点 输入绑定描述
-    // this->_vertexInputBindings.push_back(this->_vInputBindDescription);
-
-    // // 初始化实例数据-模型矩阵-输入属性描述
-    // this->_vInputAttribDescriptionInstanceModel = {};
-    // this->_vInputAttribDescriptionInstanceModel.location = 2;
-    // this->_vInputAttribDescriptionInstanceModel.binding = 1;
-    // this->_vInputAttribDescriptionInstanceModel.format = VK_FORMAT_R32G32B32A32_SFLOAT;
-    // this->_vInputAttribDescriptionInstanceModel.offset = 0;
-    // this->_vertexInputAttributesInstanceModel.push_back(this->_vInputAttribDescriptionInstanceModel);
-
-    // // 初始化实例数据-模型矩阵-输入绑定描述
-    // this->_vInputBindDescriptionInstanceModel = {};
-    // this->_vInputBindDescriptionInstanceModel.binding = 1;
-    // this->_vInputBindDescriptionInstanceModel.stride = sizeof(float) * 4 * 4;
-    // this->_vInputBindDescriptionInstanceModel.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
-    // this->_vertexInputBindings.push_back(this->_vInputBindDescriptionInstanceModel);
-
-    // this->_vertexInputInfo = {};
-    // this->_vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-    // this->_vertexInputInfo.vertexBindingDescriptionCount = (uint32_t)this->_vertexInputBindings.size();
-    // this->_vertexInputInfo.pVertexBindingDescriptions = this->_vertexInputBindings.data();
-    // this->_vertexInputInfo.vertexAttributeDescriptionCount = (uint32_t)this->_vertexInputAttributes.size();
-    // this->_vertexInputInfo.pVertexAttributeDescriptions = this->_vertexInputAttributes.data();
-    // 顶点输入（来自绑定0）
-    // layout(location = 0) in vec3 inPosition;
-    // layout(location = 1) in vec2 inTexCoord;
-
-    // // 实例输入（来自绑定1）
-    // layout(location = 2) in vec4 inModelMatrix0;
-    // layout(location = 3) in vec4 inModelMatrix1;
-    // layout(location = 4) in vec4 inModelMatrix2;
-    // layout(location = 5) in vec4 inModelMatrix3;
-
-    // // 重建矩阵
-    // mat4 modelMatrix = mat4(
-    //     inModelMatrix0,
-    //     inModelMatrix1,
-    //     inModelMatrix2,
-    //     inModelMatrix3
-    // );
-
     if (this->_pipelineStruct.render == uint32_t(GfxPipelineRender::_UI))
     {
         this->_initUIVertexInputState();
@@ -307,10 +250,10 @@ void GfxPipelineBuiltin::_initPipelineLayout()
     // 第八步：管线布局
     if (vkCreatePipelineLayout(Gfx::context->getVkDevice(), &this->_pipelineLayoutInfo, nullptr, &this->_vkPipelineLayout) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline layout failed " << std::endl;
+        LOGI("[Gfx : PipelineBuiltin] :: create pipeline layout failed %s", this->_name.c_str());
         return;
     }
-    std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline layout success " << std::endl;
+    LOGI("[Gfx : PipelineBuiltin] :: create pipeline layout success %s", this->_name.c_str());
 }
 void GfxPipelineBuiltin::_initPipeline()
 {
@@ -326,16 +269,16 @@ void GfxPipelineBuiltin::_initPipeline()
     this->_pipelineInfo.pColorBlendState = &this->_colorBlendInfo;
     this->_pipelineInfo.pDepthStencilState = &this->_depthStencilInfo;
     this->_pipelineInfo.layout = this->_vkPipelineLayout;
-    std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline info success " << this->_pass << "   " << this->_pass->getVKRenderPass() << std::endl;
+    LOGI("[Gfx : PipelineBuiltin] :: create pipeline info success %s   %d", this->_name.c_str(), this->_pass->getVKRenderPass());
     this->_pipelineInfo.renderPass = this->_pass->getVKRenderPass();
     this->_pipelineInfo.subpass = 0;
     this->_pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
     if (vkCreateGraphicsPipelines(Gfx::context->getVkDevice(), VK_NULL_HANDLE, 1, &this->_pipelineInfo, nullptr, &this->_vkPipeline) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline failed " << std::endl;
+        LOGI("[Gfx : PipelineBuiltin] :: create pipeline failed %s", this->_name.c_str());
         return;
     }
-    std::cout << "[Gfx : GfxPipelineBuiltin] :: create pipeline success " << std::endl;
+    LOGI("[Gfx : PipelineBuiltin] :: create pipeline success %s", this->_name.c_str());
 }
 
 GfxPipelineBuiltin::~GfxPipelineBuiltin()

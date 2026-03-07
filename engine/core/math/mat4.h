@@ -2,6 +2,8 @@
 #include <array>
 #include "vec3.h"
 
+namespace Boo {
+
 class Mat4
 {
 private:
@@ -84,3 +86,5 @@ public:
 
     ~Mat4();
 };
+
+} // namespace Boo

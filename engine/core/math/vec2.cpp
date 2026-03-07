@@ -1,5 +1,7 @@
 #include "vec2.h"
 
+namespace Boo {
+
 Vec2::Vec2(){
     this->_x = 0;
     this->_y = 0;
@@ -25,3 +27,5 @@ float Vec2::getY() const
 Vec2::~Vec2()
 {
 }
+
+} // namespace Boo

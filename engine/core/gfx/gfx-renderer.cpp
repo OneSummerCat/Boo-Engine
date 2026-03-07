@@ -13,6 +13,9 @@
 #include "builtin/gfx-renderer-builtin.h"
 
 #include "../math/mat4.h"
+#include "../../log.h"
+
+
 
 GfxRenderer::GfxRenderer()
 {
@@ -34,7 +37,9 @@ void GfxRenderer::init()
 {
     Gfx::bufferUBO = new GfxBufferUBO();
     Gfx::bufferInstance = new GfxBufferInstance();
+    LOGI("[Gfx : Renderer] :: init buffer instance");
     this->_defaultRenderer->init();
+    LOGI("[Gfx : Renderer] :: init default renderer");
     this->_builtinRenderer->init();
 }
 
@@ -52,14 +57,14 @@ void GfxRenderer::createTexture(std::string textureUuid, uint32_t width, uint32_
     }
     else
     {
-        std::cout << "Gfx : Renderer :: createTexture:uuid:" << textureUuid << " already exists" << std::endl;
+        LOGI("[Gfx : Renderer] :: createTexture:uuid:%s already exists", textureUuid.c_str());
     }
 }
 void GfxRenderer::insertTexture(std::string textureUuid, GfxTexture *texture)
 {
     if (Gfx::textures.find(textureUuid) != Gfx::textures.end())
     {
-        std::cout << "Gfx : Renderer :: insertTexture:uuid:" << textureUuid << " already exists" << std::endl;
+        LOGI("[Gfx : Renderer] :: insertTexture:uuid:%s already exists", textureUuid.c_str());
         return;
     }
     Gfx::textures[textureUuid] = texture;
@@ -85,7 +90,7 @@ GfxTexture *GfxRenderer::getTexture(std::string uuid)
     }
     if (Gfx::textures.find(uuid) == Gfx::textures.end())
     {
-        std::cout << "Gfx : Renderer :: Texture not found:" << uuid << std::endl;
+        LOGI("Gfx : Renderer :: Texture not found:%s", uuid.c_str());
         return nullptr;
     }
     return Gfx::textures.at(uuid);
@@ -94,7 +99,7 @@ void GfxRenderer::createSpirvShader(const std::string &shaderName, const std::ve
 {
     if (Gfx::shaders.find(shaderName) != Gfx::shaders.end())
     {
-        std::cout << "Gfx : Renderer :: Shader already exists: " << shaderName << std::endl;
+        LOGI("[Gfx : Renderer] :: Shader already exists: %s", shaderName.c_str());
         return;
     }
     GfxShader *shader = new GfxShader(shaderName);
@@ -126,7 +131,7 @@ void GfxRenderer::createGlslShader(const std::string &shaderName, const std::str
     //  检查是否已存在
     if (Gfx::shaders.find(finalCacheKey) != Gfx::shaders.end())
     {
-        std::cout << "Gfx : Renderer :: Shader already exists: " << finalCacheKey << std::endl;
+        LOGI("[Gfx : Renderer] :: Shader already exists: %s", finalCacheKey.c_str());
         return;
     }
     // 创建着色器
@@ -139,7 +144,7 @@ void GfxRenderer::createGlslShader(const std::string &shaderName, const std::str
     }
     catch (const std::exception &e)
     {
-        std::cerr << "Failed to create shader '" << finalCacheKey << "': " << e.what() << std::endl;
+        LOGI("[Gfx : Renderer] :: Failed to create shader '%s': %s", finalCacheKey.c_str(), e.what());
         // 可以考虑抛出异常或返回错误码
     }
 }
@@ -205,12 +210,10 @@ std::vector<uint32_t> GfxRenderer::_compileShaderGlslToSpirv(const std::string &
     // 输出警告信息
     if (result.GetNumWarnings() > 0)
     {
-        std::cout << "Gfx : Renderer :: Shader compilation warnings for " << cacheKey << ":\n"
-                  << result.GetErrorMessage() << std::endl;
+        LOGI("[Gfx : Renderer] :: Shader compilation warnings for %s:\n%s", cacheKey.c_str(), result.GetErrorMessage().c_str());
     }
     std::vector<uint32_t> spirvCode(result.cbegin(), result.cend());
-    std::cout << "Gfx : Renderer :: Successfully compiled " << cacheKey
-              << " (" << spirvCode.size() << " SPIR-V words)" << std::endl;
+    LOGI("[Gfx : Renderer] :: Successfully compiled %s (%d SPIR-V words)", cacheKey.c_str(), (int)spirvCode.size());
     return spirvCode;
 }
 void GfxRenderer::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture)

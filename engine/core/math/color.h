@@ -1,6 +1,8 @@
 #pragma once
 #include <string>
 
+namespace Boo {
+
 class Color
 {
 private:
@@ -29,3 +31,5 @@ public:
     float getA() const;
     ~Color();
 };
+
+} // namespace Boo

@@ -45,6 +45,98 @@
 
 Boo-Engine 采用模块化设计，各个模块职责清晰，易于理解和扩展。
 
+### 项目架构概览
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **核心系统** | - | 引擎的入口点和游戏主类 |
+| **Scene 场景系统** | `engine/core/scene/` | 场景管理，包含 2D/3D 根节点 |
+| **Component 组件系统** | `engine/core/component/` | 组件基类，生命周期管理 |
+| **Assets 资产系统** | `engine/core/assets/` | 资产管理器，加载与缓存 |
+| **Event 事件系统** | `engine/core/event/` | 事件系统，订阅/发布模式 |
+| **Input 输入系统** | `engine/core/input/` | 输入管理，鼠标/键盘/节点触摸事件 |
+| **Renderer 渲染系统** | `engine/core/renderer/` | 渲染器管理 |
+| **Math 数学库** | `engine/core/math/` | 数学类型和运算 |
+
+### 核心系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Game** | `engine/core/game.h` | 游戏主类，管理生命周期、场景、相机、调度器 |
+| **Engine** | `engine/engine.h` | 引擎入口，平台初始化 |
+
+### 场景系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Scene** | `engine/core/scene/scene.h` | 场景管理，包含 2D/3D 根节点 |
+| **Node** | `engine/core/scene/node.h` | 节点基类，变换、层级、组件管理 |
+| **Node2D** | `engine/core/scene/node-2d.h` | 2D 节点，锚点、尺寸、UI 渲染 |
+| **Node3D** | `engine/core/scene/node-3d.h` | 3D 节点 |
+
+### 组件系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Component** | `engine/core/component/component.h` | 组件基类，生命周期管理 |
+| **ComponentFactory** | `engine/core/component/component-factory.h` | 组件工厂，注册与创建 |
+
+### 资产系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **AssetsManager** | `engine/core/assets/assets-manager.h` | 资产管理器，加载与缓存 |
+| **Asset** | `engine/core/assets/asset.h` | 资产基类 |
+| **TextureAsset** | `engine/core/assets/texture-asset.h` | 纹理资产 |
+| **MaterialAsset** | `engine/core/assets/material-asset.h` | 材质资产 |
+| **ShaderAsset** | `engine/core/assets/shader-asset.h` | 着色器资产 |
+
+**支持的资产类型：**
+- `Texture` - 纹理
+- `Material` - 材质
+- `Shader` - 着色器
+- `Scene` - 场景
+- `Audio` - 音频
+- `Font` - 字体
+
+### 事件系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Event** | `engine/core/event/event.h` | 事件系统，订阅/发布模式 |
+
+### 输入系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Input** | `engine/core/input/input.h` | 输入管理，鼠标/键盘/节点触摸事件 |
+
+### 渲染系统
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **Renderer** | `engine/core/renderer/renderer.h` | 渲染器管理 |
+| **Camera** | `engine/core/renderer/camera.h` | 相机组件，正交/透视投影 |
+
+**2D 渲染**
+
+| 模块 | 文件 | 说明 |
+|------|------|------|
+| **UIRenderer** | `engine/core/renderer/ui/ui-renderer.h` | UI 渲染器基类 |
+| **UISprite** | `engine/core/renderer/ui/ui-sprite.h` | 精灵渲染组件 |
+| **UIText** | `engine/core/renderer/ui/ui-text.h` | 文本渲染组件 |
+
+### 数学库
+
+| 模块 | 说明 |
+|------|------|
+| **Vec2** | 2D 向量 |
+| **Vec3** | 3D 向量 |
+| **Quat** | 四元数 |
+| **Mat4** | 4x4 矩阵 |
+| **Color** | 颜色 |
+| **Size** | 尺寸 |
+
 ### 架构图
 
 ```
@@ -652,6 +744,16 @@ Boo-Engine/
 │     ├─ cache/              # 编辑器缓存
 │     └─ config/             # 编辑器配置
 │
+├─ word/                      # API 文档
+│  ├─ core/                  # 核心系统文档
+│  ├─ scene/                 # 场景系统文档
+│  ├─ component/             # 组件系统文档
+│  ├─ assets/                # 资产系统文档
+│  ├─ event/                 # 事件系统文档
+│  ├─ input/                 # 输入系统文档
+│  ├─ renderer/              # 渲染系统文档
+│  └─ math/                  # 数学库文档
+│
 ├─ examples/                  # 示例项目
 ├─ assets/                    # 资源文件
 └─ CMakeLists.txt            # 构建配置
@@ -692,7 +794,7 @@ cmake --build .
 ## 相关文档
 
 - **引擎架构详解**: 参见 `docs/architecture.md`（如果有）
-- **API 参考**: 参见各模块头文件中的注释
+- **API 参考**: 参见 `word/` 目录下的详细文档
 - **示例项目**: 参见 `examples/` 目录
 
 ---

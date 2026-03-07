@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+
+namespace Boo {
+
 class Size
 {
 private:
@@ -19,3 +22,5 @@ public:
 
     ~Size();
 };
+
+} // namespace Boo

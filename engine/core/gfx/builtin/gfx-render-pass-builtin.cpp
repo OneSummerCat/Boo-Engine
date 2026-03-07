@@ -1,6 +1,7 @@
 #include "gfx-render-pass-builtin.h"
 #include "../gfx.h"
 #include "../gfx-context.h"
+#include "../../log.h"
 /**
  * 渲染pass
  * 只有一个颜色附件
@@ -67,10 +68,10 @@ void GfxRenderPassBuiltin::_create()
     renderPassInfo.pDependencies = &dependency;
     if (vkCreateRenderPass(Gfx::context->getVkDevice(), &renderPassInfo, nullptr, &this->_vkRenderPass) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRenderPassBuiltin] :: create render pass failed " << this->_name << std::endl;
+        LOGI("[Gfx : RenderPassBuiltin] :: create render pass failed %s", this->_name.c_str());
         return;
     }
-    std::cout << "[Gfx : GfxRenderPassBuiltin] :: create render pass success " << this->_name << std::endl;
+    LOGI("[Gfx : RenderPassBuiltin] :: create render pass success %s", this->_name.c_str());
 }
 
 GfxRenderPassBuiltin::~GfxRenderPassBuiltin()

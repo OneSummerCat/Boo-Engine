@@ -13,6 +13,9 @@
 #include "../base/gfx-buffer-instance.h"
 #include "gfx-renderer-builtin.h"
 #include "gfx-pipeline-builtin.h"
+#include "../../log.h"
+
+
 
 GfxBatchBuiltin::GfxBatchBuiltin(GfxRendererBuiltin *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh)
 {

@@ -13,6 +13,10 @@
 #include "gfx-pipeline-builtin.h"
 #include "gfx-batch-builtin.h"
 #include "gfx-renderer-builtin.h"
+#include "../../log.h"
+
+
+
 GfxQueueBuiltin::GfxQueueBuiltin(GfxRendererBuiltin *renderer, GfxRenderTexture *renderTexture)
 {
     this->_renderer = renderer;
@@ -35,7 +39,7 @@ void GfxQueueBuiltin::submitObject(GfxMaterial *material, GfxMesh *mesh, std::ve
 {
     if (material == nullptr || mesh == nullptr)
     {
-        std::cout << "[Gfx : GfxQueueBuiltin] :: submitObject: material or mesh is nullptr" << std::endl;
+        LOGI("[Gfx : QueueBuiltin] :: submitObject: material or mesh is nullptr");
         return;
     }
     // std::cout << "GfxQueueBuiltin::submitObject() instanceData size is :" << material->getPipelineStruct().generateKey() << std::endl;

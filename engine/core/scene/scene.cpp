@@ -1,97 +1,147 @@
 #include "scene.h"
 #include <iostream>
-#include "../utils/uuid-util.h"
+#include "../../boo.h"
+#include "../../log.h"
+// #include "../util/util-api.h"
+// #include "node-3d.h"
+// #include "node-2d.h"
 
-Scene::Scene(const std::string name, const std::string uuid)
+namespace Boo
 {
-	this->_name = name;
-	this->_layer = NodeLayer::Scene;
-	this->_visibility = uint32_t(NodeVisibility::Default);
-	this->_uuid = uuid.empty() ? UuidUtil::generateUUID() : uuid;
-	this->_active = false;
-	this->_isActiveInHierarchy = false;
-	this->_position.set(0.0f, 0.0f, 0.0f);
-	this->_scale.set(1.0f, 1.0f, 1.0f);
-	this->_eulerAngles.set(0.0f, 0.0f, 0.0f);
-	this->_rotation.set(0.0f, 0.0f, 0.0f, 1.0f);
-	this->_worldPosition.set(0.0f, 0.0f, 0.0f);
-	this->_worldScale.set(1.0f, 1.0f, 1.0f);
-	this->_worldRotation.set(0.0f, 0.0f, 0.0f, 1.0f);
-	this->_localMatrix = Mat4::identity();
-	this->_worldMatrix = Mat4::identity();
-	this->_worldTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
-	this->_frameTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
-}
-void Scene::createRoot2D()
-{
-	if (this->_root2D != nullptr)
+
+	Scene::Scene(const std::string name, const std::string uuid)
 	{
-		return;
+		this->_groupID = 0;
+		this->_layer = NodeLayer::Scene;
+		this->_name = name;
+		this->_uuid = uuid.empty() ? UuidUtil::generateUUID() : uuid;
+		this->_isLocked = false;
+		this->_active = true;
+		this->_isActiveInHierarchy = false;
+		this->_position.set(0.0f, 0.0f, 0.0f);
+		this->_scale.set(1.0f, 1.0f, 1.0f);
+		this->_eulerAngles.set(0.0f, 0.0f, 0.0f);
+		this->_rotation.set(0.0f, 0.0f, 0.0f, 1.0f);
+		this->_worldPosition.set(0.0f, 0.0f, 0.0f);
+		this->_worldScale.set(1.0f, 1.0f, 1.0f);
+		this->_worldRotation.set(0.0f, 0.0f, 0.0f, 1.0f);
+		this->_localMatrix = Mat4::identity();
+		this->_worldMatrix = Mat4::identity();
+		this->_worldTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
+		this->_frameTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
+		this->_root2D = nullptr;
+		this->_root3D = nullptr;
+		this->_parent = nullptr;
+		this->createRoot2D();
+		this->createRoot3D();
 	}
-	this->_root2D = new Node2D("root2D");
-	this->_root2D->_isLocked = true;
-	this->_root2D->setVisibility(uint32_t(NodeVisibility::Node2D));
-	this->addChild(this->_root2D);
-	// Boo::game->input()->setRoot2D(this->_root2D);
-}
-void Scene::createRoot3D()
-{
-	if (this->_root3D != nullptr)
+	void Scene::createRoot2D()
 	{
-		return;
+		if (this->_root2D != nullptr)
+		{
+			return;
+		}
+		this->_root2D = new Node2D("root2D");
+		this->_root2D->_isLocked = true;
+		this->_root2D->setGroupID(uint32_t(NodeGroup::Node2D));
+		this->addChild(this->_root2D);
+		this->_root2D->setSize(view->getDesignWidth(), view->getDesignHeight());
 	}
-	this->_root3D = new Node3D("root3D");
-	this->_root3D->_isLocked = true;
-	this->_root3D->setVisibility(uint32_t(NodeVisibility::Node3D));
-	this->addChild(this->_root3D);
-}
-Node3D *Scene::getRoot3D()
-{
-	if (this->_root3D == nullptr)
+	void Scene::createRoot3D()
 	{
-		std::cout << "Scene::getRoot3D: root3D is null" << std::endl;
+		// if (this->_root3D != nullptr)
+		// {
+		// 	return;
+		// }
+		// this->_root3D = new Node3D("root3D");
+		// this->_root3D->_isLocked = true;
+		// this->_root3D->setGroupID(uint32_t(NodeGroup::Node3D));
+		// this->addChild(this->_root3D);
+	}
+	Node3D *Scene::getRoot3D()
+	{
+		if (this->_root3D == nullptr)
+		{
+			LOGW("[Scene]:getRoot3D:: root3D is null");
+			return nullptr;
+		}
+		return this->_root3D;
+	}
+	Node2D *Scene::getRoot2D()
+	{
+		if (this->_root2D == nullptr)
+		{
+			LOGW("[Scene]:getRoot2D:: root2D is null");
+			return nullptr;
+		}
+		return this->_root2D;
+	}
+	void Scene::launch()
+	{
+		LOGI("[Scene]:launch::launch %s", this->getName().c_str());
+		this->_updateActiveInHierarchyState(true);
+	}
+
+	void Scene::setPosition(float x, float y, float z)
+	{
+		LOGW("[Scene]:setPosition:: scene not support set position");
+	}
+	void Scene::setWorldPosition(float x, float y, float z)
+	{
+		LOGW("[Scene]:setWorldPosition:: scene not support set world position");
+	}
+	void Scene::setScale(float x, float y, float z)
+	{
+		LOGW("[Scene]:setScale:: scene not support set scale");
+	}
+	void Scene::setWorldScale(float x, float y, float z)
+	{
+		LOGW("[Scene]:setWorldScale:: scene not support set world scale");
+	}
+	void Scene::setEulerAngles(float x, float y, float z)
+	{
+		LOGW("[Scene]:setEulerAngles:: scene not support set euler angles");
+	}
+	void Scene::setRotation(float x, float y, float z, float w)
+	{
+		LOGW("[Scene]:setRotation:: scene not support set rotation");
+	}
+	void Scene::setWorldRotation(float x, float y, float z, float w)
+	{
+		LOGW("[Scene]:setWorldRotation:: scene not support set world rotation");
+	}
+	void Scene::_updateWorldTransform()
+	{
+	}
+	void Scene::setActive(bool active)
+	{
+		this->_active = true;
+		LOGW("[Scene]:setActive:: scene not support set active");
+	}
+	Component *Scene::addComponent(std::string name, std::string uuid)
+	{
+		LOGW("[Scene]:addComponent:: scene not support add component");
 		return nullptr;
 	}
-	return this->_root3D;
-}
-Node2D *Scene::getRoot2D()
-{
-	if (this->_root2D == nullptr)
+	void Scene::update(float dt)
 	{
-		std::cout << "Scene::getRoot2D: root2D is null" << std::endl;
-		return nullptr;
+		Node::update(dt);
 	}
-	return this->_root2D;
-}
+	void Scene::lateUpdate(float dt)
+	{
+		Node::lateUpdate(dt);
+	}
+	void Scene::clearNodeFrameFlag()
+	{
+		Node::clearNodeFrameFlag();
+	}
+	void Scene::destroy()
+	{
+		Node::destroy();
+	}
+	Scene::~Scene()
+	{
+		std::cout << "Scene::~destructor" << std::endl;
+	}
 
-void Scene::setActive(bool active)
-{
-	this->_active = active;
-	bool _isActiveInHierarchy = this->_active;
-	this->_updateNodesActiveInHierarchyState(_isActiveInHierarchy);
-}
-Component *Scene::addComponent(std::string name, std::string uuid)
-{
-	std::cout << name << ":Component add fail,node type is Scene" << std::endl;
-	return nullptr;
-}
-void Scene::update(float dt)
-{
-	Node::update(dt);
-}
-void Scene::lateUpdate(float dt)
-{
-	Node::lateUpdate(dt);
-}
-void Scene::clearNodeFrameFlag()
-{
-	Node::clearNodeFrameFlag();
-}
-void Scene::destroy()
-{
-	Node::destroy();
-}
-Scene::~Scene()
-{
-	std::cout << "Scene::~destructor" << std::endl;
-}
+} // namespace Boo

@@ -1,76 +1,67 @@
 #pragma once
 #include <string>
 #include "ui-renderer.h"
-#include "../../math/color.h"
 #include "../../component/component-register.h"
-#include "../../component/component-property-register.h"
 
-class Node;
-class Camera;
-class GfxRenderTexture;
-
-class UISprite : public UIRenderer
+namespace Boo
 {
-public:
-    REGISTER_PROPERTY_TEXTURE(UISprite, _texture, "纹理");
-    REGISTER_PROPERTY_MATERIAL(UISprite, _material, "材质");
-private:
-    
-    GfxRenderTexture *_renderTexture = nullptr;
-protected:
-    /**
-     * @brief 反序列化组件属性-配置
-     * 反序列化成功
-     */
-    void _deserialized() override;
+    class Node;
+    class Camera;
+    class TextureAsset;
+    class MaterialAsset;
 
-public:
-    UISprite(std::string name, Node *node, std::string uuid = "");
+    class UISprite : public UIRenderer
+    {
+    private:
 
-    void Awake() override;
-    void Enable() override;
+    public:
+        UISprite(std::string name, Node *node, std::string uuid = "");
 
-    /**
-     * @brief 设置渲染器的颜色
-     *
-     * @param color
-     */
-    void setColor(Color &color);
-    void setColor(std::string color);
-    void setColor(float r, float g, float b, float a);
-    /**
-     * @brief 设置渲染器的透明度
-     *
-     * @param alpha
-     */
-    void setAlpha(float alpha);
-    /**
-     * @brief 设置渲染器的纹理
-     *
-     * @param texture
-     */
-    void setTexture(std::string texture);
-    void setTexture(TextureAsset *texture);
-    /**
-     * @brief 设置渲染器的渲染目标
-     *
-     * @param renderTexture
-     */
-    void setRenderTexture(GfxRenderTexture *renderTexture);
-    
-    /**
-     * @brief 设置渲染器的材质
-     *
-     * @param material
-     */
-    void setMaterial(std::string material);
-    void setMaterial(MaterialAsset *material);
+        void Awake() override;
+        void Enable() override;
 
-    void Update(float deltaTime) override;
-    void LateUpdate(float deltaTime) override;
-    void Render(Camera *camera) override;
-    void Disable() override;
-    void destroy() override;
-    ~UISprite() override;
-};
-REGISTER_COMPONENT(UISprite, "UI Sprite Component")
+        /**
+         * @brief 设置渲染器的颜色
+         *
+         * @param color
+         */
+        void setColor(Color &color);
+        void setColor(std::string color);
+        void setColor(float r, float g, float b, float a);
+        /**
+         * @brief 设置渲染器的透明度
+         *
+         * @param alpha
+         */
+        void setAlpha(float alpha);
+        /**
+         * @brief 设置渲染器的纹理
+         *
+         * @param texture
+         */
+        void setTexture(std::string texture);
+        void setTexture(TextureAsset *texture);
+        /**
+         * @brief 设置渲染器的渲染目标
+         *
+         * @param renderTexture
+         */
+        void setRenderTexture();
+
+        /**
+         * @brief 设置渲染器的材质
+         *
+         * @param material
+         */
+        void setMaterial(std::string material);
+        void setMaterial(MaterialAsset *material);
+
+        void Update(float deltaTime) override;
+        void LateUpdate(float deltaTime) override;
+        void Render(Camera *camera) override;
+        void Disable() override;
+        void destroy() override;
+        ~UISprite() override;
+    };
+    REGISTER_COMPONENT(UISprite, "UI Sprite Component")
+} // namespace Boo

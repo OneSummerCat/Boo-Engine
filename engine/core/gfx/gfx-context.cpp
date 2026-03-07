@@ -1,11 +1,16 @@
-#define GLFW_INCLUDE_VULKAN
+#include "gfx.h"
 #include "gfx-context.h"
 #include "gfx-mgr.h"
-#include "../../window/window.h"
 #include "../../boo.h"
+#include "../../log.h"
+#if defined(BOO_PLATFORM_ANDROID)
+#include <vulkan/vulkan_android.h>
+#endif
+#include "../../platforms/window/window.h"
+#include "../../platforms/android/android.h"
 
 // 校验层
-const bool enableValidationLayers = true;
+const bool enableValidationLayers = false;
 std::vector<const char *> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 std::vector<const char *> DeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,             // 交换链扩展
@@ -15,43 +20,57 @@ std::vector<const char *> DeviceExtensions = {
 GfxContext::GfxContext()
 {
 }
-void GfxContext::init()
+void GfxContext::init(Window *window)
 {
     this->_createInstance();
     this->_setupDebugMessenger();
-    this->_createSurface();
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+    LOGI("[Gfx Context]:CREATE WINDOW SURFACE");
+    if (glfwCreateWindowSurface(this->_vkinstance, window->getWindow(), nullptr, &this->_surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create window surface!");
+    }
+#endif
     this->_initPhysicalDevice();
     this->_createLogicalDevice();
     this->_createCommandPool();
-    // this->_createDescriptorPool();
     this->_createSwapChainKHR();
     this->_createImageViews();
     this->_createSyncObjects();
-    // this->_createMsaaAttachmentTexture();
-
-    // const std::vector<VkFormat> candidates = {
-    //     VK_FORMAT_D32_SFLOAT_S8_UINT,    // 32位深度 + 8位模板
-    //     VK_FORMAT_D24_UNORM_S8_UINT,     // 24位深度 + 8位模板
-    //     VK_FORMAT_D16_UNORM_S8_UINT,     // 16位深度 + 8位模板
-    //     VK_FORMAT_D32_SFLOAT,            // 只有深度（无模板）
-    //     VK_FORMAT_D16_UNORM              // 只有深度（无模板）
-    // };
-
-    // for (VkFormat format : candidates) {
-    //     VkFormatProperties props;
-    //     vkGetPhysicalDeviceFormatProperties(this->_physicalDevice, format, &props);
-
-    //     // 检查是否支持作为深度模板附件
-    //     if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
-    //         std::cout << "Found supported depth stencil format: " << format << std::endl;
-    //     }
-    // }
 }
+void GfxContext::init(Android *android)
+{
+    this->_createInstance();
+    this->_setupDebugMessenger();
+#if defined(BOO_PLATFORM_ANDROID)
+    LOGI("[Gfx Context]:CREATE ANDROID SURFACE");
+    VkAndroidSurfaceCreateInfoKHR surfaceInfo = {};
+    surfaceInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+    surfaceInfo.window = android->getNativeWindow(); // 传入ANativeWindow
+    surfaceInfo.flags = 0;
+    surfaceInfo.pNext = nullptr;
+    if (vkCreateAndroidSurfaceKHR(this->_vkinstance, &surfaceInfo, nullptr, &this->_surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create android surface!");
+    }
+#endif
+    this->_initPhysicalDevice();
+    this->_createLogicalDevice();
+    this->_createCommandPool();
+    this->_createSwapChainKHR();
+    this->_createImageViews();
+    this->_createSyncObjects();
+}
+
 void GfxContext::_createInstance()
 {
-    if (!this->_checkValidationLayerSupport())
+    LOGI("[Gfx Context]:CREATE INSTANCE");
+    if (enableValidationLayers)
     {
-        throw std::runtime_error("Validation layers requested, but not available!");
+        if (!this->_checkValidationLayerSupport())
+        {
+            throw std::runtime_error("Validation layers requested, but not available!");
+        }
     }
     /**
      * 程序信息
@@ -69,11 +88,18 @@ void GfxContext::_createInstance()
      */
     VkInstanceCreateInfo createInfo = {};
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR; // 关键！
+
+#if defined(BOO_PLATFORM_APPLE)
+    // macOS/iOS 需要 Portability Enumeration (MoltenVK)
+    // VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR 是一个 Vulkan 扩展标识
+    // 这个标识在 macOS/iOS 的 MoltenVK 中需要，但在 Android 上不需要
+    createInfo.flags = VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#else
+    // Android 和其他平台不需要此标识
+    createInfo.flags = 0;
+#endif
 
     createInfo.pApplicationInfo = &appInfo;
-    /*  GfxMgr::Log("VkInstanceCreateInfo..."); */
-
     auto extensions = this->_getRequiredExtensions();
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
@@ -94,7 +120,6 @@ void GfxContext::_createInstance()
     {
         throw std::runtime_error("Failed to create instance!");
     }
-    /* GfxMgr::Log("VkInstance  Success..."); */
 }
 bool GfxContext::_checkValidationLayerSupport()
 {
@@ -128,8 +153,10 @@ std::vector<const char *> GfxContext::_getRequiredExtensions()
 {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
+ #if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+    //在 Windows 或 macOS 上，GLFW 会自动添加必要的扩展，包括 VK_KHR_SURFACE_EXTENSION_NAME
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
+ #endif
     std::vector<const char *> extensions(glfwExtensions,
                                          glfwExtensions + glfwExtensionCount);
     if (enableValidationLayers)
@@ -137,21 +164,21 @@ std::vector<const char *> GfxContext::_getRequiredExtensions()
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // 添加调试扩展
     }
     extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
-
-#if defined(_WIN32) || defined(_WIN64)
-
-#elif defined(__APPLE__)
+#if defined(BOO_PLATFORM_MACOS)
+    //在 macOS 或 iOS 这类没有原生 Vulkan 驱动的系统上，需要通过 MoltenVK 这样的兼容层，把 Vulkan API 调用“翻译”成 Apple 的 Metal API 才能运行
     extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
-#else
-
+#elif defined(BOO_PLATFORM_ANDROID)
+    //VK_KHR_ANDROID_SURFACE_EXTENSION_NAME 是一个 Vulkan 实例扩展，它的核心作用是将 Android 的原生窗口（ANativeWindow）转换成 Vulkan 可以使用的抽象窗口表面（VkSurfaceKHR）
+    extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);  //windows renderdoc 报错 
+    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);  //windows renderdoc 报错 
 #endif
-    /*  extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);  //windows renderdoc 报错 */
-
+    
     return extensions;
 }
 
 void GfxContext::_setupDebugMessenger()
 {
+    LOGI("[Gfx Context]:SETUP DEBUG MESSENGER");
     if (!enableValidationLayers)
     {
         return;
@@ -188,16 +215,9 @@ VkResult GfxContext::_createDebugUtilsMessengerEXT(VkInstance instance, const Vk
     }
 }
 
-void GfxContext::_createSurface()
-{
-    if (glfwCreateWindowSurface(this->_vkinstance, Boo::window->getWindow(), nullptr, &this->_surface) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create window surface!");
-    }
-}
-
 void GfxContext::_initPhysicalDevice()
 {
+    LOGI("[Gfx Context]:INIT PHYSICAL DEVICE");
     this->_physicalDevice = VK_NULL_HANDLE;
     uint32_t deviceCount = 0;
     /* 第三个参数为空，则表示该函数为读取功能 */
@@ -224,59 +244,9 @@ void GfxContext::_initPhysicalDevice()
     }
 }
 
-bool GfxContext::_isDeviceSuitable(VkPhysicalDevice device)
-{
-    VkPhysicalDeviceProperties deviceProperties;
-    vkGetPhysicalDeviceProperties(device, &deviceProperties);
-
-    /*     纹理压缩、64为浮点、多窗口渲染是否支持，通过下面函数查询 */
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-
-    // 显卡支持集合着色器的判断条件
-    bool isSupportSetShader = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) && deviceFeatures.geometryShader;
-    /*  std::cout << "isSupportSetShader: " << isSupportSetShader << std::endl; */
-
-    QueueFamilyIndices indices = this->_findQueueFamilies(device);
-
-    /* 由于我们只需要显示三角形，所以不需要额外特性，直接返回true即可，以上代码作为测试 */
-    bool extensionsSupported = this->_checkDeviceExtensionSupport(device);
-
-    bool swapChainAdequate = false;
-    if (extensionsSupported)
-    {
-        SwapChainSupportDetails swapChainSupport = this->_querySwapChainSupport(device);
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-    }
-
-    return indices.isComplete() && extensionsSupported && swapChainAdequate;
-}
-
-bool GfxContext::_checkDeviceExtensionSupport(VkPhysicalDevice device)
-{
-    uint32_t extensionCount;
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-    std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
-
-    // for (auto extension : DeviceExtensions)
-    // {
-    //     std::cout << "extension: " << extension << std::endl;
-    // }
-
-    for (const auto &extension : availableExtensions)
-    {
-        requiredExtensions.erase(extension.extensionName);
-    }
-
-    return requiredExtensions.empty();
-}
-
 void GfxContext::_createLogicalDevice()
 {
+    LOGI("[Gfx Context]:CREATE LOGICAL DEVICE");
     QueueFamilyIndices indices = this->_findQueueFamilies(this->_physicalDevice);
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
@@ -344,7 +314,7 @@ void GfxContext::_createLogicalDevice()
  */
 void GfxContext::_createCommandPool()
 {
-
+    LOGI("[Gfx Context]:CREATE COMMAND POOL");
     /*  // GfxMgr::Log("create command pool start..."); */
     QueueFamilyIndices queueFamilyIndices = this->_findQueueFamilies(this->_physicalDevice);
 
@@ -360,6 +330,57 @@ void GfxContext::_createCommandPool()
         throw std::runtime_error("failed to create command pool!");
     }
     /* // GfxMgr::Log("create command pool success..."); */
+}
+
+bool GfxContext::_isDeviceSuitable(VkPhysicalDevice device)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(device, &deviceProperties);
+
+    /*     纹理压缩、64为浮点、多窗口渲染是否支持，通过下面函数查询 */
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+    // 显卡支持集合着色器的判断条件
+    bool isSupportSetShader = (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) && deviceFeatures.geometryShader;
+    /*  std::cout << "isSupportSetShader: " << isSupportSetShader << std::endl; */
+
+    QueueFamilyIndices indices = this->_findQueueFamilies(device);
+
+    /* 由于我们只需要显示三角形，所以不需要额外特性，直接返回true即可，以上代码作为测试 */
+    bool extensionsSupported = this->_checkDeviceExtensionSupport(device);
+
+    bool swapChainAdequate = false;
+    if (extensionsSupported)
+    {
+        SwapChainSupportDetails swapChainSupport = this->_querySwapChainSupport(device);
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    return indices.isComplete() && extensionsSupported && swapChainAdequate;
+}
+
+bool GfxContext::_checkDeviceExtensionSupport(VkPhysicalDevice device)
+{
+    uint32_t extensionCount;
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+    std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+    vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+    std::set<std::string> requiredExtensions(DeviceExtensions.begin(), DeviceExtensions.end());
+
+    // for (auto extension : DeviceExtensions)
+    // {
+    //     std::cout << "extension: " << extension << std::endl;
+    // }
+
+    for (const auto &extension : availableExtensions)
+    {
+        requiredExtensions.erase(extension.extensionName);
+    }
+
+    return requiredExtensions.empty();
 }
 
 // void GfxContext::_createDescriptorPool()
@@ -390,17 +411,35 @@ void GfxContext::_createCommandPool()
 //     // } */
 // }
 
+// void GfxContext::setWindow(Window *window)
+// {
+// #if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+//     this->_surface = VK_NULL_HANDLE;
+//     if (glfwCreateWindowSurface(this->_vkinstance, window->getWindow(), nullptr, &this->_surface) != VK_SUCCESS)
+//     {
+//         throw std::runtime_error("failed to create window surface!");
+//     }
+// #endif
+// }
+
+// void GfxContext::setAndroid(Android *android)
+// {
+// }
+// void GfxContext::clearSurface()
+// {
+//     this->cleanSwapChain();
+//     vkDestroySurfaceKHR(this->_vkinstance, this->_surface, nullptr);
+// }
+
 void GfxContext::resetSwapChain()
 {
     this->_createSwapChainKHR();
     this->_createImageViews();
     this->_createSyncObjects();
-    // this->_createMsaaAttachmentTexture();
 }
 
 void GfxContext::cleanSwapChain()
 {
-    // this->_cleanMsaaAttachmentTexture();
     this->_cleanSyncObjects();
     this->_cleanImageViews();
     this->_cleanSwapChainKHR();
@@ -408,6 +447,11 @@ void GfxContext::cleanSwapChain()
 
 void GfxContext::_createSwapChainKHR()
 {
+    if (this->_surface == VK_NULL_HANDLE)
+    {
+        throw std::runtime_error("surface is not created!");
+    }
+
     /* // GfxMgr::Log("create swap chain start..."); */
     SwapChainSupportDetails swapChainSupport = this->_querySwapChainSupport(this->_physicalDevice);
 
@@ -530,12 +574,12 @@ VkExtent2D GfxContext::_chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabil
     }
     else
     {
-        int width, height;
-        glfwGetFramebufferSize(Boo::window->getWindow(), &width, &height);
+        // int width, height;
+        // glfwGetFramebufferSize(Boo::window->getWindow(), &width, &height);
 
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(width),
-            static_cast<uint32_t>(height)};
+            static_cast<uint32_t>(Gfx::viewWidth),
+            static_cast<uint32_t>(Gfx::viewHeight)};
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
         actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
@@ -632,13 +676,13 @@ void GfxContext::_cleanSyncObjects()
     this->_inFlightFences.clear();
 
     /* // 1. 销毁旧的同步对象 */
-    for (auto &flight : this->_imagesInFlight)
-    {
-        if (flight != VK_NULL_HANDLE)
-        {
-            vkDestroyFence(this->_vkdevice, flight, nullptr);
-        }
-    }
+    // for (auto &flight : this->_imagesInFlight)
+    // {
+    //     if (flight != VK_NULL_HANDLE)
+    //     {
+    //         vkDestroyFence(this->_vkdevice, flight, nullptr);
+    //     }
+    // }
     this->_imagesInFlight.clear();
 
     for (auto &semaphore : this->_imageAvailableSemaphores)

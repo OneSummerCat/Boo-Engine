@@ -3,15 +3,30 @@
 #include <iostream>
 #include <regex> // 主要头文件
 
-Color::Color()
+namespace Boo {
+
+Color::Color():
+    _r(1.0f),
+    _g(1.0f),
+    _b(1.0f),
+    _a(1.0f)
 {
-    this->set(1.0f, 1.0f, 1.0f, 1.0f);
+
 }
-Color::Color(std::string color)
+Color::Color(std::string color) :
+    _r(1.0f),
+    _g(1.0f),
+    _b(1.0f),
+    _a(1.0f),
+    _hexString("#ffffff")
 {
     this->set(color);
 }
-Color::Color(float r, float g, float b, float a)
+Color::Color(float r, float g, float b, float a) :
+    _r(r),
+    _g(g),
+    _b(b),
+    _a(a)
 {
     this->set(r, g, b, a);
 }
@@ -93,3 +108,5 @@ float Color::getA() const
 Color::~Color()
 {
 }
+
+} // namespace Boo

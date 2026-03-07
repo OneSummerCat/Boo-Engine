@@ -13,6 +13,7 @@
 #include "gfx-render-pass-builtin.h"
 #include "gfx-pipeline-builtin.h"
 #include "gfx-queue-builtin.h"
+#include "../../log.h"
 
 uint32_t GfxRendererBuiltin::StencilRef = 0;
 
@@ -22,7 +23,7 @@ GfxRendererBuiltin::GfxRendererBuiltin(std::string name)
 }
 void GfxRendererBuiltin::init()
 {
-    std::cout << "[Gfx : GfxRendererBuiltin] :: init " << this->_name << std::endl;
+    LOGI("[Gfx : RendererBuiltin] :: init %s", this->_name.c_str());
     this->_initDescriptorSetLayout();
     this->_initDescriptorSets();
     this->_initDefaultRenderPass();
@@ -65,10 +66,10 @@ void GfxRendererBuiltin::_initUIDescriptorSetLayout()
     if (vkCreateDescriptorSetLayout(Gfx::context->getVkDevice(),
                                     &layoutInfo, nullptr, &this->_uiDescriptorSetLayout) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor set layout failed " << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: create descriptor set layout failed ");
         return;
     }
-    std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor set layout success " << std::endl;
+    LOGI("[Gfx : RendererBuiltin] :: create descriptor set layout success ");
 }
 void GfxRendererBuiltin::_init3DDescriptorSetLayout()
 {
@@ -99,10 +100,10 @@ void GfxRendererBuiltin::_initUIDescriptorSets()
     poolInfo.maxSets = (maxObjectCount + 3); // 描述符集的最大数量
     if (vkCreateDescriptorPool(Gfx::context->getVkDevice(), &poolInfo, nullptr, &this->_uiDescriptorPool) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor pool failed " << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: create descriptor pool failed ");
         return;
     }
-    std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor pool success " << std::endl;
+    LOGI("[Gfx : RendererBuiltin] :: create descriptor pool success ");
 }
 void GfxRendererBuiltin::_init3DDescriptorSets()
 {
@@ -124,10 +125,10 @@ void GfxRendererBuiltin::_init3DDescriptorSets()
     poolInfo.maxSets = (maxObjectCount + 3); // 描述符集的最大数量
     if (vkCreateDescriptorPool(Gfx::context->getVkDevice(), &poolInfo, nullptr, &this->_uiDescriptorPool) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor pool failed " << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: create descriptor pool failed ");
         return;
     }
-    std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor pool success " << std::endl;
+    LOGI("[Gfx : RendererBuiltin] :: create descriptor pool success ");
 }
 
 /**
@@ -218,46 +219,8 @@ void GfxRendererBuiltin::_initDefaultUIPipeline()
     // 推送常量 开启
     uiPipeline.pushConstant = 1;
     uiPipeline.pushConstantSize = 0;
-    std::cout << "[Gfx : GfxRendererBuiltin] :: OK UI:" << uiPipeline.generateKey() << std::endl;
-    // this->createPipeline(uiPipeline.generateKey(), uiPipeline);
+    LOGI("[Gfx : RendererBuiltin] :: OK UI:%s", uiPipeline.generateKey().c_str());
 
-    // //mask test pipeline
-    // GfxPipelineStruct uiMaskTestPipeline = {};
-    // uiMaskTestPipeline.render = uint32_t(GfxPipelineRender::_UI);
-    // uiMaskTestPipeline.vert = "builtin-ui-mask-test.vert";
-    // uiMaskTestPipeline.frag = "builtin-ui-mask-test.frag";
-    // // 多边形模式 填充
-    // uiMaskTestPipeline.polygonMode = GfxPipelinePolygonMode::Fill;
-    // // 剔除模式 背面
-    // uiMaskTestPipeline.cullMode = GfxPipelineCullMode::None;
-    // // 深度测试 开启
-    // uiMaskTestPipeline.depthTest = 0;
-    // // 深度写入 开启
-    // uiMaskTestPipeline.depthWrite = 0;
-    // // 深度比较操作 小于等于
-    // uiMaskTestPipeline.depthCompareOp = GfxPipelineCompareOp::Always;
-    // // 模版测试 启用（用于UI遮罩）
-    // uiMaskTestPipeline.stencilTest = 1;
-    // uiMaskTestPipeline.stencilFrontCompareOp = GfxPipelineCompareOp::Equal;  // 只在模板值相等时绘制
-    // uiMaskTestPipeline.stencilFrontFailOp = GfxPipelineStencilOp::Keep;      // 测试失败：保持
-    // uiMaskTestPipeline.stencilFrontDepthFailOp = GfxPipelineStencilOp::Keep; // 深度失败：保持
-    // uiMaskTestPipeline.stencilFrontPassOp = GfxPipelineStencilOp::Keep;      // 测试通过：保持（不修改模板值）
-    // uiMaskTestPipeline.stencilBackCompareOp = GfxPipelineCompareOp::Equal;
-    // uiMaskTestPipeline.stencilBackFailOp = GfxPipelineStencilOp::Keep;
-    // uiMaskTestPipeline.stencilBackDepthFailOp = GfxPipelineStencilOp::Keep;
-    // uiMaskTestPipeline.stencilBackPassOp = GfxPipelineStencilOp::Keep;
-    // // 颜色混合 开启
-    // uiMaskTestPipeline.colorBlend = 1;
-    // uiMaskTestPipeline.srcColorBlendFactor = GfxPipelineColorBlendFactor::SrcAlpha;
-    // uiMaskTestPipeline.dstColorBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    // uiMaskTestPipeline.colorBlendOp = GfxPipelineColorBlendOp::Add;
-    // uiMaskTestPipeline.srcAlphaBlendFactor = GfxPipelineColorBlendFactor::One;
-    // uiMaskTestPipeline.dstAlphaBlendFactor = GfxPipelineColorBlendFactor::OneMinusSrcAlpha;
-    // uiMaskTestPipeline.alphaBlendOp = GfxPipelineColorBlendOp::Add;
-    // // 推送常量 开启
-    // uiMaskTestPipeline.pushConstant = 1;
-    // uiMaskTestPipeline.pushConstantSize = 0;
-    // this->createPipeline(uiMaskTestPipeline.generateKey(), uiMaskTestPipeline);
 }
 
 void GfxRendererBuiltin::_initDefaultUIMaskAddPipeline()
@@ -334,22 +297,22 @@ void GfxRendererBuiltin::createPipeline(std::string name, GfxPipelineStruct pipe
     // std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:name:" << name << std::endl;
     if (Gfx::shaders.find(pipelineStruct.vert) == Gfx::shaders.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:vert not found:" << pipelineStruct.vert << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: createPipeline:vert not found:%s", pipelineStruct.vert.c_str());
         return;
     }
     if (Gfx::shaders.find(pipelineStruct.frag) == Gfx::shaders.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:frag not found:" << pipelineStruct.frag << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: createPipeline:frag not found:%s", pipelineStruct.frag.c_str());
         return;
     }
     if (this->_pass == nullptr)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:pass not found:" << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: createPipeline:pass not found:");
         return;
     }
     if (this->_pipelines.find(name) != this->_pipelines.end())
     {
-        // std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:name already exists:" << name << std::endl;
+        // LOGI("[Gfx : RendererBuiltin] :: createPipeline:name already exists:%s", name.c_str());
         return;
     }
    
@@ -358,7 +321,7 @@ void GfxRendererBuiltin::createPipeline(std::string name, GfxPipelineStruct pipe
         GfxPipelineBuiltin *pipeline = new GfxPipelineBuiltin(name);
         pipeline->create(this->_pass, Gfx::shaders[pipelineStruct.vert], Gfx::shaders[pipelineStruct.frag], this->_uiDescriptorSetLayout, pipelineStruct);
         this->_pipelines[name] = pipeline;
-        std::cout << "[Gfx : GfxRendererBuiltin] :: createPipeline:ui pipeline created:" << name << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: createPipeline:ui pipeline created:%s", name.c_str());
     }
     else if (pipelineStruct.render == uint32_t(GfxPipelineRender::_3D))
     {
@@ -372,14 +335,13 @@ GfxPipelineBuiltin *GfxRendererBuiltin::getPipeline(std::string name)
 {
     if (this->_pipelines.find(name) == this->_pipelines.end())
     {
-        std::cout << "getPipeline:not found:" << name << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: getPipeline:not found:%s", name.c_str());
         return nullptr;
     }
     return this->_pipelines[name];
 }
 VkDescriptorSet GfxRendererBuiltin::getUIDescriptorSet()
 {
-    // std::cout << "GfxRendererBuiltin::getUIDescriptorSet:" << this->_gfxUIDescriptorSets.size() << std::endl;
     for (auto &descriptorSet : this->_gfxUIDescriptorSets)
     {
         if (!descriptorSet.isOccupied)
@@ -402,7 +364,7 @@ VkDescriptorSet GfxRendererBuiltin::getUIDescriptorSet()
     allocInfo.pSetLayouts = layouts.data();
     if (vkAllocateDescriptorSets(Gfx::context->getVkDevice(), &allocInfo, &descriptorSet) != VK_SUCCESS)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: create descriptor sets failed " << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: create descriptor sets failed ");
     }
     this->_gfxUIDescriptorSets.push_back({descriptorSet, true});
     return descriptorSet;
@@ -411,7 +373,7 @@ void GfxRendererBuiltin::initRenderQueue(std::string renderId, GfxRenderTexture 
 {
     if (this->_renderQueues.find(renderId) != this->_renderQueues.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: initRenderQueue:renderId already exists:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: initRenderQueue:renderId already exists:%s", renderId.c_str());
         return;
     }
     // 绑定渲染pass
@@ -425,7 +387,7 @@ void GfxRendererBuiltin::delRenderQueue(std::string renderId)
 {
     if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: delRenderQueue:renderId not found:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: delRenderQueue:renderId not found:%s", renderId.c_str());
         return;
     }
     this->_renderQueues[renderId]->destroy();
@@ -437,7 +399,7 @@ void GfxRendererBuiltin::submitRenderData(std::string renderId, const std::array
 {
     if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: submitRenderMat:renderId not found:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: submitRenderMat:renderId not found:%s", renderId.c_str());
         return;
     }
     this->_renderQueues[renderId]->submitData(viewMatrix, projMatrix, isOnScreen);
@@ -446,17 +408,17 @@ void GfxRendererBuiltin::submitRenderObject(std::string renderId, GfxMaterial *m
 {
     if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: submitRenderObject:renderId not found:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: submitRenderObject:renderId not found:%s", renderId.c_str());
         return;
     }
     if (material == nullptr)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: submitRenderObject:material is null:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: submitRenderObject:material is null:%s", renderId.c_str());
         return;
     }
     if (mesh == nullptr)
     {
-        std::cout << "[Gfx : GfxRendererBuiltin] :: submitRenderObject:mesh is null:" << renderId << std::endl;
+        LOGI("[Gfx : RendererBuiltin] :: submitRenderObject:mesh is null:%s", renderId.c_str());
         return;
     }
     this->_renderQueues[renderId]->submitObject(material, mesh, instanceData);
@@ -509,27 +471,15 @@ void GfxRendererBuiltin::frameRendererAfter()
 
 void GfxRendererBuiltin::_cleanRendererState()
 {
-    // // 清除渲染队列相关的状态
-    // this->_queue->_clean();
-    // //  渲染管线清除
-    // this->_pipeline->_clear();
-    // // 渲染pass清除
-    // this->_pass->_clear();
-    // // 描述符池清除
-    // if (this->_descriptorPool != VK_NULL_HANDLE)
-    // {
-    //     vkDestroyDescriptorPool(Gfx::context->getVkDevice(), this->_descriptorPool, nullptr);
-    //     this->_descriptorPool = nullptr;
-    // }
-    // this->_descriptorSets.clear();
 }
 void GfxRendererBuiltin::_resetRendererState()
 {
-    // this->_initDefaultDescriptor();
-    // this->_pass->_reset();
-    // this->_pipeline->_reset();
-    // this->_queue->_reset();
 }
+GfxRendererBuiltin::~GfxRendererBuiltin()
+{
+}
+
+
 // void GfxRendererBuilt::_initDescriptor()
 // {
 //     this->_initDescriptorPool();
@@ -869,9 +819,7 @@ void GfxRendererBuiltin::_resetRendererState()
 //     // this->_queues[pass->name()]->submit(object);
 // }
 
-GfxRendererBuiltin::~GfxRendererBuiltin()
-{
-}
+
 
 // void GfxRendererBuiltin::_initDefaultUIMaskPipeline()
 // {

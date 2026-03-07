@@ -1,6 +1,8 @@
 #include "mat4.h"
 #include <iostream>
 
+namespace Boo {
+
 Mat4::Mat4()
 {
     /**
@@ -148,63 +150,4 @@ Mat4::~Mat4()
 {
 }
 
-
-
-// operator*：重载乘法运算符 *，使得 Mat4 对象可以直接用 * 相乘。
-// const Mat4& other：参数是另一个矩阵的常量引用（避免拷贝，提高效率）。
-// 末尾的 const：表示该成员函数不会修改当前对象（即 *this 是只读的）。
-// Mat4 Mat4::operator*(const Mat4 &other) const
-// {
-//    // std::cout << "mat2  *********" << std::endl;
-//    // 实现矩阵乘法
-//    Mat4 result;
-//    for (int i = 0; i < 4; ++i)
-//    {
-//        for (int j = 0; j < 4; ++j)
-//        {
-//            result._m[i * 4 + j] = 0;
-//            for (int k = 0; k < 4; ++k)
-//            {
-//                result._m[i * 4 + j] += this->_m[i * 4 + k] * other._m[k * 4 + j];
-//            }
-//        }
-//    }
-//    // // 第一列
-//    // result._m00 = this->_m00 * other._m00 + this->_m01 * other._m04 + this->_m02 * other._m08 + this->_m03 * other._m12;
-//    // result._m01 = this->_m00 * other._m01 + this->_m01 * other._m05 + this->_m02 * other._m09 + this->_m03 * other._m13;
-//    // result._m02 = this->_m00 * other._m02 + this->_m01 * other._m06 + this->_m02 * other._m10 + this->_m03 * other._m14;
-//    // result._m03 = this->_m00 * other._m03 + this->_m01 * other._m07 + this->_m02 * other._m11 + this->_m03 * other._m15;
-
-//    // // 第二列
-//    // result._m04 = this->_m04 * other._m00 + this->_m05 * other._m04 + this->_m06 * other._m08 + this->_m07 * other._m12;
-//    // result._m05 = this->_m04 * other._m01 + this->_m05 * other._m05 + this->_m06 * other._m09 + this->_m07 * other._m13;
-//    // result._m06 = this->_m04 * other._m02 + this->_m05 * other._m06 + this->_m06 * other._m10 + this->_m07 * other._m14;
-//    // result._m07 = this->_m04 * other._m03 + this->_m05 * other._m07 + this->_m06 * other._m11 + this->_m07 * other._m15;
-
-//    // // 第三列
-//    // result._m08 = this->_m08 * other._m00 + this->_m09 * other._m04 + this->_m10 * other._m08 + this->_m11 * other._m12;
-//    // result._m09 = this->_m08 * other._m01 + this->_m09 * other._m05 + this->_m10 * other._m09 + this->_m11 * other._m13;
-//    // result._m10 = this->_m08 * other._m02 + this->_m09 * other._m06 + this->_m10 * other._m10 + this->_m11 * other._m14;
-//    // result._m11 = this->_m08 * other._m03 + this->_m09 * other._m07 + this->_m10 * other._m11 + this->_m11 * other._m15;
-
-//    // // 第四列
-//    // result._m12 = this->_m12 * other._m00 + this->_m13 * other._m04 + this->_m14 * other._m08 + this->_m15 * other._m12;
-//    // // std::cout << this->_m12 << "  " << other._m00 << "  " << this->_m13 << "  " << other._m04 << "  " << this->_m14 << "  " << other._m08 << "  " << this->_m15 << "  " << other._m12 << std::endl;
-
-//    // result._m13 = this->_m12 * other._m01 + this->_m13 * other._m05 + this->_m14 * other._m09 + this->_m15 * other._m13;
-//    // result._m14 = this->_m12 * other._m02 + this->_m13 * other._m06 + this->_m14 * other._m10 + this->_m15 * other._m14;
-//    // result._m15 = this->_m12 * other._m03 + this->_m13 * other._m07 + this->_m14 * other._m11 + this->_m15 * other._m15;
-//    return result;
-// }
-
-// 矩阵乘法
-// Mat4 result;
-// for (int i = 0; i < 4; ++i) {
-//     for (int j = 0; j < 4; ++j) {
-//         result.m[i][j] = 0.0f;
-//         for (int k = 0; k < 4; ++k) {
-//             result.m[i][j] += m[i][k] * other.m[k][j];
-//         }
-//     }
-// }
-// return result;
+} // namespace Boo

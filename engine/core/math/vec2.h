@@ -1,5 +1,8 @@
 #pragma once
 #include <string>
+
+namespace Boo {
+
 class Vec2
 {
 private:
@@ -14,3 +17,5 @@ public:
     float getY() const;
     ~Vec2();
 };
+
+} // namespace Boo

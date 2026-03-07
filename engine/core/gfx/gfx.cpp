@@ -10,6 +10,9 @@
 
 namespace Gfx
 {
+    int viewWidth = 0;
+    int viewHeight = 0;
+
     GfxContext *context = nullptr;
     GfxRenderer *renderer = nullptr;
     float time = 0.0f;

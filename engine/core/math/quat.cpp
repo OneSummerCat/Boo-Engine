@@ -1,4 +1,7 @@
 #include "quat.h"
+
+namespace Boo {
+
 Quat::Quat() : _x(0), _y(0), _z(0), _w(1)
 {
 }
@@ -33,3 +36,5 @@ float Quat::getW()
 Quat::~Quat()
 {
 }
+
+} // namespace Boo

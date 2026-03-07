@@ -7,8 +7,7 @@
 #include "base/gfx-material.h"
 #include "base/gfx-mesh.h"
 #include "base/gfx-render-texture.h"
-
-#include "../utils/time-util.h"
+#include "../../log.h"
 
 GfxMgr *GfxMgr::getInstance()
 {
@@ -25,21 +24,36 @@ GfxMgr::GfxMgr()
         uint32_t major = VK_VERSION_MAJOR(instanceVersion);
         uint32_t minor = VK_VERSION_MINOR(instanceVersion);
         uint32_t patch = VK_VERSION_PATCH(instanceVersion);
-        std::cout << "Gfx :: Vulkan Instance (Driver) Version:" << major << "." << minor << "." << patch << std::endl;
+        LOGI("Gfx :: Vulkan Instance (Driver) Version:%d.%d.%d", major, minor, patch);
     }
 }
 
-void GfxMgr::init()
+void GfxMgr::init(Window *window)
 {
     Gfx::context = new GfxContext();
-    Gfx::context->init();
-    Gfx::renderer = new GfxRenderer();
-    Gfx::renderer->init();
+    Gfx::context->init(window);
+    this->_initRenderer();
+}
+void GfxMgr::init(Android *android)
+{
+    Gfx::context = new GfxContext();
+    Gfx::context->init(android);
+    this->_initRenderer();
+}
+void GfxMgr::_initRenderer()
+{
+   Gfx::renderer = new GfxRenderer();
+   Gfx::renderer->init();
+}
+void GfxMgr::resize(int width, int height)
+{
+    Gfx::viewWidth = width;
+    Gfx::viewHeight = height;
 }
 void GfxMgr::update(float dt)
 {
     Gfx::time += dt;
-    
+
     // Gfx::renderer->clearDestroyObjects();
     // std::cout << "renderer update" << std::endl;
     Gfx::context->frameFencesPrepare(this->_currentFrame);

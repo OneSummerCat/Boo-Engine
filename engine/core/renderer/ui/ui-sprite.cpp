@@ -1,153 +1,140 @@
 #include "ui-sprite.h"
-#include "../../boo.h"
+#include "../../../boo.h"
 #include "../../scene/node.h"
 #include "../../scene/node-2d.h"
-#include "../../assets/asset.h"
-#include "../../assets/assets-manager.h"
-#include "../../assets/texture-asset.h"
-#include "../../assets/material-asset.h"
 #include "../../renderer/camera.h"
-#include "../../gfx/base/gfx-render-texture.h"
+#include "../../assets/assets-manager.h"
+#include "../../../log.h"
 
-UISprite::UISprite(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
+namespace Boo
 {
-    // 纹理路径
-    this->_texture = "";
-    // 材质路径
-    this->_material = "";
-}
-/**
- * @brief 反序列化组件属性-配置
- * 反序列化成功
- */
-void UISprite::_deserialized()
-{
-    UIRenderer::_deserialized();
-}
 
-void UISprite::Awake()
-{
-    UIRenderer::Awake();
-    this->_materialAsset = new MaterialAsset();
-    this->setMaterial("builtin::ui.mtl");
-}
-
-void UISprite::Enable()
-{
-    UIRenderer::Enable();
-}
-
-void UISprite::setColor(Color &color)
-{
-    if (color.getR() == this->_color.getR() &&
-        color.getG() == this->_color.getG() &&
-        color.getB() == this->_color.getB() &&
-        color.getA() == this->_color.getA())
+    UISprite::UISprite(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
     {
-        return;
     }
-    this->_setColor(color.getR(), color.getG(), color.getB(), color.getA());
-}
-void UISprite::setColor(std::string color)
-{
-    if (color == this->_color.hexString())
-    {
-        return;
-    }
-    Color c(color);
-    this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
-}
-void UISprite::setColor(float r, float g, float b, float a)
-{
-    if (r == this->_color.getR() &&
-        g == this->_color.getG() &&
-        b == this->_color.getB() &&
-        a == this->_color.getA())
-    {
-        return;
-    }
-    this->_setColor(r, g, b, a);
-}
 
-void UISprite::setAlpha(float alpha)
-{
-    if (alpha == this->_color.getA())
-        return;
-    Color c(this->_color);
-    c.setA(alpha);
-    this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
-}
-void UISprite::setMaterial(std::string material)
-{
-    MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(Boo::game->assetsManager()->getAsset(material));
-    if (mtl == nullptr)
+    void UISprite::Awake()
     {
-        std::cout << "UISprite::setMaterial: material " << material << " not found" << std::endl;
-        return;
+        UIRenderer::Awake();
+        this->setMaterial(AssetBuiltinMaterial::UI);
     }
-    this->setMaterial(mtl);
-}
-void UISprite::setMaterial(MaterialAsset *material)
-{
-    if (material == nullptr)
-    {
-        std::cout << "UISprite::setMaterial: material " << material << " not found" << std::endl;
-        return;
-    }
-    this->_setMaterial(material);
-}
 
-void UISprite::setTexture(std::string path)
-{
-    TextureAsset *texture = dynamic_cast<TextureAsset *>(Boo::game->assetsManager()->getAsset(path));
-    if (texture == nullptr)
+    void UISprite::Enable()
     {
-        std::cout << "UISprite::setTexture: texture " << path << " not found" << std::endl;
-        return;
+        UIRenderer::Enable();
     }
-    this->setTexture(texture);
-}
-void UISprite::setTexture(TextureAsset *texture)
-{
-    if (texture == nullptr)
+
+    void UISprite::setColor(Color &color)
     {
-        std::cout << "UISprite::setTexture: texture " << texture << " not found" << std::endl;
-        return;
+        if (color.getR() == this->_color.getR() &&
+            color.getG() == this->_color.getG() &&
+            color.getB() == this->_color.getB() &&
+            color.getA() == this->_color.getA())
+        {
+            return;
+        }
+        this->_setColor(color.getR(), color.getG(), color.getB(), color.getA());
     }
-    this->_setTexture(texture);
-}
-void UISprite::setRenderTexture(GfxRenderTexture *renderTexture)
-{
-    // this->_renderTexture = renderTexture;
-    // if (this->_renderTexture != nullptr)
-    // {
-    //     this->_materialAsset->setTexture(this->_renderTexture->getColorTextureUuid());
-    // }
-}
+    void UISprite::setColor(std::string color)
+    {
+        if (color == this->_color.hexString())
+        {
+            return;
+        }
+        Color c(color);
+        this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
+    }
+    void UISprite::setColor(float r, float g, float b, float a)
+    {
+        if (r == this->_color.getR() &&
+            g == this->_color.getG() &&
+            b == this->_color.getB() &&
+            a == this->_color.getA())
+        {
+            return;
+        }
+        this->_setColor(r, g, b, a);
+    }
 
-void UISprite::Update(float deltaTime)
-{
-    UIRenderer::Update(deltaTime);
-}
-void UISprite::LateUpdate(float deltaTime)
-{
-    UIRenderer::LateUpdate(deltaTime);
-}
-void UISprite::Render(Camera *camera)
-{
-    UIRenderer::Render(camera);
-}
-void UISprite::Disable()
-{
-    UIRenderer::Disable();
-}
+    void UISprite::setAlpha(float alpha)
+    {
+        if (alpha == this->_color.getA())
+            return;
+        Color c(this->_color);
+        c.setA(alpha);
+        this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
+    }
+    void UISprite::setMaterial(std::string material)
+    {
+        MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(material));
+        if (mtl == nullptr)
+        {
+            LOGW("[UISprite]:setMaterial: material %s not found", material.c_str());
+            return;
+        }
+        this->setMaterial(mtl);
+    }
+    void UISprite::setMaterial(MaterialAsset *material)
+    {
+        if (material == nullptr)
+        {
+            LOGW("[UISprite]:setMaterial: material %s not found", material->getName().c_str());
+            return;
+        }
+        this->_setMaterial(material);
+    }
 
-void UISprite::destroy()
-{
-    UIRenderer::destroy();
-    // std::cout << "UISprite::destroy" << std::endl;
-}
-UISprite::~UISprite()
-{
-    // std::cout << "UISprite::~destructor" << std::endl;
-}
+    void UISprite::setTexture(std::string path)
+    {
+        TextureAsset *texture = dynamic_cast<TextureAsset *>(assetsManager->getAsset(path));
+        if (texture == nullptr)
+        {
+            LOGW("[UISprite]:setTexture: texture %s not found", path.c_str());
+            return;
+        }
+        this->setTexture(texture);
+    }
+    void UISprite::setTexture(TextureAsset *texture)
+    {
+        if (texture == nullptr)
+        {
+            LOGW("[UISprite]:setTexture: texture %s not found", texture->getName().c_str());
+            return;
+        }
+        this->_setTexture(texture);
+    }
+    void UISprite::setRenderTexture()
+    {
+        // this->_renderTexture = renderTexture;
+        // if (this->_renderTexture != nullptr)
+        // {
+        //     this->_materialAsset->setTexture(this->_renderTexture->getColorTextureUuid());
+        // }
+    }
+
+    void UISprite::Update(float deltaTime)
+    {
+        UIRenderer::Update(deltaTime);
+    }
+    void UISprite::LateUpdate(float deltaTime)
+    {
+        UIRenderer::LateUpdate(deltaTime);
+    }
+    void UISprite::Render(Camera *camera)
+    {
+        UIRenderer::Render(camera);
+    }
+    void UISprite::Disable()
+    {
+        UIRenderer::Disable();
+    }
+
+    void UISprite::destroy()
+    {
+        UIRenderer::destroy();
+    }
+    UISprite::~UISprite()
+    {
+    }
+
+} // namespace Boo

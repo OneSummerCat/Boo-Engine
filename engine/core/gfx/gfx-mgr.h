@@ -1,5 +1,4 @@
 #pragma once
-#include <GLFW/glfw3.h>
 #include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
@@ -8,6 +7,8 @@
 #include <set>
 #include <map>
 #include "base/gfx-pipeline-struct.h"
+#include "../../platforms/window/window.h"
+#include "../../platforms/android/android.h"
 
 class GfxRenderTexture;
 class GfxMaterial;
@@ -22,14 +23,19 @@ private:
 	~GfxMgr();
 	size_t _currentFrame = 0;
 
+	void _initRenderer();
 public:
 	static GfxMgr *getInstance();
 	/**
 	 * 初始化
 	 */
-	void init();
-
+	void init(Window *window);
+	void init(Android *android);
+	// void setWindow();
+	// void setAndroid(Android *android);
+	
 	void update(float dt);
+	void resize(int width,int height);
 	void resetSwapChain();
 
 	void createPipeline(std::string pipelineName, GfxPipelineStruct pipelineStruct);

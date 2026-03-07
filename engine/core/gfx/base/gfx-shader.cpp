@@ -2,6 +2,9 @@
 #include "gfx-shader.h"
 #include "../gfx.h"
 #include "../gfx-context.h"
+#include "../../log.h"
+
+
 
 GfxShader::GfxShader(const std::string &name):  _name(name)
 {
@@ -19,7 +22,7 @@ void GfxShader::createShaderModule(const std::vector<uint32_t> &code)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
-    std::cout << "[Gfx : Shader]:: create shader module success " << this->_name << std::endl;
+    LOGI("[Gfx : Shader]:: create shader module success %s", this->_name.c_str());
 }
 // void GfxShader::createShaderModule(const uint32_t *data, const uint32_t size)
 // {

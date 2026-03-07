@@ -2,6 +2,9 @@
 #include "../gfx.h"
 #include "../gfx-context.h"
 #include "gfx-shader.h"
+#include "../../log.h"
+
+
 
 GfxPipeline::GfxPipeline(const std::string &name)
 {
@@ -15,22 +18,22 @@ void GfxPipeline::create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader
 {
     if (pass == nullptr)
     {
-        std::cout << "[Gfx : GfxPipeline]::create: pass  is nullptr" << std::endl;
+        LOGI("[Gfx : Pipeline]::create: pass  is nullptr %s", this->_name.c_str());
         return;
     }
     if (vertexShader == nullptr)
     {
-        std::cout << "[Gfx : GfxPipeline]::create: vertexShader  is nullptr" << std::endl;
+        LOGI("[Gfx : Pipeline]::create: vertexShader  is nullptr %s", this->_name.c_str());
         return;
     }
     if (fragmentShader == nullptr)
     {
-        std::cout << "[Gfx : GfxPipeline]::create: fragmentShader  is nullptr" << std::endl;
+        LOGI("[Gfx : Pipeline]::create: fragmentShader  is nullptr %s", this->_name.c_str());
         return;
     }
-    if (descriptorSetLayout == nullptr)
+    if (descriptorSetLayout == VK_NULL_HANDLE)
     {
-        std::cout << "[Gfx : GfxPipeline]::create: descriptorSetLayout  is nullptr" << std::endl;
+        LOGI("[Gfx : Pipeline]::create: descriptorSetLayout  is nullptr %s", this->_name.c_str());
         return;
     }
 

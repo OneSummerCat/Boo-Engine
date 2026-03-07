@@ -1,6 +1,5 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -8,6 +7,13 @@
 #include <set>
 #include <map>
 #include <algorithm>
+#include <cstdint>
+#include <unordered_map>
+#include <sstream>
+class Window;
+class Android;
+
+
 
 // 查询并记录交换链支持的细节
 struct SwapChainSupportDetails
@@ -52,16 +58,7 @@ private:
     void _setupDebugMessenger();
     VkResult _createDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo, const VkAllocationCallbacks *pAllocator, VkDebugUtilsMessengerEXT *pDebugMessenger);
 
-    /**
-     * @brief Vulkan表面句柄
-     *  用于显示的窗口句柄
-     */
-    VkSurfaceKHR _surface; 
-    /**
-     * @brief 创建Vulkan表面
-     */
-    void _createSurface();
-
+    
     /**
      * @brief 物理设备句柄
      */
@@ -90,12 +87,13 @@ private:
      */
     VkCommandPool _commandPool;
     void _createCommandPool();
-    // /**
-    //  * @brief 描述符池
-    //  */
-    // VkDescriptorPool _descriptorPool;
-    // void _createDescriptorPool();
 
+
+    /**
+     * @brief Vulkan表面句柄
+     *  用于显示的窗口句柄
+     */
+    VkSurfaceKHR _surface; 
     /**
      * @brief 交换链
      * 本质上是一个等待被呈现在屏幕上的图像队列
@@ -111,7 +109,6 @@ private:
     VkPresentModeKHR _chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
     VkExtent2D _chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
     void _cleanSwapChainKHR();
-    void _createSwapChain();
 
     /**
      * @brief 交换链图像视图
@@ -166,7 +163,12 @@ private:
     SwapChainSupportDetails _querySwapChainSupport(VkPhysicalDevice device);
 public:
     GfxContext();
-    void init();
+    void init(Window *window);
+    void init(Android *android);
+
+    // void setWindow(Window *window);
+    // void setAndroid(Android *android);
+    void clearSurface();
     void resetSwapChain();
     void cleanSwapChain();
 

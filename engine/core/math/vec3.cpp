@@ -4,6 +4,8 @@
 #include "quat.h"
 #include <algorithm>
 
+namespace Boo {
+
 Vec3::Vec3()
 {
     this->_x = 0.0;
@@ -125,3 +127,5 @@ void Vec3::test()
 Vec3::~Vec3()
 {
 }
+
+} // namespace Boo

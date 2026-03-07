@@ -1,3 +1,22 @@
 
-/platforms/win/editor/
-/platforms/win/engine/
+/platforms/win/editor
+/platforms/win/engine
+/platforms/win/Boo-Engine
+/platforms/win/x64
+/platforms/win/.vs
+/platforms/mac/editor
+/platforms/mac/engine
+/platforms/mac/build
+/test/build
+/test/libs
+
+/test-mac/ai
+/test-mac/engine
+/test-mac/build
+/test-mac/libs
+
+/test-win/build
+/test-win/libs
+/test-win/out
+/test-win/ai
+/test-win/engine

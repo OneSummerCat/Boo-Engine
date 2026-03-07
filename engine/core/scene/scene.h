@@ -2,32 +2,47 @@
 #include "node.h"
 #include <vector>
 #include <memory>
-#include "node-3d.h"
-#include "node-2d.h"
 
-class Scene : public Node
+namespace Boo
 {
-private:
-protected:
-    Node3D *_root3D;
-    Node2D *_root2D;
+    class Node3D;
+    class Node2D;
 
-public:
-    Scene(const std::string name, const std::string uuid = "");
-    void createRoot2D();
-    void createRoot3D();
-    Node3D *getRoot3D();
-    Node2D *getRoot2D();
-    void setActive(bool active) override;
-    /**
-     * 添加组件
-     */
-    Component *addComponent(std::string name, std::string uuid = "") override;
+    class Scene : public Node
+    {
+    public:
+        Scene(const std::string name, const std::string uuid = "");
 
-    void update(float deltaTime) override;
-    void lateUpdate(float deltaTime) override;
-    void clearNodeFrameFlag() override;
+    private:
+        Node3D *_root3D;
+        Node2D *_root2D;
 
-    void destroy() override;
-    ~Scene();
-};
+    public:
+        void createRoot2D();
+        void createRoot3D();
+        Node3D *getRoot3D();
+        Node2D *getRoot2D();
+
+    protected:
+        void _updateWorldTransform() override;
+
+    public:
+        void setPosition(float x, float y, float z) override;
+        void setWorldPosition(float x, float y, float z) override;
+        void setScale(float x, float y, float z) override;
+        void setWorldScale(float x, float y, float z) override;
+        void setEulerAngles(float x, float y, float z) override;
+        void setRotation(float x, float y, float z, float w) override;
+        void setWorldRotation(float x, float y, float z, float w) override;
+        void setActive(bool active) override;
+        void launch();
+        Component *addComponent(std::string name, std::string uuid = "") override;
+        void update(float deltaTime) override;
+        void lateUpdate(float deltaTime) override;
+        void clearNodeFrameFlag() override;
+        void destroy() override;
+
+        ~Scene();
+    };
+
+} // namespace Boo

@@ -1,34 +1,32 @@
 #include "assst-builtin.h"
 #include "../../boo.h"
-#include "assets-manager.h"
-#include "asset-cache.h"
-#include "texture-asset.h"
-#include "material-asset.h"
-#include "../utils/json-util.h"
 
-AssetBuiltin::AssetBuiltin()
+namespace Boo
 {
-}
-void AssetBuiltin::init()
-{
-    this->_initDefaultTextures();
-    this->_initDefaultMaterials();
-}
-void AssetBuiltin::_initDefaultTextures()
-{
-    // 默认纹理
-    TextureAsset *texture = new TextureAsset("builtin::default.png");
-    texture->create(GfxTextureDefault, sizeof(GfxTextureDefault));
-    Boo::game->assetsManager()->getAssetsCache()->addAsset("builtin::default.png", texture);
-    
-    TextureAsset *logo = new TextureAsset("builtin::logo.png");
-    logo->create(GfxTextureLogo, sizeof(GfxTextureLogo));
-    Boo::game->assetsManager()->getAssetsCache()->addAsset("builtin::logo.png", logo);
-}
-void AssetBuiltin::_initDefaultMaterials()
-{
-    // 默认UI材质
-    std::string jsonUI = R"({
+
+    AssetBuiltin::AssetBuiltin()
+    {
+    }
+    void AssetBuiltin::init()
+    {
+        this->_initDefaultTextures();
+        this->_initDefaultMaterials();
+    }
+    void AssetBuiltin::_initDefaultTextures()
+    {
+        // 默认纹理
+        TextureAsset *texture = new TextureAsset(AssetBuiltinTexture::Default);
+        texture->create(GfxTextureDefault, sizeof(GfxTextureDefault));
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Default, texture);
+
+        TextureAsset *logo = new TextureAsset(AssetBuiltinTexture::Logo);
+        logo->create(GfxTextureLogo, sizeof(GfxTextureLogo));
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Logo, logo);
+    }
+    void AssetBuiltin::_initDefaultMaterials()
+    {
+        // 默认UI材质
+        std::string jsonUI = R"({
         "render": 1,
         "vert": "builtin-ui.vert",
         "frag": "builtin-ui.frag",
@@ -54,13 +52,13 @@ void AssetBuiltin::_initDefaultMaterials()
         "dstAlphaBlendFactor": 6,
         "alphaBlendOp": 0
     })";
-    json uiMaterial = json::parse(jsonUI);
-    MaterialAsset *materialUI = new MaterialAsset("builtin::ui.mtl");
-    materialUI->create(uiMaterial);
-    Boo::game->assetsManager()->getAssetsCache()->addAsset("builtin::ui.mtl", materialUI);
+        json uiMaterial = json::parse(jsonUI);
+        MaterialAsset *materialUI = new MaterialAsset(AssetBuiltinMaterial::UI);
+        materialUI->create(uiMaterial);
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinMaterial::UI, materialUI);
 
-    // 默认UI遮罩-add材质
-    std::string jsonMaskAdd = R"({
+        // 默认UI遮罩-add材质
+        std::string jsonMaskAdd = R"({
         "render": 1,
         "vert": "builtin-ui-mask.vert",
         "frag": "builtin-ui-mask.frag",
@@ -88,12 +86,12 @@ void AssetBuiltin::_initDefaultMaterials()
         "pushConstant": [],
         "textures": []
     })";
-    json uiMaskMaterial = json::parse(jsonMaskAdd);
-    MaterialAsset *materialUIMaskAdd = new MaterialAsset("builtin::ui-mask-add.mtl");
-    materialUIMaskAdd->create(uiMaskMaterial);
-    Boo::game->assetsManager()->getAssetsCache()->addAsset("builtin::ui-mask-add.mtl", materialUIMaskAdd);
-    // 默认UI遮罩-sub材质
-    std::string jsonMaskSub = R"({
+        json uiMaskMaterial = json::parse(jsonMaskAdd);
+        MaterialAsset *materialUIMaskAdd = new MaterialAsset(AssetBuiltinMaterial::UIMaskAdd);
+        materialUIMaskAdd->create(uiMaskMaterial);
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinMaterial::UIMaskAdd, materialUIMaskAdd);
+        // 默认UI遮罩-sub材质
+        std::string jsonMaskSub = R"({
         "render": 1,
         "vert": "builtin-ui-mask.vert",
         "frag": "builtin-ui-mask.frag",
@@ -121,11 +119,13 @@ void AssetBuiltin::_initDefaultMaterials()
         "pushConstant": [],
         "textures": []
     })";
-    json uiMaskMaterialSub = json::parse(jsonMaskSub);
-    MaterialAsset *materialUIMaskSub = new MaterialAsset("builtin::ui-mask-sub.mtl");
-    materialUIMaskSub->create(uiMaskMaterialSub);
-    Boo::game->assetsManager()->getAssetsCache()->addAsset("builtin::ui-mask-sub.mtl", materialUIMaskSub);
-}
-AssetBuiltin::~AssetBuiltin()
-{
-}
+        json uiMaskMaterialSub = json::parse(jsonMaskSub);
+        MaterialAsset *materialUIMaskSub = new MaterialAsset(AssetBuiltinMaterial::UIMaskSub);
+        materialUIMaskSub->create(uiMaskMaterialSub);
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinMaterial::UIMaskSub, materialUIMaskSub);
+    }
+    AssetBuiltin::~AssetBuiltin()
+    {
+    }
+
+} // namespace Boo

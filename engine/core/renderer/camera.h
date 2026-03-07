@@ -1,99 +1,93 @@
 #pragma once
 #include "../component/component.h"
 #include "../component/component-register.h"
-#include "../scene/node-struct.h"
-
 class GfxRenderTexture;
-
-// 相机组件
-// 每个相机对应一个离屏渲染target
-// 直接将camera的可见物体渲染到一个贴图上
-// 然后再将这个贴图渲染到屏幕上
-class Camera : public Component
+namespace Boo
 {
-public:
-private:
-    /**
-     * 相机渲染优先级
-     * 优先级越低，越先渲染
-     */
-    int _priority = 0;
-    /**
-     * 相机是否可见
-     */
-    int _visibility = 1;
-    /**
-     * 相机类型
-     * 0：正交相机
-     * 1：透视相机
-     */
-     int _type = 0;
-     /**
-     * 相机视场角度
-     */
-     float _fieldOfView = 45.0f;
-     /**
-     * 相机近裁剪平面距离
-     */
-     float _nearClip = 0.1f;
-     /**
-     * 相机远裁剪平面距离
-     */
-     float _farClip = 100.0f;
-     /**
-     * 相机正交高度
-     */
-     float _orthoHeight = 1.0f;
-    /**
-     * 相机是否在屏幕上
-     */
-    bool _isOnScreen = false;
-protected:
-    /**
-     * 相机渲染目标宽度
-     */
-    int _width = 0;
-    /**
-     * 相机渲染目标高度
-     */
-    int _height = 0;
-    /**
-     * 视图矩阵
-     * 将3D世界空间 → 3D相机空间
-     */
-    Mat4 _matView = Mat4::identity();
-    /**
-     * 投影矩阵
-     * 将3D观察空间 → 2D裁剪空间（NDC空间：-1到1）
-     */
-    Mat4 _matProj = Mat4::identity();
-    GfxRenderTexture *_renderTexture = nullptr;
-    void _deserialized() override;
-    virtual void _createRenderPipeline();
 
-public:
-    Camera(std::string name, Node *node, std::string uuid = "");
-    void Awake() override;
-    void Enable() override;
-    /**
-     * @brief 设置相机是否在屏幕上
-     *
-     * @param isOnScreen
-     */
-    void setIsOnScreen(bool isOnScreen);
-    bool getIsOnScreen();
-    void setPriority(int priority);
-    int getPriority();
-    void setVisibility(int visibility);
-    int getVisibility();
-    int getWidth();
-    int getHeight();
-    void resize(int width, int height);
-    void Update(float deltaTime) override;
-    void LateUpdate(float deltaTime) override;
-    virtual void Render();
-    void Disable() override;
-    void destroy() override;
-    ~Camera();
-};
+    // 相机组件
+    // 每个相机对应一个离屏渲染target
+    // 直接将camera的可见物体渲染到一个贴图上
+    // 然后再将这个贴图渲染到屏幕上
+    class Camera : public Component
+    {
+    public:
+    private:
+        /**
+         * 相机渲染优先级
+         * 优先级越低，越先渲染
+         */
+        int _priority = 0;
+        /**
+         * 相机是否可见
+         */
+        int _groupIDs = 1;
+        /**
+         * 相机类型
+         * 0：正交相机
+         * 1：透视相机
+         */
+        int _type = 0;
+        /**
+         * 相机视场角度
+         */
+        float _fieldOfView = 45.0f;
+        /**
+         * 相机近裁剪平面距离
+         */
+        float _nearClip = 0.1f;
+        /**
+         * 相机远裁剪平面距离
+         */
+        float _farClip = 100.0f;
+        /**
+         * 相机正交高度
+         */
+        float _orthoHeight = 1.0f;
+        /**
+         * 相机是否在屏幕上
+         */
+        bool _isOnScreen = false;
+
+    protected:
+        /**
+         * 视图矩阵
+         * 将3D世界空间 → 3D相机空间
+         */
+        Mat4 _matView = Mat4::identity();
+        /**
+         * 投影矩阵
+         * 将3D观察空间 → 2D裁剪空间（NDC空间：-1到1）
+         */
+        Mat4 _matProj = Mat4::identity();
+        GfxRenderTexture *_renderTexture = nullptr;
+        virtual void _createRenderPipeline();
+
+    public:
+        Camera(std::string name, Node *node, std::string uuid = "");
+        void Awake() override;
+        void Enable() override;
+        /**
+         * @brief 设置相机是否在屏幕上
+         *
+         * @param isOnScreen
+         */
+        void setIsOnScreen(bool isOnScreen);
+        bool getIsOnScreen();
+        void setPriority(int priority);
+        int getPriority();
+        void setGroupIDs(int groupIDs);
+        void addGroupID(int groupID);
+        int getGroupIDs();
+        void updateViewSize();
+        void Update(float deltaTime) override;
+        void LateUpdate(float deltaTime) override;
+        virtual void Render();
+        void Disable() override;
+        void destroy() override;
+        ~Camera();
+    };
+
+} // namespace Boo
+
 REGISTER_COMPONENT(Camera, "Camera Component");

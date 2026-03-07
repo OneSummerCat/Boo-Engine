@@ -33,7 +33,7 @@ private:
 	virtual void _initializeRenderTexture();
 
 public:
-	GfxRenderTexture(std::string uuid);
+	GfxRenderTexture(std::string uuid,int width,int height);
 	VkFramebuffer& getFramebuffer();
 	VkCommandBuffer& getCommandBuffer();
 	const std::string& getUuid() const;
