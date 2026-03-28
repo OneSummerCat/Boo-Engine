@@ -13,6 +13,7 @@ namespace Boo
     class Camera;
     class Node;
     class Node2D;
+    class Node3D;
     class Scene;
 
     class Renderer
@@ -25,7 +26,7 @@ namespace Boo
 
     private:
         void _renderCameras(Camera *camera, Scene *scene);
-        void _walkNode3D(Camera *camera, Node *node);
+        void _walkNode3D(Camera *camera, Node3D *node);
         void _walkNode2D(Camera *camera, Node2D *node);
 
     public:

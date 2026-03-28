@@ -9,156 +9,183 @@
 #include "base/gfx-buffer-ubo.h"
 #include "base/gfx-buffer-instance.h"
 #include "base/gfx-render-texture.h"
-#include "default/gfx-renderer-default.h"
-#include "builtin/gfx-renderer-builtin.h"
+#include "default/gfx-default-renderer.h"
+#include "builtin/gfx-builtin-renderer.h"
 
 #include "../math/mat4.h"
 #include "../../log.h"
 
-
-
 GfxRenderer::GfxRenderer()
 {
     // 所有ui 默认绑定4个采样器
-    if (Gfx::uiTestMesh == nullptr)
+    if (Gfx::_uiTestMesh == nullptr)
     {
-        Gfx::uiTestMesh = new GfxMesh("789abcde-f012-34a5-b678-901234567890");
-        Gfx::uiTestMesh->setInputVertices({-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
-                                           -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
-                                           0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
-                                           0.5f, 0.5f, 0.0f, 1.0f, 0.0f},
-                                          {0, 1, 2, 0, 2, 3});
+        Gfx::_uiTestMesh = new GfxMesh("789abcde-f012-34a5-b678-901234567890");
+        Gfx::_uiTestMesh->createUIMesh({-0.5f, 0.5f, 0.0f,
+                                        -0.5f, -0.5f, 0.0f,
+                                        0.5f, -0.5f, 0.0f,
+                                        0.5f, 0.5f, 0.0f},
+                                       {0.0f, 0.0f,
+                                        0.0f, 1.0f,
+                                        1.0f, 1.0f,
+                                        1.0f, 0.0f},
+                                       {0, 1, 2,
+                                        0, 2, 3});
+        // Gfx::_uiTestMesh->setInputVertices({-0.5f, 0.5f, 0.0f, 0.0f, 0.0f,
+        //                                    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,
+        //                                    0.5f, -0.5f, 0.0f, 1.0f, 1.0f,
+        //                                    0.5f, 0.5f, 0.0f, 1.0f, 0.0f},
+        //                                   {0, 1, 2, 0, 2, 3});
     }
 
-    this->_defaultRenderer = new GfxRendererDefault("default");
-    this->_builtinRenderer = new GfxRendererBuiltin("builtin");
+    this->_defaultRenderer = new GfxDefaultRenderer("default");
+    this->_builtinRenderer = new GfxBuiltinRenderer("builtin");
 }
 void GfxRenderer::init()
 {
-    Gfx::bufferUBO = new GfxBufferUBO();
-    Gfx::bufferInstance = new GfxBufferInstance();
-    LOGI("[Gfx : Renderer] :: init buffer instance");
+    Gfx::_bufferUBO = new GfxBufferUBO();
+    Gfx::_bufferInstance = new GfxBufferInstance();
+    this->_initDefaultTexture();
     this->_defaultRenderer->init();
-    LOGI("[Gfx : Renderer] :: init default renderer");
     this->_builtinRenderer->init();
 }
-
-void GfxRenderer::createPipeline(std::string name, GfxPipelineStruct pipelineStruct)
+void GfxRenderer::_initDefaultTexture()
 {
-    this->_builtinRenderer->createPipeline(name, pipelineStruct);
+    const std::vector<uint8_t> pixels(GfxTextureDefault, GfxTextureDefault + sizeof(GfxTextureDefault));
+    this->createTexture("Gfx::Texture::default.png", GfxTextureDefaultWidth, GfxTextureDefaultHeight, 1, &pixels, GfxTextureFormat::R8G8B8A8_SRGB);
 }
 
-void GfxRenderer::createTexture(std::string textureUuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels)
+void GfxRenderer::createPipeline(std::string name, GfxRendererState rendererState)
 {
-    if (Gfx::textures.find(textureUuid) == Gfx::textures.end())
+    this->_builtinRenderer->createPipeline(name, rendererState);
+}
+
+GfxTexture *GfxRenderer::createTexture(std::string uuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels, GfxTextureFormat format)
+{
+    if (Gfx::_textures.find(uuid) == Gfx::_textures.end())
     {
-        GfxTexture *texture = new GfxTexture(textureUuid, pixels, width, height, channels);
-        Gfx::textures[textureUuid] = texture;
+        VkFormat _format = VK_FORMAT_R8G8B8A8_UNORM;
+        if (format == GfxTextureFormat::R8G8B8A8_SRGB)
+        {
+            _format = VK_FORMAT_R8G8B8A8_SRGB;
+        }
+        else if (format == GfxTextureFormat::R8G8B8A8_UNORM)
+        {
+            _format = VK_FORMAT_R8G8B8A8_UNORM;
+        }
+        else if (format == GfxTextureFormat::R8_UNORM)
+        {
+            _format = VK_FORMAT_R8_UNORM;
+        }
+        GfxTexture *texture = new GfxTexture(uuid);
+        texture->create(pixels, width, height, channels, _format);
+        Gfx::_textures[uuid] = texture;
     }
-    else
+    try
     {
-        LOGI("[Gfx : Renderer] :: createTexture:uuid:%s already exists", textureUuid.c_str());
+        return Gfx::_textures.at(uuid);
+    }
+    catch (const std::out_of_range &e)
+    {
+        LOGE("[Gfx : Renderer] :: createTexture:uuid:%s not found", uuid.c_str());
+        return nullptr;
     }
 }
-void GfxRenderer::insertTexture(std::string textureUuid, GfxTexture *texture)
+void GfxRenderer::insertTexture(GfxTexture *texture)
 {
-    if (Gfx::textures.find(textureUuid) != Gfx::textures.end())
+    if (Gfx::_textures.find(texture->getUuid()) != Gfx::_textures.end())
     {
-        LOGI("[Gfx : Renderer] :: insertTexture:uuid:%s already exists", textureUuid.c_str());
+        LOGI("[Gfx : Renderer] :: insertTexture:uuid:%s already exists", texture->getUuid().c_str());
         return;
     }
-    Gfx::textures[textureUuid] = texture;
+    Gfx::_textures[texture->getUuid()] = texture;
 }
-void GfxRenderer::destroyTexture(std::string textureUuid)
+void GfxRenderer::destroyTexture(GfxTexture *texture)
 {
-    if (Gfx::textures.find(textureUuid) != Gfx::textures.end())
+    if (texture == nullptr)
+    {
+        return;
+    }
+    if (Gfx::_textures.find(texture->getUuid()) != Gfx::_textures.end())
     {
         // 加入销毁队列
-        this->_destroyTextureCaches.push_back(Gfx::textures[textureUuid]);
-        Gfx::textures.erase(textureUuid);
+        this->_destroyTextureCaches.push_back(texture);
+        Gfx::_textures.erase(texture->getUuid());
     }
 }
-bool GfxRenderer::isExistTexture(std::string textureUuid)
+
+GfxShader *GfxRenderer::createSpirvShader(const std::string &uuid, const std::vector<uint32_t> &data)
 {
-    return Gfx::textures.find(textureUuid) != Gfx::textures.end();
-}
-GfxTexture *GfxRenderer::getTexture(std::string uuid)
-{
-    if (uuid.empty())
+    if (Gfx::_shaders.find(uuid) == Gfx::_shaders.end())
     {
+        GfxShader *shader = new GfxShader(uuid);
+        shader->createShaderModule(data);
+        Gfx::_shaders[uuid] = shader;
+    }
+    try
+    {
+        return Gfx::_shaders.at(uuid);
+    }
+    catch (const std::out_of_range &e)
+    {
+        LOGE("[Gfx : Renderer] :: createSpirvShader:uuid:%s not found", uuid.c_str());
         return nullptr;
     }
-    if (Gfx::textures.find(uuid) == Gfx::textures.end())
-    {
-        LOGI("Gfx : Renderer :: Texture not found:%s", uuid.c_str());
-        return nullptr;
-    }
-    return Gfx::textures.at(uuid);
 }
-void GfxRenderer::createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data)
-{
-    if (Gfx::shaders.find(shaderName) != Gfx::shaders.end())
-    {
-        LOGI("[Gfx : Renderer] :: Shader already exists: %s", shaderName.c_str());
-        return;
-    }
-    GfxShader *shader = new GfxShader(shaderName);
-    shader->createShaderModule(data);
-    Gfx::shaders[shaderName] = shader;
-}
-void GfxRenderer::createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros)
+GfxShader *GfxRenderer::createGlslShader(const std::string &uuid, const std::string &shaderType, const std::string &data, const std::map<std::string, int> &macros)
 {
     // 生成唯一的缓存键：shaderName + 宏定义
-    std::stringstream cacheKey;
-    cacheKey << shaderName;
+    std::stringstream newUuid;
+    newUuid << uuid;
     if (!macros.empty())
     {
-        cacheKey << "[";
+        newUuid << "[";
         bool first = true;
         for (const auto &[key, value] : macros)
         {
             if (!first)
             {
-                cacheKey << "|";
+                newUuid << "|";
             }
-            cacheKey << key << ":" << value;
+            newUuid << key << ":" << value;
             first = false;
         }
-        cacheKey << "]";
+        newUuid << "]";
     }
 
-    std::string finalCacheKey = cacheKey.str();
     //  检查是否已存在
-    if (Gfx::shaders.find(finalCacheKey) != Gfx::shaders.end())
+    if (Gfx::_shaders.find(newUuid.str()) == Gfx::_shaders.end())
     {
-        LOGI("[Gfx : Renderer] :: Shader already exists: %s", finalCacheKey.c_str());
-        return;
+        std::vector<uint32_t> spirvCode = this->_compileShaderGlslToSpirv(shaderType, newUuid.str(), data, macros);
+        GfxShader *shader = new GfxShader(newUuid.str());
+        shader->createShaderModule(spirvCode);
+        Gfx::_shaders[newUuid.str()] = shader;
     }
-    // 创建着色器
     try
     {
-        std::vector<uint32_t> spirvCode = this->_compileShaderGlslToSpirv(shaderType, finalCacheKey, data, macros);
-        GfxShader *shader = new GfxShader(finalCacheKey);
-        shader->createShaderModule(spirvCode);
-        Gfx::shaders[finalCacheKey] = shader;
+        return Gfx::_shaders.at(newUuid.str());
     }
-    catch (const std::exception &e)
+    catch (const std::out_of_range &e)
     {
-        LOGI("[Gfx : Renderer] :: Failed to create shader '%s': %s", finalCacheKey.c_str(), e.what());
-        // 可以考虑抛出异常或返回错误码
+        LOGE("[Gfx : Renderer] :: createGlslShader:uuid:%s not found", newUuid.str().c_str());
+        return nullptr;
     }
 }
 
-void GfxRenderer::destroyShader(std::string shaderName)
+void GfxRenderer::destroyShader(GfxShader *shader)
 {
-    if (Gfx::shaders.find(shaderName) != Gfx::shaders.end())
+    if (shader == nullptr)
+    {
+        return;
+    }
+    if (Gfx::_shaders.find(shader->getUuid()) != Gfx::_shaders.end())
     {
         // 加入销毁队列
-        this->_destroyShaderCaches.push_back(Gfx::shaders[shaderName]);
-        Gfx::shaders.erase(shaderName);
+        this->_destroyShaderCaches.push_back(shader);
+        Gfx::_shaders.erase(shader->getUuid());
     }
 }
-std::vector<uint32_t> GfxRenderer::_compileShaderGlslToSpirv(const std::string &type, const std::string &cacheKey, const std::string &source, const std::map<std::string, std::string> &macros)
+std::vector<uint32_t> GfxRenderer::_compileShaderGlslToSpirv(const std::string &type, const std::string &cacheKey, const std::string &source, const std::map<std::string, int> &macros)
 {
     shaderc::Compiler _compiler;
     // 配置编译选项
@@ -177,7 +204,7 @@ std::vector<uint32_t> GfxRenderer::_compileShaderGlslToSpirv(const std::string &
     compileOptions.AddMacroDefinition("VULKAN", "100");
     for (const auto &[key, value] : macros)
     {
-        compileOptions.AddMacroDefinition(key, value);
+        compileOptions.AddMacroDefinition(key, std::to_string(value));
     }
     // compileOptions.AddMacroDefinition("GL_SPIRV", "1");
     // compileOptions.AddMacroDefinition("VULKAN", "100");
@@ -216,9 +243,62 @@ std::vector<uint32_t> GfxRenderer::_compileShaderGlslToSpirv(const std::string &
     LOGI("[Gfx : Renderer] :: Successfully compiled %s (%d SPIR-V words)", cacheKey.c_str(), (int)spirvCode.size());
     return spirvCode;
 }
-void GfxRenderer::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture)
+GfxMesh *GfxRenderer::createMesh(std::string meshUuid, const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices)
 {
-    this->_builtinRenderer->initRenderQueue(renderId, renderTexture);
+    if (Gfx::_meshes.find(meshUuid) == Gfx::_meshes.end())
+    {
+        // std::cout << "createMesh1: idx=" << meshUuid << std::endl;
+        GfxMesh *mesh = new GfxMesh(meshUuid);
+        // std::cout << "createMesh2: idx=" << meshUuid << std::endl;
+        mesh->createMesh(_positions, _normals, _uvs, _uvs1, _uvs2, _colors, _tangents, _indices);
+        // std::cout << "createMesh3: idx=" << meshUuid << std::endl;
+        Gfx::_meshes[meshUuid] = mesh;
+    }
+    try
+    {
+        return Gfx::_meshes.at(meshUuid);
+    }
+    catch (const std::out_of_range &e)
+    {
+        LOGE("[Gfx : Renderer] :: createMesh:uuid:%s not found", meshUuid.c_str());
+        return nullptr;
+    }
+}
+void GfxRenderer::destroyMesh(GfxMesh *mesh)
+{
+    if (mesh == nullptr)
+    {
+        return;
+    }
+    if (Gfx::_meshes.find(mesh->getUuid()) != Gfx::_meshes.end())
+    {
+        // 加入销毁队列
+        this->_destroyMeshCaches.push_back(mesh);
+        Gfx::_meshes.erase(mesh->getUuid());
+    }
+}
+GfxRenderTexture *GfxRenderer::createRenderTexture(std::string renderTextureUuid, uint32_t width, uint32_t height)
+{
+    GfxRenderTexture *renderTexture = new GfxRenderTexture(renderTextureUuid, width, height);
+    return renderTexture;
+}
+void GfxRenderer::destroyRenderTexture(GfxRenderTexture *renderTexture)
+{
+    if (renderTexture == nullptr)
+    {
+        return;
+    }
+    // 加入销毁队列
+    this->_destroyRenderTextureCaches.push_back(renderTexture);
+}
+
+void GfxRenderer::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority)
+{
+    this->_builtinRenderer->initRenderQueue(renderId, renderTexture, priority);
+}
+void GfxRenderer::setRenderQueuePriority(std::string renderId, int priority)
+{
+    this->_builtinRenderer->setRenderQueuePriority(renderId, priority);
 }
 void GfxRenderer::delRenderQueue(std::string renderId)
 {
@@ -228,9 +308,9 @@ void GfxRenderer::submitRenderData(std::string renderId, const std::array<float,
 {
     this->_builtinRenderer->submitRenderData(renderId, viewMatrix, projMatrix, isOnScreen);
 }
-void GfxRenderer::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData)
+void GfxRenderer::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh)
 {
-    this->_builtinRenderer->submitRenderObject(renderId, material, mesh, instanceData);
+    this->_builtinRenderer->submitRenderObject(renderId, material, mesh);
 }
 /**
  * @brief 渲染前处理
@@ -238,8 +318,8 @@ void GfxRenderer::submitRenderObject(std::string renderId, GfxMaterial *material
  */
 void GfxRenderer::frameRendererBefore()
 {
-    Gfx::bufferUBO->clear();
-    Gfx::bufferInstance->clear();
+    Gfx::_bufferUBO->clear();
+    Gfx::_bufferInstance->clear();
     this->_defaultRenderer->frameRendererBefore();
     this->_builtinRenderer->frameRendererBefore();
     // 清空销毁队列
@@ -278,6 +358,22 @@ void GfxRenderer::_clearDestroyCaches()
         shader = nullptr;
     }
     this->_destroyShaderCaches.clear();
+    // 清空销毁渲染纹理队列
+    for (auto &renderTexture : this->_destroyRenderTextureCaches)
+    {
+        renderTexture->destroy();
+        delete renderTexture;
+        renderTexture = nullptr;
+    }
+    this->_destroyRenderTextureCaches.clear();
+    // 清空销毁网格队列
+    for (auto &mesh : this->_destroyMeshCaches)
+    {
+        mesh->destroy();
+        delete mesh;
+        mesh = nullptr;
+    }
+    this->_destroyMeshCaches.clear();
 }
 void GfxRenderer::_cleanRendererState()
 {
@@ -287,7 +383,6 @@ void GfxRenderer::_resetRendererState()
 {
     this->_defaultRenderer->_resetRendererState();
 }
-
 
 GfxRenderer::~GfxRenderer()
 {

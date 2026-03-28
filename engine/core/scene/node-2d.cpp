@@ -3,8 +3,6 @@
 #include "../../log.h"
 #include "../component/component-factory.h"
 #include "../renderer/ui/ui-renderer.h"
-// #include "../util/util-api.h"
-// #include "../input/input.h"
 
 namespace Boo
 {
@@ -32,6 +30,7 @@ namespace Boo
 		this->_frameTransformFlag = static_cast<uint32_t>(NodeTransformFlag::ALL_FLAG);
 		this->_parent = nullptr;
 		this->_uiRenderer = nullptr;
+		this->_sizeLock = (int)Node2DSizeLock::None;
 	}
 
 	/**
@@ -59,6 +58,14 @@ namespace Boo
 	 */
 	void Node2D::setSize(float width, float height)
 	{
+		if (this->_sizeLock != (int)Node2DSizeLock::None)
+		{
+			if (this->_sizeLock & (int)Node2DSizeLock::SpriteRaw)
+			{
+				LOGW("Node2D::setSize: SpriteRaw size lock, can not set size");
+			}
+			return;
+		}
 		if (this->_size.getWidth() == width && this->_size.getHeight() == height)
 		{
 			return;
@@ -86,6 +93,11 @@ namespace Boo
 	{
 		Node::setWorldScale(x, y, z);
 	}
+	void Node2D::setAngle(float angle)
+	{
+		this->_angle = angle;
+		this->setEulerAngles(this->_eulerAngles.getX(), this->_eulerAngles.getY(), this->_angle);
+	}
 	void Node2D::setEulerAngles(float x, float y, float z)
 	{
 		Node::setEulerAngles(x, y, z);
@@ -103,6 +115,12 @@ namespace Boo
 	 */
 	void Node2D::_updateWorldTransform()
 	{
+		if (!this->_isActiveInHierarchy){
+			return;
+		}
+		if (this->_worldTransformFlag == NodeTransformFlag::NONE_FLAG){
+			return;
+		}
 		Node::_updateWorldTransform();
 		// 坐标
 		float x = this->_worldMatrix.getM30() + (0.5 - this->_anchor.getX()) * this->_size.getWidth();
@@ -133,7 +151,7 @@ namespace Boo
 			LOGW("[Node2D]:addComponent:: %s, %s, Component Not register", name.c_str(), uuid.c_str());
 			return nullptr;
 		}
-		if (component->layer() == NodeLayer::Node3D)
+		if (component->getLayer() == ComponentLayer::Node3D)
 		{
 			// std::cout << name << ":Component add fail,node type is Node3D" << std::endl;
 			LOGW("[Node2D]:addComponent:: %s, %s, Component add fail,node type is Node3D", name.c_str(), uuid.c_str());
@@ -170,6 +188,31 @@ namespace Boo
 	UIRenderer *Node2D::getUIRenderer()
 	{
 		return this->_uiRenderer;
+	}
+	/**
+	 * 添加大小锁
+	 */
+	void Node2D::addSizeLock(Node2DSizeLock sizeLock)
+	{
+		this->_sizeLock |= (int)sizeLock;
+	}
+	/**
+	 * 移除大小锁
+	 */
+	void Node2D::removeSizeLock(Node2DSizeLock sizeLock)
+	{
+		this->_sizeLock &= ~(int)sizeLock;
+	}
+	/**
+	 * 2d 节点的大小锁
+	 */
+	void Node2D::setSizeLock(Node2DSizeLock sizeLock)
+	{
+		this->_sizeLock = (int)sizeLock;
+	}
+	int Node2D::getSizeLock()
+	{
+		return this->_sizeLock;
 	}
 
 	void Node2D::update(float dt)

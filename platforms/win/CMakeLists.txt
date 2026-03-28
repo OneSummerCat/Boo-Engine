@@ -61,10 +61,13 @@ if(WIN32)
 
     # 头文件包含（BEFORE 确保优先于系统路径，避免 Mono.framework 的 freetype 干扰）
     target_include_directories(${PROJECT_NAME} BEFORE PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}
         ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/stb
         ${VULKAN_ROOT}/include
         ${GLFW_ROOT}/include
         ${FREE_TYPE_ROOT}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/fastgltf/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/simdjson/include
     )
     # 库链接
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -77,6 +80,34 @@ if(WIN32)
         #freetype
         ${FREE_TYPE_ROOT}/lib/freetype.lib
     )
+
+     # ========== 资源复制配置（新增部分） ==========
+    # 定义资源复制宏
+    macro(copy_resources SOURCE_DIR DEST_DIR)
+        if(EXISTS "${SOURCE_DIR}")
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E rm -rf "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${DEST_DIR}"
+                COMMAND ${CMAKE_COMMAND} -E copy_directory "${SOURCE_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${DEST_DIR}"
+                COMMENT "复制 ${SOURCE_DIR} 到 ${DEST_DIR}"
+            )
+        else()
+            message(WARNING "资源目录不存在: ${SOURCE_DIR}")
+        endif()
+    endmacro()
+    
+    # 复制 assets 到 assets
+    copy_resources("${CMAKE_CURRENT_SOURCE_DIR}/assets" "assets")
+   
+    
+    # 设置VS调试工作目录为输出目录（确保相对路径资源查找正确）
+    # 这行代码是设置 Visual Studio 调试器的工作目录。让我用简单的例子解释它的作用：设置后，你可以在 VS 中按 F5 调试程序时，工作目录默认是 .sln 文件所在的目录（通常是项目根目录）
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+        VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
+    )
+    
+    # 可选：显示资源复制完成信息
+    message(STATUS "资源复制配置完成：")
+    message(STATUS "  - assets -> assets")
 else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
@@ -93,3 +124,5 @@ endif()
 # # 项目资源
 # file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/assets)
 # file(COPY assets/ DESTINATION assets)
+# file(REMOVE_RECURSE ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+# file(COPY assets/ DESTINATION ${CMAKE_CURRENT_SOURCE_DIR}/assets)

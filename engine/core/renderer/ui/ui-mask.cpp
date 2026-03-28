@@ -23,21 +23,21 @@ UIMask::UIMask(std::string name, Node *node, std::string uuid) : UIRenderer(name
 void UIMask::Awake()
 {
     Component::Awake();
-    std::string meshUuid = this->_uuid + "-mask";
-    this->_maskMesh = new GfxMesh(meshUuid);
-    this->_addMaterialAsset = new MaterialAsset();
-    MaterialAsset *mtlAdd = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskAdd));
-    if (mtlAdd != nullptr)
-    {
-        this->_addMaterialAsset->create(mtlAdd);
-    }
+    // std::string meshUuid = this->_uuid + "-mask";
+    // this->_maskMesh = new GfxMesh(meshUuid);
+    // this->_addMaterialAsset = new MaterialAsset();
+    // MaterialAsset *mtlAdd = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskAdd));
+    // if (mtlAdd != nullptr)
+    // {
+    //     this->_addMaterialAsset->create(mtlAdd);
+    // }
 
-    this->_subMaterialAsset = new MaterialAsset();
-    MaterialAsset *mtlSub = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskSub));
-    if (mtlSub != nullptr)
-    {
-        this->_subMaterialAsset->create(mtlSub);
-    }
+    // this->_subMaterialAsset = new MaterialAsset();
+    // MaterialAsset *mtlSub = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UIMaskSub));
+    // if (mtlSub != nullptr)
+    // {
+    //     this->_subMaterialAsset->create(mtlSub);
+    // }
 }
 void UIMask::Enable()
 {
@@ -70,15 +70,15 @@ void UIMask::_updateNodeMask()
     // std::cout << "rightBottom: " << rightBottom.getX() << ", " << rightBottom.getY() << ", " << rightBottom.getZ() << std::endl;
     // std::cout << "rightTop: " << rightTop.getX() << ", " << rightTop.getY() << ", " << rightTop.getZ() << std::endl;
 
-    std::vector<float> positions = {
-        leftTop.getX(), leftTop.getY(), 0.0f, 0.0f, 0.0f,
-        leftBottom.getX(), leftBottom.getY(), 0.0f, 0.0f, 1.0f,
-        rightBottom.getX(), rightBottom.getY(), 0.0f, 1.0f, 1.0f,
-        rightTop.getX(), rightTop.getY(), 0.0f, 1.0f, 0.0f};
-    std::vector<uint32_t> indices = {
-        0, 1, 2,
-        0, 2, 3};
-    this->_maskMesh->setInputVertices(positions, indices);
+    // std::vector<float> positions = {
+    //     leftTop.getX(), leftTop.getY(), 0.0f, 0.0f, 0.0f,
+    //     leftBottom.getX(), leftBottom.getY(), 0.0f, 0.0f, 1.0f,
+    //     rightBottom.getX(), rightBottom.getY(), 0.0f, 1.0f, 1.0f,
+    //     rightTop.getX(), rightTop.getY(), 0.0f, 1.0f, 0.0f};
+    // std::vector<uint32_t> indices = {
+    //     0, 1, 2,
+    //     0, 2, 3};
+    // this->_maskMesh->setInputVertices(positions, indices);
 }
 void UIMask::Update(float deltaTime)
 {
@@ -108,16 +108,18 @@ void UIMask::Render(Camera *camera)
         return; // 节点不可见
     }
 
-    // 提交渲染对象
-    this->_instanceData.clear();
-    this->_instanceData.reserve(16 + 4);
-    // 1. 先添加模型矩阵 (16个float)
-    const auto &matrix = node2D->getWorldMatrix().data();
-    _instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
-    // 2. 再添加颜色 (4个float)
-    _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
+    // // 提交渲染对象
+    // this->_instanceData.clear();
+    // this->_instanceData.reserve(16 + 4);
+    // // 1. 先添加模型矩阵 (16个float)
+    // const auto &matrix = node2D->getWorldMatrix().data();
+    // _instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
+    // // 2. 再添加颜色 (4个float)
+    // _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
 
-    GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_addMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
+    // // GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_addMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
+    // // 增加渲染物体数量
+    // profiler->addObjectCount(1);
 }
 void UIMask::lateRender(Camera *camera)
 {
@@ -135,16 +137,16 @@ void UIMask::lateRender(Camera *camera)
         return; // 节点不可见
     }
 
-    // 提交渲染对象
-    this->_instanceData.clear();
-    this->_instanceData.reserve(16 + 4);
-    // 1. 先添加模型矩阵 (16个float)
-    const auto &matrix = node2D->getWorldMatrix().data();
-    _instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
-    // 2. 再添加颜色 (4个float)
-    _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
+    // // 提交渲染对象
+    // this->_instanceData.clear();
+    // this->_instanceData.reserve(16 + 4);
+    // // 1. 先添加模型矩阵 (16个float)
+    // const auto &matrix = node2D->getWorldMatrix().data();
+    // _instanceData.insert(_instanceData.end(), matrix.begin(), matrix.end());
+    // // 2. 再添加颜色 (4个float)
+    // _instanceData.insert(_instanceData.end(), {1.0f, 1.0f, 1.0f, 1.0f});
 
-    GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_subMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
+    // GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_subMaterialAsset->getGfxMaterial(), this->_maskMesh, this->_instanceData);
 }
 void UIMask::Disable()
 {

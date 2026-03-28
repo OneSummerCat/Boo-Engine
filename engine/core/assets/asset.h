@@ -2,6 +2,7 @@
 #include <string>
 #include <filesystem>
 #include "../util/util-api.h"
+#include "../math/math-api.h"
 #include "asset-struct.h"
 namespace Boo
 {
@@ -30,24 +31,14 @@ namespace Boo
          * 基于环境的绝对路径
          */
         std::string _path;
-
     public:
-        /**
-         * @brief 构造函数
-         * @param uuid 资产唯一标识  自动生成
-         */
         Asset();
+        Asset(std::string uuid);
         /**
          * @brief 构造函数
          * @param uuid 资产唯一标识
          */
-        Asset(std::string uuid);
-        /**
-         * @brief 创建资产
-         * @param path 资产路径
-         */
-        virtual void create(std::string path);
-
+        Asset(std::string uuid,std::string path,std::string name);
         /**
          * @brief 获取资源名
          *

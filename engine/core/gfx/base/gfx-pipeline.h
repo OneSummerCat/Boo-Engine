@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <vulkan/vulkan_core.h>
-#include "gfx-pipeline-struct.h"
+#include "../gfx-struct.h"
 
 class GfxContext;
 class GfxRenderPass;
@@ -35,7 +35,7 @@ protected:
     GfxShader *_fragmentShader;
 
     //  管道状态描述
-    GfxPipelineStruct _pipelineStruct;
+    GfxRendererState _rendererState;
 
     virtual void _createPipeline();
 
@@ -98,8 +98,8 @@ protected:
 
     //  光栅化状态描述
     VkPipelineRasterizationStateCreateInfo _rasterizationInfo;
-    VkPolygonMode _getPolygonMode(GfxPipelinePolygonMode polygonMode);
-    VkCullModeFlags _getCullMode(GfxPipelineCullMode cullMode);
+    VkPolygonMode _getPolygonMode(GfxRendererStatePolygonMode polygonMode);
+    VkCullModeFlags _getCullMode(GfxRendererStateCullMode cullMode);
     virtual void _initRasterizationState();
 
     //  多样本状态描述
@@ -108,15 +108,15 @@ protected:
 
     //  深度测试状态描述
     VkPipelineDepthStencilStateCreateInfo _depthStencilInfo;
-    VkCompareOp _getCompareOp(GfxPipelineCompareOp compareOp);
-    VkStencilOp _getStencilOp(GfxPipelineStencilOp stencilOp);
+    VkCompareOp _getCompareOp(GfxRendererStateCompareOp compareOp);
+    VkStencilOp _getStencilOp(GfxRendererStateStencilOp stencilOp);
     virtual void _initDepthStencilState();
 
     //  颜色混合状态描述
     VkPipelineColorBlendAttachmentState _colorBlendAttachment;
     VkPipelineColorBlendStateCreateInfo _colorBlendInfo;
-    VkBlendFactor _getBlendFactor(GfxPipelineColorBlendFactor blendFactor);
-    VkBlendOp _getBlendOp(GfxPipelineColorBlendOp blendOp);
+    VkBlendFactor _getBlendFactor(GfxRendererStateColorBlendFactor blendFactor);
+    VkBlendOp _getBlendOp(GfxRendererStateColorBlendOp blendOp);
     virtual void _initColorBlendState();
     /**
      * @brief Vulkan 管道布局
@@ -138,7 +138,7 @@ protected:
 public:
     GfxPipeline(const std::string &name);
     const std::string &getName();
-    void create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader *fragmentShader, VkDescriptorSetLayout descriptorSetLayout, GfxPipelineStruct pipelineStruct);
+    void create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader *fragmentShader, VkDescriptorSetLayout descriptorSetLayout, GfxRendererState rendererState);
     VkPipeline getVKPipeline();
     VkPipelineLayout getVKPipelineLayout();
     std::vector<VkDescriptorSet> getDescriptorSets();

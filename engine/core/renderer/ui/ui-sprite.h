@@ -10,10 +10,23 @@ namespace Boo
     class TextureAsset;
     class MaterialAsset;
 
+    enum class SizeMode
+    {
+        /**
+         * @brief 图片的原始尺寸精灵的大小与节点的大小相同
+         */
+        Raw,
+        /**
+         * @brief 自定义精灵的大小
+         */
+        Custom,
+    };
+
     class UISprite : public UIRenderer
     {
     private:
-
+        TextureAsset *_textureAsset;
+        SizeMode sizeMode;
     public:
         UISprite(std::string name, Node *node, std::string uuid = "");
 
@@ -28,6 +41,7 @@ namespace Boo
         void setColor(Color &color);
         void setColor(std::string color);
         void setColor(float r, float g, float b, float a);
+        void setSizeMode(SizeMode sizeMode);
         /**
          * @brief 设置渲染器的透明度
          *

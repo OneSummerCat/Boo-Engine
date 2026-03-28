@@ -134,7 +134,7 @@ python boo-engine.py
   └── [平台文件]        # macOS 平台相关文件
 ```
 
-## 🔧 构建项目
+## 🔧 项目构建运行
 
 ### 方法1：使用构建脚本
 
@@ -149,26 +149,9 @@ python boo-engine.py
    ```bash
    ./build.sh
    ```
-
-   脚本会自动：
-   - 执行CMakeLists.py更新配置
-   - 创建build目录
-   - 运行CMake配置生成Xcode项目
-
-## 🎮 运行项目
-
-编译完成后，可以通过以下方式运行项目：
-1. **从Xcode运行**：
-   - 在build目录中找到`BooEngine.xcodeproj`文件
-   - 双击打开项目
-   - 选择「Product」→「Run」
-
-2. **手动运行**：
-   - 在build目录中找到生成的可执行文件
-   - 在终端中运行：
-     ```bash
-     ./build/BooEngine
-     ```
+   
+![](https://files.mdnice.com/user/3069/0abce100-2e80-4312-a9e1-477fff35a27d.jpg)
+   
 
 ## 📁 项目结构
 

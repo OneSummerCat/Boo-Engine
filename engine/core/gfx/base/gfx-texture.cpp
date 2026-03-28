@@ -5,97 +5,28 @@
 #include "../../../libs/stb/stb_image_write.h"
 #include "../../log.h"
 
-
-
 /* // 主要用于创建附件贴图 */
 GfxTexture::GfxTexture(std::string uuid)
 {
     this->_uuid = uuid;
 }
-GfxTexture::GfxTexture(std::string uuid, const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels)
+void GfxTexture::create(const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels, VkFormat format)
 {
-    this->_uuid = uuid;
     this->_width = width;
     this->_height = height;
     this->_channels = channels;
-    this->_imageSize = width * height * channels;
     this->_pixels = pixels;
+    this->_format = format;
     this->_createTextureImage();
     this->_createTextureImageView();
     this->_createTextureSampler();
-    LOGI("[Gfx : Texture]:: create  %s   success...", this->_uuid.c_str());
+    std::cout << "GfxTexture::create success:" << this->_uuid << std::endl;
 }
-
-void GfxTexture::_createTextureImage()
+void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
+                             VkImageTiling tiling, VkImageUsageFlags usage,
+                             VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples)
 {
-    /* // 创建暂存缓冲区 */
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-
-    GfxMgr::getInstance()->createBuffer(
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &stagingBuffer,
-        &stagingBufferMemory,
-        this->_imageSize, nullptr);
-    /* // 复制数据到暂存缓冲区 */
-    void *data;
-    vkMapMemory(Gfx::context->getVkDevice(), stagingBufferMemory, 0, this->_imageSize, 0, &data);
-    memcpy(data, this->_pixels->data(), static_cast<size_t>(this->_imageSize));
-    vkUnmapMemory(Gfx::context->getVkDevice(), stagingBufferMemory);
-    /* // 计算格式 */
-    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
-    if (this->_channels == 1)
-    {
-        format = VK_FORMAT_R8_UNORM;
-    }
-    /*  // 创建纹理图像 */
-    this->createImage(this->_width, this->_height, format, VK_IMAGE_TILING_OPTIMAL,
-                      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT,
-                      this->_textureImage, this->_textureImageMemory);
-    /* // 转换布局并复制数据
-    // VK_IMAGE_LAYOUT_UNDEFINED 待确定 */
-    this->_transitionImageLayout(this->_textureImage, format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
-    this->_transitionImageLayout(this->_textureImage, format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-    /*  // 清理暂存资源 */
-    vkDestroyBuffer(Gfx::context->getVkDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(Gfx::context->getVkDevice(), stagingBufferMemory, nullptr);
-}
-void GfxTexture::_createTextureImageView()
-{
-    VkFormat format = VK_FORMAT_R8G8B8A8_UNORM;
-    if (this->_channels == 1)
-    {
-        format = VK_FORMAT_R8_UNORM;
-    }
-    this->createImageView(this->_textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, this->_textureImageView);
-}
-void GfxTexture::_createTextureSampler()
-{
-    VkSamplerCreateInfo samplerInfo{};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR; /* // VK_FILTER_LINEAR */
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-    samplerInfo.anisotropyEnable = VK_FALSE;
-    samplerInfo.maxAnisotropy = 1.0f;
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = 0.0f;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-
-    if (vkCreateSampler(Gfx::context->getVkDevice(), &samplerInfo, nullptr, &this->_textureSampler) != VK_SUCCESS)
-    {
-        throw std::runtime_error("failed to create texture sampler!");
-    }
+    this->createImage(width, height, format, tiling, usage, properties, samples, this->_textureImage, this->_textureImageMemory);
 }
 /*
 // 以下实现辅助方法... */
@@ -120,33 +51,31 @@ void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(Gfx::context->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+    if (vkCreateImage(Gfx::_context->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image!");
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(Gfx::context->getVkDevice(), image, &memRequirements);
+    vkGetImageMemoryRequirements(Gfx::_context->getVkDevice(), image, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = GfxMgr::getInstance()->getMemoryTypeIndex(memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(Gfx::context->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+    if (vkAllocateMemory(Gfx::_context->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate image memory!");
     }
 
-    vkBindImageMemory(Gfx::context->getVkDevice(), image, imageMemory, 0);
-}
-void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
-                             VkImageTiling tiling, VkImageUsageFlags usage,
-                             VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples)
-{
-    this->createImage(width, height, format, tiling, usage, properties, samples, this->_textureImage, this->_textureImageMemory);
+    vkBindImageMemory(Gfx::_context->getVkDevice(), image, imageMemory, 0);
 }
 
+void GfxTexture::createImageView(VkFormat format, VkImageAspectFlags aspectFlags)
+{
+    this->createImageView(this->_textureImage, format, aspectFlags, this->_textureImageView);
+}
 void GfxTexture::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView &imageView)
 {
     VkImageViewCreateInfo viewInfo{};
@@ -168,18 +97,78 @@ void GfxTexture::createImageView(VkImage image, VkFormat format, VkImageAspectFl
         viewInfo.components.a = VK_COMPONENT_SWIZZLE_ONE;
     }
 
-    if (vkCreateImageView(Gfx::context->getVkDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    if (vkCreateImageView(Gfx::_context->getVkDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture image view!");
     }
 }
-void GfxTexture::createImageView(VkFormat format, VkImageAspectFlags aspectFlags)
+
+
+void GfxTexture::_createTextureImage()
 {
-    this->createImageView(this->_textureImage, format, aspectFlags, this->_textureImageView);
+    /* // 创建暂存缓冲区 */
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    // 计算暂存缓冲区大小
+    VkDeviceSize imageSize = this->_width * this->_height * this->_channels;
+    // 创建暂存缓冲区
+    GfxMgr::getInstance()->createBuffer(
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &stagingBuffer,
+        &stagingBufferMemory,
+        imageSize, nullptr);
+    /* // 复制数据到暂存缓冲区 */
+    void *data;
+    vkMapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, this->_pixels->data(), static_cast<size_t>(imageSize));
+    vkUnmapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory);
+    /*  // 创建纹理图像 */
+    this->createImage(this->_width, this->_height, this->_format, VK_IMAGE_TILING_OPTIMAL,
+                      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT,
+                      this->_textureImage, this->_textureImageMemory);
+    /* // 转换布局并复制数据
+    // VK_IMAGE_LAYOUT_UNDEFINED 待确定 */
+    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
+    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    /*  // 清理暂存资源 */
+    vkDestroyBuffer(Gfx::_context->getVkDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, nullptr);
+}
+void GfxTexture::_createTextureImageView()
+{
+    this->createImageView(this->_textureImage, this->_format, VK_IMAGE_ASPECT_COLOR_BIT, this->_textureImageView);
 }
 void GfxTexture::crateImageSampler()
 {
     this->_createTextureSampler();
+}
+void GfxTexture::_createTextureSampler()
+{
+    VkSamplerCreateInfo samplerInfo{};
+    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    samplerInfo.magFilter = VK_FILTER_LINEAR; /* // VK_FILTER_LINEAR */
+    samplerInfo.minFilter = VK_FILTER_LINEAR;
+    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+    samplerInfo.anisotropyEnable = VK_FALSE;
+    samplerInfo.maxAnisotropy = 1.0f;
+    samplerInfo.borderColor = VK_BORDER_COLOR_INT_TRANSPARENT_BLACK;
+    samplerInfo.unnormalizedCoordinates = VK_FALSE;
+    samplerInfo.compareEnable = VK_FALSE;
+    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+    samplerInfo.minLod = 0.0f;
+    samplerInfo.maxLod = 0.0f;
+    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+
+    if (vkCreateSampler(Gfx::_context->getVkDevice(), &samplerInfo, nullptr, &this->_textureSampler) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create texture sampler!");
+    }
 }
 
 void GfxTexture::_transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
@@ -258,11 +247,11 @@ VkCommandBuffer GfxTexture::_beginSingleTimeCommands()
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = Gfx::context->getCommandPool();
+    allocInfo.commandPool = Gfx::_context->getCommandPool();
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(Gfx::context->getVkDevice(), &allocInfo, &commandBuffer);
+    vkAllocateCommandBuffers(Gfx::_context->getVkDevice(), &allocInfo, &commandBuffer);
 
     VkCommandBufferBeginInfo beginInfo{};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -281,10 +270,10 @@ void GfxTexture::_endSingleTimeCommands(VkCommandBuffer commandBuffer)
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(Gfx::context->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(Gfx::context->getGraphicsQueue());
+    vkQueueSubmit(Gfx::_context->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(Gfx::_context->getGraphicsQueue());
 
-    vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &commandBuffer);
+    vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &commandBuffer);
 }
 bool GfxTexture::_hasStencilComponent(VkFormat format)
 {
@@ -339,10 +328,6 @@ void GfxTexture::setBindlessIndex(uint32_t index)
 {
     this->_bindlessIndex = index;
 }
-void GfxTexture::destroy()
-{
-}
-
 bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t height)
 {
     /* // 1. 创建 staging buffer 用于从 GPU 复制数据到 CPU */
@@ -426,7 +411,7 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
 
     /* // 6. 映射内存并读取数据 */
     void *data;
-    vkMapMemory(Gfx::context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    vkMapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
 
     /* // 7. 保存为图片文件 */
     bool success = false;
@@ -454,11 +439,11 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
     }
 
     /* // 8. 解除内存映射 */
-    vkUnmapMemory(Gfx::context->getVkDevice(), stagingBufferMemory);
+    vkUnmapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory);
 
     /* // 9. 清理 staging buffer */
-    vkDestroyBuffer(Gfx::context->getVkDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(Gfx::context->getVkDevice(), stagingBufferMemory, nullptr);
+    vkDestroyBuffer(Gfx::_context->getVkDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, nullptr);
 
     if (success)
     {
@@ -471,35 +456,38 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
 
     return success;
 }
-
-GfxTexture::~GfxTexture()
+void GfxTexture::destroy()
 {
-    // std::cout << "[Gfx : Texture]::~Texture: uuid:" << this->_uuid << std::endl;
+    std::cout << "[Gfx : Texture]::~Texture: uuid:" << this->_uuid << std::endl;
     /*  // 销毁采样器 */
     if (this->_textureSampler != VK_NULL_HANDLE)
     {
-        vkDestroySampler(Gfx::context->getVkDevice(), this->_textureSampler, nullptr);
+        vkDestroySampler(Gfx::_context->getVkDevice(), this->_textureSampler, nullptr);
         this->_textureSampler = VK_NULL_HANDLE;
     }
 
     /* // 销毁图像视图 */
     if (this->_textureImageView != VK_NULL_HANDLE)
     {
-        vkDestroyImageView(Gfx::context->getVkDevice(), this->_textureImageView, nullptr);
+        vkDestroyImageView(Gfx::_context->getVkDevice(), this->_textureImageView, nullptr);
         this->_textureImageView = VK_NULL_HANDLE;
     }
 
     /*  // 销毁图像 */
     if (this->_textureImage != VK_NULL_HANDLE)
     {
-        vkDestroyImage(Gfx::context->getVkDevice(), this->_textureImage, nullptr);
+        vkDestroyImage(Gfx::_context->getVkDevice(), this->_textureImage, nullptr);
         this->_textureImage = VK_NULL_HANDLE;
     }
 
     /*  // 释放图像内存 */
     if (this->_textureImageMemory != VK_NULL_HANDLE)
     {
-        vkFreeMemory(Gfx::context->getVkDevice(), this->_textureImageMemory, nullptr);
+        vkFreeMemory(Gfx::_context->getVkDevice(), this->_textureImageMemory, nullptr);
         this->_textureImageMemory = VK_NULL_HANDLE;
     }
+}
+
+GfxTexture::~GfxTexture()
+{
 }

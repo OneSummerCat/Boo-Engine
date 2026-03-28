@@ -49,8 +49,9 @@ find_library(android-lib android)
 
   # 设置头文件包含路径
 target_include_directories(BooEngine PRIVATE
-    ${FREETYPE_ROOT}/include/freetype2
+    ${CMAKE_CURRENT_SOURCE_DIR} # 项目根目录,用于引擎头文件引入
     ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/stb
+    ${FREETYPE_ROOT}/include/freetype2
     ${SHADERC_ROOT}/include
 )
 

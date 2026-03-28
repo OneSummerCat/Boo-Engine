@@ -8,11 +8,17 @@
 #include "asset.h"
 #include "asset-load.h"
 #include "asset-cache.h"
-#include "assst-builtin.h"
+#include "asset-builtin.h"
 #include "texture-asset.h"
 #include "material-asset.h"
 #include "shader-asset.h"
+#include "gltf-asset.h"
 
+
+#include "../../platforms/platform.h"
+#if defined(BOO_PLATFORM_ANDROID)
+#include <android/asset_manager.h>
+#endif
 namespace Boo
 {
 
@@ -20,11 +26,7 @@ namespace Boo
 	class AssetsManager
 	{
 	private:
-		/**
-		 * @brief 资产根目录
-		 */
-		std::string _assetsRoot;
-
+		std::string _assetsRoot = "";
 		/**
 		 * @brief 资产加载器
 		 */
@@ -35,15 +37,21 @@ namespace Boo
 		AssetCache *_assetsCache;
 
 		AssetBuiltin *_assetsBuiltin;
-
+#if defined(BOO_PLATFORM_ANDROID)
+		AAssetManager *_androidAssetsManager = nullptr;
+#endif
 	public:
 		AssetsManager();
 		/**
 		 * @brief 初始化资产管理器
 		 */
 		void init();
-
-		void setAssetsRoot(const std::string &root);
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		void setAssetsRoot(const std::string &assetsRoot);
+#endif
+#if defined(BOO_PLATFORM_ANDROID)
+		void setAndroidAssetsManager(AAssetManager *androidAssetsManager);
+#endif
 		const std::string &getAssetsRoot();
 		void setMaxLoadCount(int count);
 		AssetLoad *getAssetsLoad();

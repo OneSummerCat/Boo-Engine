@@ -49,14 +49,14 @@ namespace Boo
 	}
 	void Scene::createRoot3D()
 	{
-		// if (this->_root3D != nullptr)
-		// {
-		// 	return;
-		// }
-		// this->_root3D = new Node3D("root3D");
-		// this->_root3D->_isLocked = true;
-		// this->_root3D->setGroupID(uint32_t(NodeGroup::Node3D));
-		// this->addChild(this->_root3D);
+		if (this->_root3D != nullptr)
+		{
+			return;
+		}
+		this->_root3D = new Node3D("root3D");
+		this->_root3D->_isLocked = true;
+		this->_root3D->setGroupID(uint32_t(NodeGroup::Node3D));
+		this->addChild(this->_root3D);
 	}
 	Node3D *Scene::getRoot3D()
 	{

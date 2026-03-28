@@ -43,8 +43,6 @@ public:
 	void bindRenderPass(GfxRenderPass* pass);
 
 	void resize(uint32_t width, uint32_t height);
-	// void _clear();
-	// void _reset();
 	bool saveToFile1(std::string filePath);
 	void destroy();
 	~GfxRenderTexture();

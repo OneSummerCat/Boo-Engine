@@ -1,0 +1,21 @@
+{
+  "name": "Gobang",
+  "version": "1.0",
+  "description": "休闲风格的五子棋游戏",
+  "author": "AI Assistant",
+  "dependencies": [],
+  "resources": {
+    "textures": [
+      "gobang/textures/piece-black.png",
+      "gobang/textures/piece-white.png"
+    ]
+  },
+  "config": {
+    "boardSize": 15,
+    "cellSize": 40,
+    "aiThinkTime": 2.0,
+    "boardColor": "#F5F0E6",
+    "lineColor": "#9E948A",
+    "highlightColor": "#FFD700"
+  }
+}

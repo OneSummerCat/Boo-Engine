@@ -9,13 +9,11 @@
 
 namespace Boo
 {
-
-
 	enum class NodeGroup
 	{
 		Default = 1 << 0,
 		Node3D = 1 << 1,
-		Node2D = 1 << 10,
+		Node2D = 1 << 2,
 	};
 	enum NodeTransformFlag : uint32_t
 	{
@@ -220,12 +218,6 @@ namespace Boo
 		 * 获取世界矩阵
 		 */
 		const Mat4 &getWorldMatrix();
-		/**
-		 * @brief 当前节点是否发生了变换
-		 * @return true 发生了变换
-		 * @return false 没有发生变换
-		 */
-		const bool hasWorldTransformFlag() const;
 		/**
 		 * @brief 当前节点在当前帧帧内是否发生了变换
 		 * @return true 发生了变换

@@ -1,15 +1,15 @@
 #include <iostream>
+#include "engine/boo.h"
 #include "engine/engine.h"
 #include "engine/platforms/window/window.h"
 #include "src/launch.h"
-#include "engine/boo.h"
 
 int main()
 {
     Window *window = new Window();
     window->init();
     Engine *engine = new Engine();
-    engine->init(window,1920,1080,Boo::UIDesignFitMode::Height);
+    engine->init(window,1280,720,Boo::UIDesignFitMode::Height);
     Launch *launch = new Launch();
     launch->init();
     while (window->isRunning())

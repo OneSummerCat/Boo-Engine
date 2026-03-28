@@ -1,18 +1,21 @@
 #pragma once
 #include <vulkan/vulkan_core.h>
 #include <iostream>
+#include <chrono>
 #include <algorithm>
 #include <fstream>
 #include <vector>
 #include <set>
 #include <map>
-#include "base/gfx-pipeline-struct.h"
+#include "gfx-struct.h"
 #include "../../platforms/window/window.h"
 #include "../../platforms/android/android.h"
 
 class GfxRenderTexture;
 class GfxMaterial;
 class GfxMesh;
+class GfxShader;
+class GfxTexture;
 
 class GfxMgr
 {
@@ -22,8 +25,9 @@ private:
 	GfxMgr();
 	~GfxMgr();
 	size_t _currentFrame = 0;
-
+	std::chrono::high_resolution_clock::time_point _preFrameTime;
 	void _initRenderer();
+
 public:
 	static GfxMgr *getInstance();
 	/**
@@ -31,14 +35,12 @@ public:
 	 */
 	void init(Window *window);
 	void init(Android *android);
-	// void setWindow();
-	// void setAndroid(Android *android);
-	
+
 	void update(float dt);
-	void resize(int width,int height);
+	void resize(int width, int height);
 	void resetSwapChain();
 
-	void createPipeline(std::string pipelineName, GfxPipelineStruct pipelineStruct);
+	void createPipeline(std::string pipelineName, GfxRendererState rendererState);
 	/**
 	 * @brief 创建纹理
 	 *
@@ -48,21 +50,14 @@ public:
 	 * @param channels 通道数
 	 * @param pixels 像素数据
 	 */
-	void createTexture(std::string texture, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels);
+	GfxTexture *createTexture(std::string uuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels, GfxTextureFormat format);
 	/**
 	 * @brief 销毁纹理
 	 *
 	 * @param textureUuid 纹理UUID
 	 */
-	void destroyTexture(std::string texture);
-	/**
-	 * @brief 判断纹理是否存在
-	 *
-	 * @param texture 纹理UUID
-	 * @return true 存在
-	 * @return false 不存在
-	 */
-	bool isExistTexture(std::string texture);
+	void destroyTexture(GfxTexture *texture);
+
 
 	/**
 	 * @brief 创建着色器
@@ -70,12 +65,39 @@ public:
 	 * @param shaderName 着色器名称
 	 * @param buffer 着色器字节码
 	 */
-	void createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros);
+	GfxShader *createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, int> &macros);
 	/**
 	 * @brief 创建SPIR-V着色器
 	 */
-	void createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data);
-	void destroyShader(std::string shaderName);
+	GfxShader *createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data);
+	void destroyShader(GfxShader *shader);
+	/**
+	 * @brief 创建网格
+	 *
+	 * @param meshUuid 网格UUID
+	 * @param positions 顶点位置
+	 * @param normals 法线
+	 * @param uvs 纹理坐标
+	 * @param uvs1 纹理坐标1
+	 * @param uvs2 纹理坐标2
+	 * @param colors 颜色
+	 * @param tangents 切线
+	 * @param indices 索引数据
+	 */
+	GfxMesh *createMesh(std::string meshUuid, const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices);
+	void destroyMesh(GfxMesh *mesh);
+
+	/**
+	 * @brief 创建渲染纹理
+	 *
+	 * @param renderTextureUuid 渲染纹理UUID
+	 * @param width 宽度
+	 * @param height 高度
+	 * @param channels 通道数
+	 * @param pixels 像素数据
+	 */
+	GfxRenderTexture *createRenderTexture(std::string renderTextureUuid, uint32_t width, uint32_t height);
+	void destroyRenderTexture(GfxRenderTexture *renderTexture);
 
 	/**
 	 * @brief 初始化渲染队列
@@ -84,14 +106,15 @@ public:
 	 * @param viewMat 视图矩阵
 	 * @param projMat 投影矩阵
 	 */
-	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture);
+	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority);
+	void setRenderQueuePriority(std::string renderId, int priority);
 	/**
 	 * @brief 销毁渲染队列
 	 *
 	 * @param renderId 渲染队列ID
 	 */
 	void delRenderQueue(std::string renderId);
-	
+
 	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen);
 	/**
 	 * @brief 提交渲染对象
@@ -102,7 +125,7 @@ public:
 	 * @param vertices 顶点数据
 	 * @param indices 索引数据
 	 */
-	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData);
+	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh);
 	/**
 	 * @brief 提交渲染对象
 	 * @param id 物体ID

@@ -10,7 +10,7 @@
 #include "../../platforms/android/android.h"
 
 // 校验层
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 std::vector<const char *> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 std::vector<const char *> DeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,             // 交换链扩展
@@ -578,8 +578,8 @@ VkExtent2D GfxContext::_chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabil
         // glfwGetFramebufferSize(Boo::window->getWindow(), &width, &height);
 
         VkExtent2D actualExtent = {
-            static_cast<uint32_t>(Gfx::viewWidth),
-            static_cast<uint32_t>(Gfx::viewHeight)};
+            static_cast<uint32_t>(Gfx::_viewWidth),
+            static_cast<uint32_t>(Gfx::_viewHeight)};
 
         actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
         actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);

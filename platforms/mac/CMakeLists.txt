@@ -51,9 +51,11 @@ if(APPLE)
 
     # 头文件包含（BEFORE 确保优先于系统路径，避免 Mono.framework 的 freetype 干扰）
     target_include_directories(${PROJECT_NAME} BEFORE PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR} # 项目根目录,用于引擎头文件引入
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/freetype2/include
         ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/stb
-        ${CMAKE_CURRENT_SOURCE_DIR}/libs/nativefiledialog/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/fastgltf/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/engine/libs/simdjson/include
     )
     # 库链接
     target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -63,7 +65,6 @@ if(APPLE)
 
         # freetype 及其依赖库（freetype 必须在依赖库之前）
         ${CMAKE_CURRENT_SOURCE_DIR}/libs/freetype2/lib/libfreetype.a
-        ${CMAKE_CURRENT_SOURCE_DIR}/libs/nativefiledialog/lib/libnfd.a
         
         ZLIB::ZLIB
         BZip2::BZip2
@@ -74,6 +75,8 @@ if(APPLE)
         ${APPKIT_LIBRARY}
        
     )
+    file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/assets)
+    file(COPY assets/ DESTINATION assets)
 else()
     message(FATAL_ERROR "Unsupported platform")
 endif()
@@ -85,5 +88,3 @@ endif()
 # file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/res)
 # file(COPY editor/res/ DESTINATION res)
 #内置资源
-file(REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/resources)
-file(COPY engine/resources/ DESTINATION resources)

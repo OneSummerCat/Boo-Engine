@@ -5,7 +5,11 @@
 namespace Boo
 {
     // enum
-    enum class NodeLayer;
+    enum class ComponentLayer{
+        Default,
+        Node2D,
+        Node3D,
+    };
     // class
     class Node;
 
@@ -18,7 +22,7 @@ namespace Boo
     protected:
         std::string _uuid;
         std::string _name;
-        NodeLayer _layer;
+        ComponentLayer _layer;
         Node *_node;
         bool _isEnabled = true;
         bool _isEnabledInHierarchy = false;
@@ -33,7 +37,7 @@ namespace Boo
         void setEnabled(bool enabled);
         std::string getName() { return this->_name; }
         Node *getNode() { return this->_node; }
-        NodeLayer layer() { return this->_layer; }
+        ComponentLayer getLayer() { return this->_layer; }
         /**
          * @brief 设置节点是否激活在层级中
          * @param isActiveInHierarchy 是否激活在层级中

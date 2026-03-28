@@ -1,20 +1,23 @@
 #include "gfx-pipeline.h"
+#include "../../log.h"
 #include "../gfx.h"
 #include "../gfx-context.h"
 #include "gfx-shader.h"
-#include "../../log.h"
+
 
 
 
 GfxPipeline::GfxPipeline(const std::string &name)
 {
     this->_name = name;
+    this->_vkPipelineLayout = VK_NULL_HANDLE;
+
 }
 const std::string &GfxPipeline::getName()
 {
     return this->_name;
 }
-void GfxPipeline::create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader *fragmentShader, VkDescriptorSetLayout descriptorSetLayout, GfxPipelineStruct pipelineStruct)
+void GfxPipeline::create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader *fragmentShader, VkDescriptorSetLayout descriptorSetLayout, GfxRendererState rendererState)
 {
     if (pass == nullptr)
     {
@@ -41,7 +44,7 @@ void GfxPipeline::create(GfxRenderPass *pass, GfxShader *vertexShader, GfxShader
     this->_vertexShader = vertexShader;
     this->_fragmentShader = fragmentShader;
     this->_descriptorSetLayout = descriptorSetLayout;
-    this->_pipelineStruct = pipelineStruct;
+    this->_rendererState = rendererState;
     this->_createPipeline();
 }
 void GfxPipeline::_createPipeline()
@@ -115,21 +118,21 @@ void GfxPipeline::_initRasterizationState()
     this->_rasterizationInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     this->_rasterizationInfo.depthClampEnable = VK_FALSE;
     this->_rasterizationInfo.rasterizerDiscardEnable = VK_FALSE;
-    this->_rasterizationInfo.polygonMode = this->_getPolygonMode(this->_pipelineStruct.polygonMode);
+    this->_rasterizationInfo.polygonMode = this->_getPolygonMode(this->_rendererState.polygonMode);
     // this->_rasterizationInfo.polygonMode = VK_POLYGON_MODE_FILL;
     this->_rasterizationInfo.lineWidth = 1.0f;
-    this->_rasterizationInfo.cullMode = this->_getCullMode(this->_pipelineStruct.cullMode); // 背面剔除
+    this->_rasterizationInfo.cullMode = this->_getCullMode(this->_rendererState.cullMode); // 背面剔除
     // this->_rasterizationInfo.cullMode = VK_CULL_MODE_BACK_BIT; // 背面剔除
     this->_rasterizationInfo.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     this->_rasterizationInfo.depthBiasEnable = VK_FALSE; // 禁用深度偏移
 }
-VkPolygonMode GfxPipeline::_getPolygonMode(GfxPipelinePolygonMode polygonMode)
+VkPolygonMode GfxPipeline::_getPolygonMode(GfxRendererStatePolygonMode polygonMode)
 {
-    if (polygonMode == GfxPipelinePolygonMode::Fill)
+    if (polygonMode == GfxRendererStatePolygonMode::Fill)
     {
         return VK_POLYGON_MODE_FILL;
     }
-    else if (polygonMode == GfxPipelinePolygonMode::Line)
+    else if (polygonMode == GfxRendererStatePolygonMode::Line)
     {
         return VK_POLYGON_MODE_LINE;
     }
@@ -138,13 +141,13 @@ VkPolygonMode GfxPipeline::_getPolygonMode(GfxPipelinePolygonMode polygonMode)
         return VK_POLYGON_MODE_POINT;
     }
 }
-VkCullModeFlags GfxPipeline::_getCullMode(GfxPipelineCullMode cullMode)
+VkCullModeFlags GfxPipeline::_getCullMode(GfxRendererStateCullMode cullMode)
 {
-    if (cullMode == GfxPipelineCullMode::Back)
+    if (cullMode == GfxRendererStateCullMode::Back)
     {
         return VK_CULL_MODE_BACK_BIT;
     }
-    else if (cullMode == GfxPipelineCullMode::Front)
+    else if (cullMode == GfxRendererStateCullMode::Front)
     {
         return VK_CULL_MODE_FRONT_BIT;
     }
@@ -176,33 +179,33 @@ void GfxPipeline::_initDepthStencilState()
     this->_depthStencilInfo.depthWriteEnable = VK_FALSE;  // 禁止写入深度
     this->_depthStencilInfo.stencilTestEnable = VK_FALSE; // 禁止写入深度
 }
-VkCompareOp GfxPipeline::_getCompareOp(GfxPipelineCompareOp compareOp)
+VkCompareOp GfxPipeline::_getCompareOp(GfxRendererStateCompareOp compareOp)
 {
-    if (compareOp == GfxPipelineCompareOp::Never)
+    if (compareOp == GfxRendererStateCompareOp::Never)
     {
         return VK_COMPARE_OP_NEVER;
     }
-    else if (compareOp == GfxPipelineCompareOp::Less)
+    else if (compareOp == GfxRendererStateCompareOp::Less)
     {
         return VK_COMPARE_OP_LESS;
     }
-    else if (compareOp == GfxPipelineCompareOp::LessOrEqual)
+    else if (compareOp == GfxRendererStateCompareOp::LessOrEqual)
     {
         return VK_COMPARE_OP_LESS_OR_EQUAL;
     }
-    else if (compareOp == GfxPipelineCompareOp::Greater)
+    else if (compareOp == GfxRendererStateCompareOp::Greater)
     {
         return VK_COMPARE_OP_GREATER;
     }
-    else if (compareOp == GfxPipelineCompareOp::GreaterOrEqual)
+    else if (compareOp == GfxRendererStateCompareOp::GreaterOrEqual)
     {
         return VK_COMPARE_OP_GREATER_OR_EQUAL;
     }
-    else if (compareOp == GfxPipelineCompareOp::Equal)
+    else if (compareOp == GfxRendererStateCompareOp::Equal)
     {
         return VK_COMPARE_OP_EQUAL;
     }
-    else if (compareOp == GfxPipelineCompareOp::NotEqual)
+    else if (compareOp == GfxRendererStateCompareOp::NotEqual)
     {
         return VK_COMPARE_OP_NOT_EQUAL;
     }
@@ -211,21 +214,21 @@ VkCompareOp GfxPipeline::_getCompareOp(GfxPipelineCompareOp compareOp)
         return VK_COMPARE_OP_ALWAYS;
     }
 }
-VkStencilOp GfxPipeline::_getStencilOp(GfxPipelineStencilOp stencilOp)
+VkStencilOp GfxPipeline::_getStencilOp(GfxRendererStateStencilOp stencilOp)
 {
-    if (stencilOp == GfxPipelineStencilOp::Keep)
+    if (stencilOp == GfxRendererStateStencilOp::Keep)
     {
         return VK_STENCIL_OP_KEEP;
     }
-    else if (stencilOp == GfxPipelineStencilOp::Increment_Add)
+    else if (stencilOp == GfxRendererStateStencilOp::Increment_Add)
     {
         return VK_STENCIL_OP_INCREMENT_AND_WRAP;
     }
-    else if (stencilOp == GfxPipelineStencilOp::Decrement_Subtract)
+    else if (stencilOp == GfxRendererStateStencilOp::Decrement_Subtract)
     {
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
     }
-    else if (stencilOp == GfxPipelineStencilOp::Replace)
+    else if (stencilOp == GfxRendererStateStencilOp::Replace)
     {
         return VK_STENCIL_OP_REPLACE;
     }
@@ -243,49 +246,49 @@ void GfxPipeline::_initColorBlendState()
     this->_colorBlendInfo.attachmentCount = 1;
     this->_colorBlendInfo.pAttachments = &this->_colorBlendAttachment;
 }
-VkBlendFactor GfxPipeline::_getBlendFactor(GfxPipelineColorBlendFactor blendFactor)
+VkBlendFactor GfxPipeline::_getBlendFactor(GfxRendererStateColorBlendFactor blendFactor)
 {
-    if (blendFactor == GfxPipelineColorBlendFactor::Zero)
+    if (blendFactor == GfxRendererStateColorBlendFactor::Zero)
     {
         return VK_BLEND_FACTOR_ZERO;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::One)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::One)
     {
         return VK_BLEND_FACTOR_ONE;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::SrcColor)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::SrcColor)
     {
         return VK_BLEND_FACTOR_SRC_COLOR;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::DstColor)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::DstColor)
     {
         return VK_BLEND_FACTOR_DST_COLOR;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::SrcAlpha)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::SrcAlpha)
     {
         return VK_BLEND_FACTOR_SRC_ALPHA;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::DstAlpha)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::DstAlpha)
     {
         return VK_BLEND_FACTOR_DST_ALPHA;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::OneMinusSrcAlpha)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::OneMinusSrcAlpha)
     {
         return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
     }
-    else if (blendFactor == GfxPipelineColorBlendFactor::OneMinusDstAlpha)
+    else if (blendFactor == GfxRendererStateColorBlendFactor::OneMinusDstAlpha)
     {
         return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
     }
     return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
 }
-VkBlendOp GfxPipeline::_getBlendOp(GfxPipelineColorBlendOp blendOp)
+VkBlendOp GfxPipeline::_getBlendOp(GfxRendererStateColorBlendOp blendOp)
 {
-    if (blendOp == GfxPipelineColorBlendOp::Add)
+    if (blendOp == GfxRendererStateColorBlendOp::Add)
     {
         return VK_BLEND_OP_ADD;
     }
-    else if (blendOp == GfxPipelineColorBlendOp::Subtract)
+    else if (blendOp == GfxRendererStateColorBlendOp::Subtract)
     {
         return VK_BLEND_OP_SUBTRACT;
     }
@@ -299,6 +302,7 @@ void GfxPipeline::_initPipelineLayout()
 }
 VkPipelineLayout GfxPipeline::getVKPipelineLayout()
 {
+    // std::cout << "getVKPipelineLayout:" << this->_vkPipelineLayout << std::endl;
     return this->_vkPipelineLayout;
 }
 
@@ -316,13 +320,13 @@ void GfxPipeline::_clear()
     /* // 销毁图形管线（Pipeline） */
     if (this->_vkPipeline != VK_NULL_HANDLE)
     {
-        vkDestroyPipeline(Gfx::context->getVkDevice(), this->_vkPipeline, nullptr);
+        vkDestroyPipeline(Gfx::_context->getVkDevice(), this->_vkPipeline, nullptr);
         this->_vkPipeline = VK_NULL_HANDLE;
     }
     /* // 销毁管线布局（Pipeline Layout） */
     if (this->_vkPipelineLayout != VK_NULL_HANDLE)
     {
-        vkDestroyPipelineLayout(Gfx::context->getVkDevice(), this->_vkPipelineLayout, nullptr);
+        vkDestroyPipelineLayout(Gfx::_context->getVkDevice(), this->_vkPipelineLayout, nullptr);
         this->_vkPipelineLayout = VK_NULL_HANDLE;
     }
 }
@@ -424,14 +428,14 @@ GfxPipeline::~GfxPipeline()
 // VkViewport viewport{};
 // viewport.x = 0.0f;
 // viewport.y = 0.0f;
-// viewport.width = (float)Gfx::context->getSwapChainExtent().width;
-// viewport.height = (float)Gfx::context->getSwapChainExtent().height;
+// viewport.width = (float)Gfx::_context->getSwapChainExtent().width;
+// viewport.height = (float)Gfx::_context->getSwapChainExtent().height;
 // viewport.minDepth = 0.0f;
 // viewport.maxDepth = 1.0f;
 // // 裁剪定义哪一块区域的像素实际被存储在帧缓存中。任何位于裁剪范围之外都会被光栅化丢弃
 // VkRect2D scissor{};
 // scissor.offset = {0, 0};
-// scissor.extent = Gfx::context->getSwapChainExtent();
+// scissor.extent = Gfx::_context->getSwapChainExtent();
 
 // VkPipelineViewportStateCreateInfo viewportState{};
 // viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -507,7 +511,7 @@ GfxPipeline::~GfxPipeline()
 // // pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
 
 // // 第八步：管线布局，
-// if (vkCreatePipelineLayout(Gfx::context->getVkDevice(), &pipelineLayoutInfo, nullptr, &this->_vkPipelineLayout) != VK_SUCCESS)
+// if (vkCreatePipelineLayout(Gfx::_context->getVkDevice(), &pipelineLayoutInfo, nullptr, &this->_vkPipelineLayout) != VK_SUCCESS)
 // {
 //     throw std::runtime_error("failed to create pipeline layout!");
 // }
@@ -534,7 +538,7 @@ GfxPipeline::~GfxPipeline()
 // pipelineInfo.subpass = 0;
 // pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-// if (vkCreateGraphicsPipelines(Gfx::context->getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &this->_vkPipeline) != VK_SUCCESS)
+// if (vkCreateGraphicsPipelines(Gfx::_context->getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &this->_vkPipeline) != VK_SUCCESS)
 // {
 //     throw std::runtime_error("Failed to create graphics pipeline!");
 // }

@@ -6,6 +6,8 @@
 #include "core/view/view.h"
 #include "core/assets/assets-manager.h"
 #include "core/renderer/renderer.h"
+#include "core/renderer/camera.h"
+#include "core/profiler/profiler.h"
 
 // 包含场景管理头文件
 #include "core/scene/scene-api.h"
@@ -15,6 +17,7 @@
 
 // 包含组件头文件
 #include "core/component/component.h"
+#include "core/component/component-register.h"
 
 // 包含渲染头文件
 #include "core/renderer/renderer-api.h"
@@ -58,6 +61,10 @@ namespace Boo
 	 * @brief 渲染系统
 	 */
 	extern Renderer *renderer;
+	/**
+	 * @brief 性能分析系统
+	 */
+	extern Profiler *profiler;
 
 	// /**
 	//  * @brief 字体系统

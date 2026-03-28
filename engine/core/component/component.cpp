@@ -8,7 +8,7 @@ namespace Boo
     Component::Component(std::string name, Node *node, std::string uuid) : _isAwaked(false),
                                                                            _uuid(uuid),
                                                                            _name(name),
-                                                                           _layer(NodeLayer::Default),
+                                                                           _layer(ComponentLayer::Default),
                                                                            _node(node),
                                                                            _isEnabled(true),
                                                                            _isEnabledInHierarchy(false)
@@ -35,8 +35,6 @@ namespace Boo
         {
             return; // 状态未改变
         }
-        
-
         this->_isEnabledInHierarchy = isEnableInHierarchy;
         if (this->_isEnabledInHierarchy)
         {

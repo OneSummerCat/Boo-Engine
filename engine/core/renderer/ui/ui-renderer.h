@@ -20,22 +20,16 @@ namespace Boo
     class Camera;
     class MaterialAsset;
     class TextureAsset;
+    class Node2D;
 
     class UIRenderer : public Component
     {
     private:
     protected:
+        Node2D *_node2D;
         MaterialAsset *_materialAsset;
-        TextureAsset *_textureAsset;
-
-        std::vector<float> _instanceData;
         Color _color;
         Mat4 _uiViewMatrix;
-        /**
-         * @brief 设置渲染器的纹理
-         *
-         */
-        void _setTexture(TextureAsset *texture);
         /**
          * @brief 设置渲染器的材质
          *
@@ -51,8 +45,7 @@ namespace Boo
         UIRenderer(std::string name, Node *node, std::string uuid = "");
 
         void Awake() override;
-        const int getGroupID();
-        const Color &getColor() { return this->_color; };
+        const Color &getColor();
         void Enable() override;
         void Update(float deltaTime) override;
         void LateUpdate(float deltaTime) override;

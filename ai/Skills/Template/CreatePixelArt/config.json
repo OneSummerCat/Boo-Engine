@@ -1,0 +1,63 @@
+{
+  "name": "create_pixel_art",
+  "description": "创建像素艺术展示模板",
+  "steps": [
+    {
+      "name": "提取像素数据",
+      "description": "从参考图片中提取像素数据",
+      "type": "extract_pixels",
+      "params": {
+        "image_path": "{{image_path}}",
+        "interval": "{{interval}}",
+        "max_size": "{{max_size}}"
+      }
+    },
+    {
+      "name": "生成C++代码",
+      "description": "生成像素数据的C++代码",
+      "type": "generate_cpp_code",
+      "params": {
+        "variable_name": "pixelData"
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "name": "image_path",
+      "type": "string",
+      "required": true,
+      "description": "参考图片路径"
+    },
+    {
+      "name": "interval",
+      "type": "number",
+      "required": false,
+      "default": 5,
+      "description": "像素采样间隔"
+    },
+    {
+      "name": "max_size",
+      "type": "number",
+      "required": false,
+      "default": 100,
+      "description": "最大网格尺寸"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "success",
+      "type": "boolean",
+      "description": "是否创建成功"
+    },
+    {
+      "name": "cpp_code",
+      "type": "string",
+      "description": "生成的C++代码"
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "description": "创建结果消息"
+    }
+  ]
+}

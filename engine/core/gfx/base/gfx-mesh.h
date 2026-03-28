@@ -8,7 +8,7 @@
 #include <map>
 #include <cstdint>
 #include <array>
-#include "gfx-struct.h"
+#include "../gfx-struct.h"
 
 class GfxMesh
 {
@@ -24,14 +24,18 @@ private:
     int _indexSize;
     void _createVertexBuffers();
     void _clearVertexBuffers();
+
 public:
     // 后续可以加入网格哈希
     GfxMesh(std::string uuid);
-    void setInputVertices(std::vector<float> vertices, std::vector<uint32_t> indices);
+    void createMesh(const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices);
+    void createUIMesh(const std::vector<float> &_positions, const std::vector<float> &_uvs, const std::vector<int> &_indices);
     VkBuffer getVertexBuffer();
-    uint32_t getVertexCount();
     VkBuffer getIndexBuffer();
-    uint32_t getIndexCount();
-    int getIndexSize();
+    const std::string & getUuid();
+    //  uint32_t getVertexCount();
+    const uint32_t getIndexCount();
+    // int getIndexSize();
     bool equals(const GfxMesh *mesh) const;
+    void destroy();
 };

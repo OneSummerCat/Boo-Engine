@@ -2,3 +2,7 @@
 // 引入 json 库
 #include "../../libs/nlohmann/json.hpp"
 using json = nlohmann::json;
+namespace Boo
+{
+    extern json emptyJson ;
+}

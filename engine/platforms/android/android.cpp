@@ -7,9 +7,10 @@ Android::Android()
     this->_height = 0;
 }
 #if defined(BOO_PLATFORM_ANDROID)
-Android::Android(ANativeWindow *g_nativeWindow, int width, int height)
+Android::Android(ANativeWindow *g_nativeWindow, int width, int height, AAssetManager *androidAssetsManager)
 {
     this->_nativeWindow = g_nativeWindow;
+    this->_androidAssetsManager = androidAssetsManager;
     this->_width = width;
     this->_height = height;
 }

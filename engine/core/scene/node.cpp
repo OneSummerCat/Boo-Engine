@@ -198,15 +198,6 @@ namespace Boo
 		this->_worldTransformFlag = NodeTransformFlag::NONE_FLAG;
 	}
 	/**
-	 * @brief 当前节点是否发生了变换
-	 * @return true 发生了变换
-	 * @return false 没有发生变换
-	 */
-	const bool Node::hasWorldTransformFlag() const
-	{
-		return (this->_worldTransformFlag != NodeTransformFlag::NONE_FLAG);
-	}
-	/**
 	 * @brief 当前节点在当前帧帧内是否发生了变换
 	 * @return true 发生了变换
 	 * @return false 没有发生变换

@@ -6,18 +6,15 @@
 class GfxShader
 {
 private:
-    std::string _name;
+    std::string _uuid;
     VkShaderModule _shaderModule;
 
 public:
-    GfxShader( const std::string &name);
+    GfxShader( const std::string &uuid);
     void createShaderModule(const std::vector<uint32_t> &code);
-    // void createShaderModule(const std::vector<char> &code);
-    // void createShaderModule(const uint32_t *data, const uint32_t size);
-    VkShaderModule getShaderModule()
-    {
-        return this->_shaderModule;
-    }
+    VkShaderModule getShaderModule();
+    const std::string & getUuid();
+
     void destroy();
     ~GfxShader();
 };

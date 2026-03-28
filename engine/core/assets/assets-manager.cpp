@@ -4,20 +4,28 @@
 namespace Boo
 {
 
-	AssetsManager::AssetsManager() : _assetsRoot(""),
-									 _assetsLoad(new AssetLoad()),
+	AssetsManager::AssetsManager() : _assetsLoad(new AssetLoad()),
 									 _assetsCache(new AssetCache()),
 									 _assetsBuiltin(new AssetBuiltin())
 
 	{
 	}
+
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+	void AssetsManager::setAssetsRoot(const std::string &assetsRoot)
+	{
+		this->_assetsRoot = assetsRoot;
+	}
+#endif
+#if defined(BOO_PLATFORM_ANDROID)
+	void AssetsManager::setAndroidAssetsManager(AAssetManager *androidAssetsManager)
+	{
+		this->_androidAssetsManager = androidAssetsManager;
+	}
+#endif
 	void AssetsManager::init()
 	{
 		this->_assetsBuiltin->init();
-	}
-	void AssetsManager::setAssetsRoot(const std::string &root)
-	{
-		this->_assetsRoot = root;
 	}
 	const std::string &AssetsManager::getAssetsRoot()
 	{
@@ -34,7 +42,6 @@ namespace Boo
 	}
 	void AssetsManager::setMaxLoadCount(int count)
 	{
-		this->_assetsLoad->setMaxLoadCount(count);
 	}
 	Asset *AssetsManager::loadAsset(const std::string &path)
 	{
@@ -47,7 +54,7 @@ namespace Boo
 	}
 	void AssetsManager::unloadAsset(const std::string &path)
 	{
-		LOGI("The current function is for implementation"); //当前功能为实现,后续会根据需求进行修改
+		LOGI("The current function is for implementation"); // 当前功能为实现,后续会根据需求进行修改
 	}
 	void AssetsManager::update(float deltaTime)
 	{

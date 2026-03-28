@@ -9,15 +9,14 @@
 #include "../platforms/android/android.h"
 #include "../boo.h"
 #include "gfx/gfx-mgr.h"
+#include "font/freetype-mgr.h"
 #include "alpha/alpha.h"
 
 namespace Boo
 {
 
-	Game::Game() : _logicTime(TimeUtil::nowTime()),
-				   _renderTime(TimeUtil::nowTime()),
-				   _deltaTime(TimeUtil::nowTime()),
-				   _frameRate(60),
+	Game::Game() : _deltaTime(TimeUtil::nowTime()),
+				   _frameRate(30),
 				   _viewChanged(false),
 				   _viewChangedTime(0.0f),
 				   _curScene(nullptr),
@@ -28,30 +27,43 @@ namespace Boo
 	{
 		LOGI("[Game]:INIT WINDOW");
 		GfxMgr::getInstance()->init(window);
-		this->_initView(uiDesignWidth, uiDesignHeight, fitMode,window->getWidth(), window->getHeight());
-		this->_initModules();
+		this->_initAssets(window, nullptr);
+		this->_initView(uiDesignWidth, uiDesignHeight, fitMode, window->getWidth(), window->getHeight());
+		this->_initEvent();
+		this->_initInput();
+		this->_initFont();
+		this->_initProfiler();
+		this->_initRenderer();
+		this->_initAlpha();
 	}
 	void Game::init(Android *android, int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode)
 	{
 		LOGI("[Game]:INIT ANDROID");
 		GfxMgr::getInstance()->init(android);
-		this->_initView(uiDesignWidth, uiDesignHeight, fitMode, android->getWidth(), android->getHeight());
-		this->_initModules();
-	}
-
-	void Game::_initModules()
-	{
 		this->_initEvent();
+		this->_initView(uiDesignWidth, uiDesignHeight, fitMode, android->getWidth(), android->getHeight());
+		this->_initAssets(nullptr, android);
 		this->_initInput();
 		this->_initFont();
-		this->_initAssets();
+		this->_initProfiler();
 		this->_initRenderer();
-		this->_initAlpha();
+		// this->_initAlpha();
 	}
 	void Game::_initView(int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode, int width, int height)
 	{
-		LOGI("[Game]:INIT VIEW: %d %d", width, height);
-		view = new View(uiDesignWidth, uiDesignHeight, fitMode,width, height);
+		view = new View(uiDesignWidth, uiDesignHeight, fitMode, width, height);
+	}
+	void Game::_initAssets(Window *window, Android *android)
+	{
+		LOGI("[Game]:INIT ASSETS MGR");
+		assetsManager = new AssetsManager();
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		assetsManager->setAssetsRoot(window->getAssetsRoot());
+#elif defined(BOO_PLATFORM_ANDROID)
+		assetsManager->setAndroidAssetsManager(android->getAndroidAssetsManager());
+#endif
+		// 初始化资产管理器
+		assetsManager->init();
 	}
 	void Game::_initEvent()
 	{
@@ -67,14 +79,16 @@ namespace Boo
 	void Game::_initFont()
 	{
 		LOGI("[Game]:INIT FONT MGR");
-		// Boo::fontMgr = new FreetypeMgr();
-		// Boo::fontMgr->init();
+		FreetypeMgr::getInstance()->init();
 	}
-	void Game::_initAssets()
+	/**
+	 * @brief 初始化性能分析系统
+	 */
+	void Game::_initProfiler()
 	{
-		LOGI("[Game]:INIT ASSETS MGR");
-		assetsManager = new AssetsManager();
-		assetsManager->init();
+		LOGI("[Game]:INIT PROFILER");
+		profiler = new Profiler();
+		profiler->init();
 	}
 	void Game::_initRenderer()
 	{
@@ -128,9 +142,9 @@ namespace Boo
 		if (this->_curScene)
 		{
 			LOGI("[Game]:destroy scene: %s", this->_curScene->getName().c_str());
-			renderer->clearCameras();
 			this->_curScene->destroy();
 			this->_curScene = nullptr;
+			renderer->clearCameras();
 		}
 	}
 	void Game::addCompClearCaches(Component *comp)
@@ -150,27 +164,24 @@ namespace Boo
 		{
 			float dt = t / 1000.0f;
 			this->_deltaTime = deltaTime;
-			long long start = TimeUtil::nowTime();
 			this->_update(dt);
-			// LOGI("[Game]:update");
 			this->_lateUpdate(dt);
-			// LOGI("[Game]:lateUpdate");
-			this->_logicTime = TimeUtil::nowTime() - start;
-			start = TimeUtil::nowTime();
 			this->_render(dt);
-			// LOGI("[Game]:render");
-			this->_renderTime = TimeUtil::nowTime() - start;
 			this->_clear();
 		}
 	}
 	void Game::_update(float dt)
 	{
+		if (profiler != nullptr)
+		{
+			profiler->logicStartTime();
+		}
 		if (this->_curScene)
 		{
 			this->_curScene->update(dt);
 		}
 		this->_updateSchedules(dt);
-		if (assetsManager)
+		if (assetsManager != nullptr)
 		{
 			assetsManager->update(dt);
 		}
@@ -181,6 +192,10 @@ namespace Boo
 		{
 			this->_curScene->lateUpdate(dt);
 		}
+		if (profiler != nullptr)
+		{
+			profiler->logicEndTime();
+		}
 	}
 	void Game::_render(float dt)
 	{
@@ -190,11 +205,21 @@ namespace Boo
 			if (TimeUtil::nowTime() - this->_viewChangedTime >= 100)
 			{
 				this->_viewChanged = false;
-				renderer->updateViewSize();
+				if (renderer != nullptr)
+				{
+					renderer->updateViewSize();
+				}
 			}
 		}
 		// 更新渲染器
-		renderer->render(this->_curScene);
+		if (renderer != nullptr)
+		{
+			renderer->render(this->_curScene); // 可以统计出渲染物体数量
+		}
+		if (profiler != nullptr)
+		{
+			profiler->render();
+		}
 		GfxMgr::getInstance()->update(dt);
 	}
 
@@ -205,6 +230,10 @@ namespace Boo
 			this->_curScene->clearNodeFrameFlag();
 		}
 		this->_updateClearCaches();
+		if (profiler != nullptr)
+		{
+			profiler->clear();
+		}
 	}
 
 	void Game::_updateSchedules(float dt)

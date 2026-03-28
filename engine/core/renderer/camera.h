@@ -1,9 +1,21 @@
 #pragma once
 #include "../component/component.h"
 #include "../component/component-register.h"
+#include "../scene/node.h"
 class GfxRenderTexture;
 namespace Boo
 {
+    enum class CameraProjection
+    {
+        /**
+         * 正交投影
+         */
+        Ortho,
+        /**
+         * 透视投影
+         */
+        Perspective,
+    };
 
     // 相机组件
     // 每个相机对应一个离屏渲染target
@@ -27,11 +39,11 @@ namespace Boo
          * 0：正交相机
          * 1：透视相机
          */
-        int _type = 0;
+        CameraProjection _projection = CameraProjection::Perspective;
         /**
          * 相机视场角度
          */
-        float _fieldOfView = 45.0f;
+        float _fov = 45.0f;
         /**
          * 相机近裁剪平面距离
          */
@@ -53,15 +65,33 @@ namespace Boo
         /**
          * 视图矩阵
          * 将3D世界空间 → 3D相机空间
+         * 作用：将世界坐标变换到摄像机/观察空间
+         * 定义：摄像机的位置、朝向、上方向
+         * 本质：世界到摄像机的变换矩阵
          */
         Mat4 _matView = Mat4::identity();
         /**
          * 投影矩阵
          * 将3D观察空间 → 2D裁剪空间（NDC空间：-1到1）
+         * 作用：将摄像机空间的坐标变换到裁剪空间
+         * 定义：摄像机的视场角度、近裁剪平面距离、远裁剪平面距离
+         * 本质：摄像机到裁剪空间的变换矩阵
+         * 类型：透视投影（3D）或正交投影（2D/UI）
          */
         Mat4 _matProj = Mat4::identity();
         GfxRenderTexture *_renderTexture = nullptr;
-        virtual void _createRenderPipeline();
+        void _createRenderPipeline();
+        /**
+         * @brief 更新视图矩阵
+         *
+         */
+        void _updateViewMatrix();
+        /**
+         * @brief 更新投影矩阵
+         *
+         */
+        void _updateProjectionMatrix();
+
 
     public:
         Camera(std::string name, Node *node, std::string uuid = "");
@@ -78,7 +108,9 @@ namespace Boo
         int getPriority();
         void setGroupIDs(int groupIDs);
         void addGroupID(int groupID);
+        void addGroupID(NodeGroup groupID);
         int getGroupIDs();
+        void setProjection(CameraProjection projection);
         void updateViewSize();
         void Update(float deltaTime) override;
         void LateUpdate(float deltaTime) override;

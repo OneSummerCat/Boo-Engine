@@ -9,18 +9,23 @@ class GfxShader;
 class GfxTexture;
 class GfxBufferUBO;
 class GfxBufferInstance;
+class GfxRenderTexture;
 class GfxMesh;
 
 namespace Gfx
 {
-	extern int viewWidth;
-	extern int viewHeight;
-	extern GfxContext *context;
-	extern GfxRenderer *renderer;
-	extern float time;
-	extern std::map<std::string, GfxShader *> shaders;
-	extern std::map<std::string, GfxTexture *> textures;
-	extern GfxBufferUBO *bufferUBO;
-	extern GfxBufferInstance *bufferInstance;
-	extern GfxMesh *uiTestMesh;
+	extern int _viewWidth;
+	extern int _viewHeight;
+	extern GfxContext *_context;
+	extern GfxRenderer *_renderer;
+	extern float _time;
+	extern std::map<std::string, GfxShader *> _shaders;
+	extern std::map<std::string, GfxTexture *> _textures;
+	extern std::map<std::string, GfxMesh *> _meshes;
+	extern GfxBufferUBO *_bufferUBO;
+	extern GfxBufferInstance *_bufferInstance;
+	extern int _drawCount;
+	extern float _renderTime;
+	
+	extern GfxMesh *_uiTestMesh;
 }

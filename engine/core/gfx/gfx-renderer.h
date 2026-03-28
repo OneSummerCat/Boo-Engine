@@ -11,11 +11,10 @@
 #include <sstream>
 #include <vulkan/vulkan_core.h>
 #include <shaderc/shaderc.hpp>
-
-#include "base/gfx-pipeline-struct.h"
+#include "gfx-struct.h"
 
 class GfxContext;
-class GfxRendererDefault;
+class GfxDefaultRenderer;
 class GfxTexture;
 class GfxRenderPass;
 class GfxShader;
@@ -23,16 +22,22 @@ class GfxPipeline;
 class GfxRenderTexture;
 class GfxMaterial;
 class GfxMesh;
-class GfxRendererBuiltin;
+class GfxBuiltinRenderer;
 
 class GfxRenderer
 {
 private:
-	GfxRendererDefault *_defaultRenderer;
-	GfxRendererBuiltin *_builtinRenderer;
+	GfxDefaultRenderer *_defaultRenderer;
+	GfxBuiltinRenderer *_builtinRenderer;
 	std::vector<GfxTexture *> _destroyTextureCaches;
 	std::vector<GfxShader *> _destroyShaderCaches;
+	std::vector<GfxRenderTexture *> _destroyRenderTextureCaches;
+	std::vector<GfxMesh *> _destroyMeshCaches;
 
+	/**
+	 * @brief 初始化默认纹理
+	 */
+	void _initDefaultTexture();
 	/**
 	 * @brief 编译GLSL着色器到SPIR-V
 	 *
@@ -41,41 +46,63 @@ private:
 	 * @param source GLSL着色器源代码
 	 * @param macros 宏定义
 	 */
-	std::vector<uint32_t> _compileShaderGlslToSpirv(const std::string &type, const std::string &cacheKey, const std::string &source, const std::map<std::string, std::string> &macros);
+	std::vector<uint32_t> _compileShaderGlslToSpirv(const std::string &type, const std::string &cacheKey, const std::string &source, const std::map<std::string, int> &macros);
+	
 public:
 	GfxRenderer();
 	void init();
 
-	void createPipeline(std::string name, GfxPipelineStruct pipelineStruct);
+	void createPipeline(std::string name, GfxRendererState rendererState);
 
 	/**
 	 * 创建 or 销毁渲染纹理
 	 */
-	void createTexture(std::string textureUuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels);
-	void insertTexture(std::string uuid, GfxTexture *texture);
-	void destroyTexture(std::string textureUuid);
-	bool isExistTexture(std::string textureUuid);
-	GfxTexture *getTexture(std::string uuid);
+	GfxTexture *createTexture(std::string uuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels, GfxTextureFormat format);
+	void insertTexture(GfxTexture *texture);
+	void destroyTexture(GfxTexture *texture);
+	
 	/**
 	 * @brief 创建着色器
 	 *
 	 * @param shaderName 着色器名称
 	 * @param buffer 着色器字节码
 	 */
-	void createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros);
+	GfxShader *createGlslShader(const std::string &uuid, const std::string &shaderType, const std::string &data, const std::map<std::string, int> &macros);
 	/**
 	 * @brief 创建SPIR-V着色器
 	 */
-	void createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data);
+	GfxShader *createSpirvShader(const std::string &uuid, const std::vector<uint32_t> &data);
 	/**
 	 * @brief 销毁着色器
 	 */
-	void destroyShader(std::string shaderName);
+	void destroyShader(GfxShader *shader);
+	/**
+	 * @brief 创建网格
+	 */
+	GfxMesh *createMesh(std::string meshUuid, const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices);
+	/**
+	 * @brief 销毁网格
+	 */
+	void destroyMesh(GfxMesh *mesh);
 
-	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture);
+	/**
+	 * @brief 创建渲染纹理
+	 *
+	 * @param renderTextureUuid 渲染纹理UUID
+	 * @param width 宽度
+	 * @param height 高度
+	 * @param channels 通道数
+	 * @param pixels 像素数据
+	 */
+	GfxRenderTexture *createRenderTexture(std::string renderTextureUuid, uint32_t width, uint32_t height);
+	void destroyRenderTexture(GfxRenderTexture *renderTexture);
+
+	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority);
+	void setRenderQueuePriority(std::string renderId, int priority);
 	void delRenderQueue(std::string renderId);
+
 	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen);
-	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData);
+	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh);
 	
 	void frameRendererBefore();
 	void frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers);
@@ -88,149 +115,3 @@ public:
 
 	~GfxRenderer();
 };
-
-// private:
-// 	float _time;
-// 	std::string _name;
-
-// 	std::map<std::string, GfxDescriptor *> _descriptors;
-
-//
-// 	/**
-// 	 * @brief 渲染通道
-// 	 * 渲染通道
-// 	 */
-// 	std::map<std::string, GfxRenderPass *> _passes;
-
-// 	/**
-// 	 * @brief 渲染队列
-// 	 * 渲染队列-一个摄像机一个队列
-// 	 * uint32_t 摄像机的可见id
-// 	 */
-// 	GfxRenderQueue *_defaultQueue;
-// 	std::map<uint32_t, GfxRenderQueue *> _queues;
-
-// 	/**
-// 	 * @brief 渲染缓冲区
-// 	 * 渲染缓冲区
-// 	 */
-// 	std::map<VkDeviceSize, std::vector<GfxBufferUBO *>> _uboBuffers;
-// 	std::map<VkDeviceSize, std::vector<GfxBufferSSBO *>> _ssboBuffers;
-
-// 	TextureAsset *_textTexture;
-
-// 	/**
-// 	 * 描述符相关
-// 	 */
-// 	void _initDescriptor();
-// 	void _initDescriptorPool();
-// 	void _initDescriptorSetLayout();
-// 	void _initDescriptorSets();
-
-// 	/**
-// 	 * @brief 初始化默认通道
-// 	 */
-// 	void _initDefaultPasses();
-// 	void _initDefaultShaders();
-//
-// 	// void _initDefaultUIMaskPipeline();
-// 	// // 初始化默认渲染队列
-// 	void _initDefaultRenderQueue();
-// 	// // 帧缓冲区:它连接了渲染通道（Render Pass） 和交换链图像（Swap Chain Images）
-// 	// std::vector<VkFramebuffer> _framebuffers;
-// 	// // 命令缓冲区是用于记录和执行 GPU 命令的内存块。在 Vulkan 中，几乎所有渲染操作都需要通过命令缓冲区来执行。
-// 	// std::vector<VkCommandBuffer> _commandBuffers;
-// 	// void _createBuffers();
-// 	// void _createFramebuffers();
-// 	// void _createCommandBuffers();
-
-// public:
-// 	GfxRenderer(std::string name);
-// 	void init();
-
-// 	GfxDescriptor *getDescriptor(std::string name); //{ return this->_descriptors.at(name); }
-// 	GfxRenderPass *getPass(std::string name);				// const { return this->_passes.at(name); }
-// 		// const { return this->_pipelines.at(name); }
-// 		// const { return this->_textures.at(uuid); }
-
-// 	// VkDescriptorSet getDescriptorSet(uint32_t index) const { return this->_descriptorSets[index]; }
-// 	// /**
-// 	//  * @brief 获取描述符集布局
-// 	//  *
-// 	//  * @return VkDescriptorSetLayout
-// 	//  */
-// 	// VkDescriptorSetLayout descriptorSetLayout() const { return this->_descriptorSetLayout; }
-
-//
-// 	void createUIPipeline(std::string name, GfxPipelineStruct pipelineStruct);
-
-// 	// /**
-// 	//  * @brief 创建模型渲染对象
-// 	//  * 旧的,过时的
-// 	//  * @param id  物体ID
-// 	//  * @param renderPassType 渲染通道类型
-// 	//  * @param pipelineType 管线类型
-// 	//  * @param points 顶点数据
-// 	//  * @param colors 颜色数据
-// 	//  * @param normals 法线数据
-// 	//  * @param uvs uv数据
-// 	//  * @param indices 索引数据
-// 	//  */
-// 	// void createObject(std::string id, std::string renderPassType, std::vector<float> points, std::vector<float> colors, std::vector<float> normals, std::vector<float> uvs, std::vector<uint32_t> indices);
-// 	// /**
-// 	//  * @brief 创建UI渲染对象
-// 	//  *
-// 	//  * @param id 物体ID
-// 	//  * @param pipelineType 管线类型
-// 	//  * @param points 顶点数据
-// 	//  * @param colors 颜色数据
-// 	//  * @param normals 法线数据
-// 	//  * @param uvs uv数据
-// 	//  * @param indices 索引数据
-// 	//  */
-// 	// void createUIObject(std::string id, std::vector<float> &points, std::vector<float> &colors, std::vector<float> &normals, std::vector<float> &uvs, std::vector<uint32_t> &indices);
-// 	// /**
-// 	//  * @brief 创建UI遮罩渲染对象
-// 	//  * 旧的,过时的
-// 	//  * @param id 物体ID
-// 	//  * @param pipelineType 管线类型
-// 	//  * @param points 顶点数据
-// 	//  * @param colors 颜色数据
-// 	//  * @param normals 法线数据
-// 	//  * @param uvs uv数据
-// 	//  * @param indices 索引数据
-// 	//  */
-// 	// void createUIMaskObject(std::string id, std::vector<float> &points, std::vector<float> &colors, std::vector<float> &normals, std::vector<float> &uvs, std::vector<uint32_t> &indices);
-// 	// void setObjectPass(std::string id, std::string pass);
-// 	// void setObjectPipeline(std::string id, std::string pipeline);
-// 	// /**
-// 	//  * @brief 设置UI遮罩行为
-// 	//  *
-// 	//  * @param id 物体ID
-// 	//  * @param behavior 行为 0 不遮罩 1 遮罩
-// 	//  */
-// 	// void setObjectUIMaskBehavior(std::string id, uint32_t behavior);
-// 	// void setObjectModelMatrix(std::string id, std::array<float, 16> modelMatrix);
-// 	// void setObjectViewMatrix(std::string id, std::array<float, 16> viewMatrix);
-// 	// void setObjectProjMatrix(std::string id, std::array<float, 16> projMatrix);
-// 	// void setObjectTexture(const std::string &id, const std::string &texture);
-// 	// void setObjectColor(std::string id, float r, float g, float b, float a);
-// 	// void destroyObject(std::string id);
-
-// 	// /*   // /**
-// 	//   //  * @brief 重置模型渲染对象状态
-// 	//   //  *
-// 	//   //  * @param id 物体ID
-// 	//   //  * @param renderPassType 渲染通道类型
-// 	//   //  * @param pipelineType 管线类型
-// 	//   //  */
-// 	// // void resetGfxObjectRendererState(std::string id, std::string renderPassType, std::string pipelineType); */
-
-// 	// /**
-// 	//  * @brief 提交渲染对象
-// 	//  * @param id 物体ID
-// 	//  */
-// 	// void submitObjectRender(std::string id);
-
-// 	~GfxRenderer();
-// };

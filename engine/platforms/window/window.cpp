@@ -3,8 +3,6 @@
 #include "../../boo.h"
 #include "../../core/game.h"
 
-
-
 const int MIN_WIDTH = 640;
 const int MIN_HEIGHT = 360;
 
@@ -19,6 +17,7 @@ Window::Window()
 
 void Window::init()
 {
+	this->_initAssetsRoot();
 #if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
 	if (!glfwInit())
 	{
@@ -59,6 +58,36 @@ GLFWwindow *Window::getWindow()
 {
 	return this->_window;
 }
+void Window::_initAssetsRoot()
+{
+#if defined(BOO_PLATFORM_WINDOWS)
+	//SetConsoleOutputCP(CP_UTF8);
+	//SetConsoleCP(CP_UTF8); // 也设置输入编码为 UTF-8，保持统一
+
+	char exePath[MAX_PATH];
+	GetModuleFileNameA(NULL, exePath, MAX_PATH);
+	this->_assetsRoot = std::filesystem::path(exePath).parent_path().string();
+	std::cout << "assets path:" << this->_assetsRoot << std::endl;
+#else defined(BOO_PLATFORM_MACOS)
+	uint32_t size = 0;
+	_NSGetExecutablePath(nullptr, &size);
+	std::vector<char> buffer(size);
+	if (_NSGetExecutablePath(buffer.data(), &size) == 0)
+	{
+		try
+		{
+			std::string appPath = std::string(buffer.data());
+			this->_assetsRoot = std::filesystem::path(appPath).parent_path().string();
+			std::cout << "assets path:" << this->_assetsRoot << std::endl;
+		}
+		catch (const std::filesystem::filesystem_error &ex)
+		{
+			std::cerr << "file system error: " << ex.what() << std::endl;
+		}
+	}
+#endif
+}
+
 void Window::cursorPosCallback(GLFWwindow *window, double xpos, double ypos)
 {
 	void *userPointer = glfwGetWindowUserPointer(window);

@@ -23,7 +23,7 @@ void GfxRenderPass::_clear()
 {
     if (this->_vkRenderPass != VK_NULL_HANDLE)
     {
-        vkDestroyRenderPass(Gfx::context->getVkDevice(), this->_vkRenderPass, nullptr);
+        vkDestroyRenderPass(Gfx::_context->getVkDevice(), this->_vkRenderPass, nullptr);
         this->_vkRenderPass = VK_NULL_HANDLE;
     }
 }
@@ -159,7 +159,7 @@ GfxRenderPass::~GfxRenderPass()
 //     renderPassInfo.pDependencies = &dependency;
 
 //     /*  // 创建渲染流程 */
-//     if (vkCreateRenderPass(Gfx::context->getVkDevice(), &renderPassInfo, nullptr, &this->_vkRenderPass) != VK_SUCCESS)
+//     if (vkCreateRenderPass(Gfx::_context->getVkDevice(), &renderPassInfo, nullptr, &this->_vkRenderPass) != VK_SUCCESS)
 //     {
 //         // throw std::runtime_error("failed to create render pass!");
 //         std::cout << "GfxRenderPass :create render pass failed " << this->_name << std::endl;
@@ -171,7 +171,7 @@ GfxRenderPass::~GfxRenderPass()
 // {
 //     if (attachment == 0)
 //     {
-//         return Gfx::context->getSwapChainImageFormat();
+//         return Gfx::_context->getSwapChainImageFormat();
 //     }
 //     else if (attachment == 1)
 //     {

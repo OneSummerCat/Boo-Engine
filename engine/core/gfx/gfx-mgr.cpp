@@ -4,6 +4,7 @@
 #include "gfx-mgr.h"
 #include "gfx-context.h"
 #include "gfx-renderer.h"
+
 #include "base/gfx-material.h"
 #include "base/gfx-mesh.h"
 #include "base/gfx-render-texture.h"
@@ -30,42 +31,39 @@ GfxMgr::GfxMgr()
 
 void GfxMgr::init(Window *window)
 {
-    Gfx::context = new GfxContext();
-    Gfx::context->init(window);
+    Gfx::_context = new GfxContext();
+    Gfx::_context->init(window);
     this->_initRenderer();
 }
 void GfxMgr::init(Android *android)
 {
-    Gfx::context = new GfxContext();
-    Gfx::context->init(android);
+    Gfx::_context = new GfxContext();
+    Gfx::_context->init(android);
     this->_initRenderer();
 }
 void GfxMgr::_initRenderer()
 {
-   Gfx::renderer = new GfxRenderer();
-   Gfx::renderer->init();
+    Gfx::_renderer = new GfxRenderer();
+    Gfx::_renderer->init();
 }
 void GfxMgr::resize(int width, int height)
 {
-    Gfx::viewWidth = width;
-    Gfx::viewHeight = height;
+    Gfx::_viewWidth = width;
+    Gfx::_viewHeight = height;
 }
 void GfxMgr::update(float dt)
 {
-    Gfx::time += dt;
-
-    // Gfx::renderer->clearDestroyObjects();
-    // std::cout << "renderer update" << std::endl;
-    Gfx::context->frameFencesPrepare(this->_currentFrame);
-    // std::cout << "renderer update1" << std::endl;
+    Gfx::_time += dt;
+    Gfx::_drawCount = 0;
+    this->_preFrameTime = std::chrono::high_resolution_clock::now();
+    Gfx::_context->frameFencesPrepare(this->_currentFrame);
     /* // 可用的图像的索引 */
     uint32_t imageIndex;
-    Gfx::renderer->frameRendererBefore();
     /**
      * 从交换链申请一个可渲染的图像
      * 通过 _imageAvailableSemaphores[_currentFrame] 信号量，通知 GPU："必须等这个信号量触发后，才能开始渲染该图像"。
      */
-    VkResult result1 = Gfx::context->frameAcquireNextImage(&imageIndex, this->_currentFrame);
+    VkResult result1 = Gfx::_context->frameAcquireNextImage(&imageIndex, this->_currentFrame);
     /*  // 如果交换链已过期（如窗口大小改变），会返回 VK_ERROR_OUT_OF_DATE_KHR，触发重建交换链 */
     if (result1 == VK_ERROR_OUT_OF_DATE_KHR || result1 == VK_SUBOPTIMAL_KHR)
     {
@@ -73,20 +71,19 @@ void GfxMgr::update(float dt)
         this->resetSwapChain();
         return;
     }
-    // std::cout << "renderer update2" << std::endl;
     /* // 检查当前索引图像是否被其他帧使用，若已被使用，则等待其他帧完成 */
-    Gfx::context->frameWaitImageInUse(imageIndex, this->_currentFrame);
-    // std::cout << "renderer update:'VK_SUCCESS',imageIndex:" << imageIndex << std::endl;
+    Gfx::_context->frameWaitImageInUse(imageIndex, this->_currentFrame);
+    Gfx::_renderer->frameRendererBefore();
     /*  // 准备渲染buffer */
     std::vector<VkCommandBuffer> commandBuffers;
-    Gfx::renderer->frameRenderer(imageIndex, commandBuffers);
+    Gfx::_renderer->frameRenderer(imageIndex, commandBuffers);
     /*  // 提交渲染命令 */
-    Gfx::context->frameSubmitCommands(imageIndex, commandBuffers, this->_currentFrame);
+    Gfx::_context->frameSubmitCommands(imageIndex, commandBuffers, this->_currentFrame);
     /*  // 显示图像 */
-    VkResult result2 = Gfx::context->framePresentFrame(imageIndex, this->_currentFrame);
+    VkResult result2 = Gfx::_context->framePresentFrame(imageIndex, this->_currentFrame);
     if (result2 == VK_ERROR_OUT_OF_DATE_KHR || result2 == VK_SUBOPTIMAL_KHR)
     {
-        Gfx::renderer->frameRendererAfter();
+        Gfx::_renderer->frameRendererAfter();
         this->resetSwapChain();
         return;
     }
@@ -101,67 +98,93 @@ void GfxMgr::update(float dt)
      * 帧0	等待帧0栅栏，信号量A复用	渲染帧1完成，显示帧0
      */
     this->_currentFrame = (this->_currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
-    Gfx::renderer->frameRendererAfter();
+    Gfx::_renderer->frameRendererAfter();
+    // 计算当前帧的渲染提交时间
+    std::chrono::high_resolution_clock::time_point currentTime = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(currentTime - this->_preFrameTime);
+    this->_preFrameTime = currentTime;
+    long long renderTimeNano = duration.count(); // 这是纳秒 ，中间还有微妙，需要转换为毫秒
+    Gfx::_renderTime = renderTimeNano / 1000.0f / 1000.0f;
 }
 /**
  * 关键时刻手动重置交换链
  */
 void GfxMgr::resetSwapChain()
 {
-    vkDeviceWaitIdle(Gfx::context->getVkDevice()); /*  // 等待所有操作完成 */
-    Gfx::renderer->_cleanRendererState();
-    Gfx::context->cleanSwapChain();
+    vkDeviceWaitIdle(Gfx::_context->getVkDevice()); /*  // 等待所有操作完成 */
+    Gfx::_renderer->_cleanRendererState();
+    Gfx::_context->cleanSwapChain();
     /*  // 后重置 */
-    Gfx::context->resetSwapChain();
-    Gfx::renderer->_resetRendererState();
+    Gfx::_context->resetSwapChain();
+    Gfx::_renderer->_resetRendererState();
     std::cout << "GfxMgr :reset swap chain end..." << std::endl;
 }
 
-void GfxMgr::createPipeline(std::string pipelineName, GfxPipelineStruct pipelineStruct)
+void GfxMgr::createPipeline(std::string pipelineName, GfxRendererState rendererState)
 {
-    Gfx::renderer->createPipeline(pipelineName, pipelineStruct);
+    Gfx::_renderer->createPipeline(pipelineName, rendererState);
 }
 
-void GfxMgr::createTexture(std::string texture, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels)
+GfxTexture* GfxMgr::createTexture(std::string textureUuid, uint32_t width, uint32_t height, uint32_t channels, const std::vector<uint8_t> *pixels, GfxTextureFormat format)
 {
-    Gfx::renderer->createTexture(texture, width, height, channels, pixels);
+    return Gfx::_renderer->createTexture(textureUuid, width, height, channels, pixels, format);
 }
-void GfxMgr::destroyTexture(std::string texture)
+void GfxMgr::destroyTexture(GfxTexture *texture)
 {
-    Gfx::renderer->destroyTexture(texture);
-}
-bool GfxMgr::isExistTexture(std::string texture)
-{
-    return Gfx::renderer->isExistTexture(texture);
-}
-void GfxMgr::createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, std::string> &macros)
-{
-    Gfx::renderer->createGlslShader(shaderName, shaderType, data, macros);
-}
-void GfxMgr::createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data)
-{
-    Gfx::renderer->createSpirvShader(shaderName, data);
-}
-void GfxMgr::destroyShader(std::string shaderName)
-{
-    Gfx::renderer->destroyShader(shaderName);
+    Gfx::_renderer->destroyTexture(texture);
 }
 
-void GfxMgr::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture)
+GfxShader* GfxMgr::createGlslShader(const std::string &shaderName, const std::string &shaderType, const std::string &data, const std::map<std::string, int> &macros)
 {
-    Gfx::renderer->initRenderQueue(renderId, renderTexture);
+    return Gfx::_renderer->createGlslShader(shaderName, shaderType, data, macros);
+}
+GfxShader* GfxMgr::createSpirvShader(const std::string &shaderName, const std::vector<uint32_t> &data)
+{
+    return Gfx::_renderer->createSpirvShader(shaderName, data);
+}
+void GfxMgr::destroyShader(GfxShader *shader)
+{
+    Gfx::_renderer->destroyShader(shader);
+}
+GfxMesh* GfxMgr::createMesh(std::string meshUuid, const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices)
+{
+    return Gfx::_renderer->createMesh(meshUuid, _positions, _normals, _uvs, _uvs1, _uvs2, _colors, _tangents, _indices);
+}
+void GfxMgr::destroyMesh(GfxMesh *mesh)
+{
+    Gfx::_renderer->destroyMesh(mesh);
+}
+
+GfxRenderTexture* GfxMgr::createRenderTexture(std::string renderTextureUuid, uint32_t width, uint32_t height)
+{
+    return Gfx::_renderer->createRenderTexture(renderTextureUuid, width, height);
+}
+void GfxMgr::destroyRenderTexture(GfxRenderTexture *renderTexture)
+{
+    Gfx::_renderer->destroyRenderTexture(renderTexture);
+}
+
+
+
+void GfxMgr::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority)
+{
+    Gfx::_renderer->initRenderQueue(renderId, renderTexture, priority);
+}
+void GfxMgr::setRenderQueuePriority(std::string renderId, int priority)
+{
+    Gfx::_renderer->setRenderQueuePriority(renderId, priority);
 }
 void GfxMgr::delRenderQueue(std::string renderId)
 {
-    Gfx::renderer->delRenderQueue(renderId);
+    Gfx::_renderer->delRenderQueue(renderId);
 }
 void GfxMgr::submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen)
 {
-    Gfx::renderer->submitRenderData(renderId, viewMatrix, projMatrix, isOnScreen);
+    Gfx::_renderer->submitRenderData(renderId, viewMatrix, projMatrix, isOnScreen);
 }
-void GfxMgr::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh, std::vector<float> &instanceData)
+void GfxMgr::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh)
 {
-    Gfx::renderer->submitRenderObject(renderId, material, mesh, instanceData);
+    Gfx::_renderer->submitRenderObject(renderId, material, mesh);
 }
 std::vector<char> GfxMgr::readShaderFile(const std::string &filename)
 {
@@ -193,31 +216,31 @@ VkResult GfxMgr::createBuffer(VkBufferUsageFlags usageFlags, VkMemoryPropertyFla
     bufferCreateInfo.usage = usageFlags;
     bufferCreateInfo.size = size;
     bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    vkCreateBuffer(Gfx::context->getVkDevice(), &bufferCreateInfo, nullptr, buffer);
+    vkCreateBuffer(Gfx::_context->getVkDevice(), &bufferCreateInfo, nullptr, buffer);
 
     VkMemoryRequirements memReqs;
     VkMemoryAllocateInfo memAlloc{};
     memAlloc.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    vkGetBufferMemoryRequirements(Gfx::context->getVkDevice(), *buffer, &memReqs);
+    vkGetBufferMemoryRequirements(Gfx::_context->getVkDevice(), *buffer, &memReqs);
     memAlloc.allocationSize = memReqs.size;
     memAlloc.memoryTypeIndex = getMemoryTypeIndex(memReqs.memoryTypeBits, memoryPropertyFlags);
-    vkAllocateMemory(Gfx::context->getVkDevice(), &memAlloc, nullptr, memory);
+    vkAllocateMemory(Gfx::_context->getVkDevice(), &memAlloc, nullptr, memory);
 
     if (data != nullptr)
     {
         void *mapped;
-        vkMapMemory(Gfx::context->getVkDevice(), *memory, 0, size, 0, &mapped);
+        vkMapMemory(Gfx::_context->getVkDevice(), *memory, 0, size, 0, &mapped);
         memcpy(mapped, data, size);
-        vkUnmapMemory(Gfx::context->getVkDevice(), *memory);
+        vkUnmapMemory(Gfx::_context->getVkDevice(), *memory);
     }
 
-    vkBindBufferMemory(Gfx::context->getVkDevice(), *buffer, *memory, 0);
+    vkBindBufferMemory(Gfx::_context->getVkDevice(), *buffer, *memory, 0);
     return VK_SUCCESS;
 }
 uint32_t GfxMgr::getMemoryTypeIndex(uint32_t typeBits, VkMemoryPropertyFlags properties)
 {
     VkPhysicalDeviceMemoryProperties deviceMemoryProperties;
-    vkGetPhysicalDeviceMemoryProperties(Gfx::context->getPhysicalDevice(), &deviceMemoryProperties);
+    vkGetPhysicalDeviceMemoryProperties(Gfx::_context->getPhysicalDevice(), &deviceMemoryProperties);
     for (uint32_t i = 0; i < deviceMemoryProperties.memoryTypeCount; i++)
     {
         if ((typeBits & 1) == 1)

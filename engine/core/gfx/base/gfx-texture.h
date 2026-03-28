@@ -9,16 +9,14 @@
 #include <map>
 #include <cstdint>
 
-
 class GfxTexture
 {
 private:
-
     std::string _uuid;
     int _width;
     int _height;
     int _channels;
-    VkDeviceSize _imageSize;
+    VkFormat _format;
     const std::vector<uint8_t> *_pixels;
 
     VkImage _textureImage = VK_NULL_HANDLE;
@@ -44,10 +42,24 @@ private:
     void _Log(std::string msg);
 
 public:
-   /*  // 主要用于创建附件贴图 */
+    /**
+     * @brief 创建纹理
+     * 
+     * @�理uuid
+     */
     GfxTexture(std::string uuid);
-   /*  // 多通道贴图创建 */
-    GfxTexture(std::string uuid, const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels);
+    /**
+     * @brief 创建纹理
+     * 
+     * @param pixels 纹理数据
+     * @param width 纹理宽度
+     * @param height 纹理高度
+     * @param channels 纹理通道数
+     * @param format 纹理格式
+     */
+    void create(const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels, VkFormat format);
+
+
 
     void createImage(uint32_t width, uint32_t height, VkFormat format,
                      VkImageTiling tiling, VkImageUsageFlags usage,
@@ -66,19 +78,12 @@ public:
     VkSampler getSampler();
     std::string getUuid();
 
-
-
-    
-    bool saveToFile(std::string filePath, uint32_t width, uint32_t height);
-
-
-
     // 绑定less 索引
     uint32_t getBindlessIndex();
     void setBindlessIndex(uint32_t index);
-
     void destroy();
 
+    bool saveToFile(std::string filePath, uint32_t width, uint32_t height);
     ~GfxTexture();
 };
 

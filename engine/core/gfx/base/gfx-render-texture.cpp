@@ -2,6 +2,7 @@
 #include "../gfx.h"
 #include "../gfx-context.h"
 #include "../gfx-renderer.h"
+#include "../gfx-renderer.h"
 #include "gfx-texture.h"
 #include "gfx-render-pass.h"
 #include "gfx-pipeline.h"
@@ -52,7 +53,7 @@ void GfxRenderTexture::_createFrameBuffer()
     }
     if (this->_framebuffer!= VK_NULL_HANDLE)
     {
-        vkDestroyFramebuffer(Gfx::context->getVkDevice(), this->_framebuffer, nullptr);
+        vkDestroyFramebuffer(Gfx::_context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;
     }
     std::vector<VkImageView> attachments = {
@@ -67,7 +68,7 @@ void GfxRenderTexture::_createFrameBuffer()
     framebufferInfo.height = this->_height;
     framebufferInfo.layers = 1;
 
-    if (vkCreateFramebuffer(Gfx::context->getVkDevice(), &framebufferInfo, nullptr, &this->_framebuffer) != VK_SUCCESS)
+    if (vkCreateFramebuffer(Gfx::_context->getVkDevice(), &framebufferInfo, nullptr, &this->_framebuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create framebuffer!");
     }
@@ -82,15 +83,15 @@ void GfxRenderTexture::_createCommandBuffer()
     }
     if (this->_commandBuffer!= VK_NULL_HANDLE)
     {
-        vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &this->_commandBuffer);
+        vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &this->_commandBuffer);
         this->_commandBuffer = VK_NULL_HANDLE;
     }
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = Gfx::context->getCommandPool();
+    allocInfo.commandPool = Gfx::_context->getCommandPool();
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = 1;
-    if (vkAllocateCommandBuffers(Gfx::context->getVkDevice(), &allocInfo, &this->_commandBuffer) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(Gfx::_context->getVkDevice(), &allocInfo, &this->_commandBuffer) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to allocate command buffers!");
     }
@@ -121,12 +122,12 @@ void GfxRenderTexture::resize(uint32_t width, uint32_t height)
     }
     if (this->_colorTexture!=nullptr)
     {
-        Gfx::renderer->destroyTexture(this->_colorUuid);
+        Gfx::_renderer->destroyTexture(this->_colorTexture);
         this->_colorTexture = nullptr;
     }
     if (this->_depthTexture != nullptr)
     {
-        Gfx::renderer->destroyTexture(this->_depthUuid);
+        Gfx::_renderer->destroyTexture(this->_depthTexture);
         this->_depthTexture = nullptr;
     }
 
@@ -158,13 +159,13 @@ void GfxRenderTexture::_createTextures()
     this->_colorTexture = new GfxTexture(this->_colorUuid);
     this->_colorTexture->createImage(
         this->_width, this->_height,
-        Gfx::context->getSwapChainImageFormat(),
+        Gfx::_context->getSwapChainImageFormat(),
         VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, /* // 可作为纹理采样 */
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         VK_SAMPLE_COUNT_1_BIT);
     this->_colorTexture->createImageView(
-        Gfx::context->getSwapChainImageFormat(),
+        Gfx::_context->getSwapChainImageFormat(),
         VK_IMAGE_ASPECT_COLOR_BIT);
     this->_colorTexture->crateImageSampler();
 
@@ -182,8 +183,8 @@ void GfxRenderTexture::_createTextures()
     this->_depthTexture->crateImageSampler();
 
     LOGI("[Gfx : RenderTexture]:: create textures success");
-    Gfx::renderer->insertTexture(this->_colorUuid, this->_colorTexture);
-    Gfx::renderer->insertTexture(this->_depthUuid, this->_depthTexture);
+    Gfx::_renderer->insertTexture(this->_colorTexture);
+    Gfx::_renderer->insertTexture(this->_depthTexture);
 
     // ✅ 初始化纹理：转换布局并清除为透明黑色
     this->_initializeRenderTexture();
@@ -198,11 +199,11 @@ void GfxRenderTexture::_initializeRenderTexture()
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandPool = Gfx::context->getCommandPool();
+    allocInfo.commandPool = Gfx::_context->getCommandPool();
     allocInfo.commandBufferCount = 1;
 
     VkCommandBuffer commandBuffer;
-    vkAllocateCommandBuffers(Gfx::context->getVkDevice(), &allocInfo, &commandBuffer);
+    vkAllocateCommandBuffers(Gfx::_context->getVkDevice(), &allocInfo, &commandBuffer);
 
     // 开始记录命令
     VkCommandBufferBeginInfo beginInfo{};
@@ -271,45 +272,20 @@ void GfxRenderTexture::_initializeRenderTexture()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer;
 
-    vkQueueSubmit(Gfx::context->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-    vkQueueWaitIdle(Gfx::context->getGraphicsQueue());
+    vkQueueSubmit(Gfx::_context->getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(Gfx::_context->getGraphicsQueue());
 
     // 清理命令缓冲区
-    vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &commandBuffer);
+    vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &commandBuffer);
 
     LOGI("[Gfx : RenderTexture]:: initialized render texture (cleared to transparent) %s", this->_uuid.c_str());
 }
 
 const std::string &GfxRenderTexture::getColorTextureUuid() const
 {
-    // if (this->_colorTexture == nullptr)
-    // {
-    //     return "";
-    // }
-    // if (this->_colorTexture->getImageView() == VK_NULL_HANDLE || this->_depthTexture->getSampler() == VK_NULL_HANDLE)
-    // {
-    //     return "";
-    // }
     return this->_colorUuid;
 }
 
-// void GfxRenderTexture::_clear()
-// {
-//     if (this->_colorTexture)
-//     {
-//         delete this->_colorTexture;
-//         this->_colorTexture = nullptr;
-//     }
-//     if (this->_depthTexture)
-//     {
-//         delete this->_depthTexture;
-//         this->_depthTexture = nullptr;
-//     }
-// }
-// void GfxRenderTexture::_reset()
-// {
-//     this->_createTextures();
-// }
 bool GfxRenderTexture::saveToFile1(std::string filePath)
 {
     if (this->_colorTexture == nullptr)
@@ -321,24 +297,26 @@ bool GfxRenderTexture::saveToFile1(std::string filePath)
 }
 void GfxRenderTexture::destroy()
 {
-    if (this->_colorTexture)
+    if (this->_colorTexture != nullptr)
     {
+        this->_colorTexture->destroy();
         delete this->_colorTexture;
         this->_colorTexture = nullptr;
     }
-    if (this->_depthTexture)
+    if (this->_depthTexture != nullptr)
     {
+        this->_depthTexture->destroy();
         delete this->_depthTexture;
         this->_depthTexture = nullptr;
     }
     if (this->_framebuffer!= VK_NULL_HANDLE)
     {
-        vkDestroyFramebuffer(Gfx::context->getVkDevice(), this->_framebuffer, nullptr);
+        vkDestroyFramebuffer(Gfx::_context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;
     }
     if (this->_commandBuffer != VK_NULL_HANDLE)
     {
-        vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &this->_commandBuffer);
+        vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &this->_commandBuffer);
         this->_commandBuffer = VK_NULL_HANDLE;
     }
 }
@@ -375,16 +353,16 @@ GfxRenderTexture::~GfxRenderTexture()
 // {
 //     if (this->_commandBuffer)
 //     {
-//         vkFreeCommandBuffers(Gfx::context->getVkDevice(), Gfx::context->getCommandPool(), 1, &this->_commandBuffer);
+//         vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &this->_commandBuffer);
 //         this->_commandBuffer = VK_NULL_HANDLE;
 //     }
 //     VkCommandBufferAllocateInfo allocInfo = {};
 //     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-//     allocInfo.commandPool = Gfx::context->getCommandPool();
+//     allocInfo.commandPool = Gfx::_context->getCommandPool();
 //     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 //     allocInfo.commandBufferCount = 1;
 
-//     if (vkAllocateCommandBuffers(Gfx::context->getVkDevice(), &allocInfo, &this->_commandBuffer) != VK_SUCCESS)
+//     if (vkAllocateCommandBuffers(Gfx::_context->getVkDevice(), &allocInfo, &this->_commandBuffer) != VK_SUCCESS)
 //     {
 //         throw std::runtime_error("failed to allocate command buffers!");
 //     }

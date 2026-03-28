@@ -15,18 +15,18 @@ namespace Boo
     void Renderer::mountCamera(Camera *camera)
     {
         if (this->_cameras.find(camera->getUuid()) != this->_cameras.end())
-		{
-			return;
-		}
-		LOGI("[Renderer]:mount camera: %s", camera->getUuid().c_str());
+        {
+            return;
+        }
+        LOGI("[Renderer]:mount camera: %s", camera->getUuid().c_str());
         this->_cameras[camera->getUuid()] = camera;
     }
     void Renderer::unmountCamera(Camera *camera)
     {
         if (this->_cameras.find(camera->getUuid()) == this->_cameras.end())
-		{
-			return;
-		}
+        {
+            return;
+        }
         this->_cameras.erase(camera->getUuid());
         LOGI("[Renderer]:unmount camera: %s", camera->getUuid().c_str());
     }
@@ -78,37 +78,63 @@ namespace Boo
         // LOGI("[Renderer]:_renderCameras 4: %s", camera->getName().c_str());
         camera->Render();
         // LOGI("[Renderer]:_renderCameras 5: %s", camera->getName().c_str());
-        // this->_walkNode3D(camera, scene->getRoot3D());
+        this->_walkNode3D(camera, scene->getRoot3D());
         this->_walkNode2D(camera, scene->getRoot2D());
     }
-    void Renderer::_walkNode3D(Camera *camera, Node *node)
+    void Renderer::_walkNode3D(Camera *camera, Node3D *node)
     {
-    }
-    void Renderer::_walkNode2D(Camera *camera, Node2D *node)
-    {
-        // LOGI("[Renderer]:_walkNode2D 1: %s", node->getName().c_str());
+        // std::cout << "node: " << node->getName().c_str() << std::endl;
+        // std::cout << "node groupID: " << node->getGroupID() << std::endl;
+        // std::cout << "camera groupIDs: " << camera->getGroupIDs() << std::endl;
         if (node == nullptr)
         {
             return;
         }
-        // LOGI("[Renderer]:_walkNode2D 2: %s", node->getName().c_str());
         if (!node->getActiveInHierarchy())
         {
             return;
         }
-        // LOGI("[Renderer]:_walkNode2D 3: %s", node->getName().c_str());
-        if (!(node->getGroupID() | camera->getGroupIDs()))
+        if (!(node->getGroupID() & camera->getGroupIDs()))
         {
             return;
         }
-        // LOGI("[Renderer]:_walkNode2D 4: %s", node->getName().c_str());
         Vec3 worldScale = node->getWorldScale();
         if (worldScale.getX() == 0 || worldScale.getY() == 0)
         {
             // 缩放为0 不渲染
             return;
         }
-        // LOGI("[Renderer]:_walkNode2D 5: %s", node->getName().c_str());
+        MeshRenderer *meshRenderer = node->getMeshRenderer();
+        if (meshRenderer != nullptr && meshRenderer->isEnabledInHierarchy())
+        {
+            meshRenderer->Render(camera);
+        }
+        const std::vector<Node *> &nodes = node->getChildren();
+        for (auto node : nodes)
+        {
+            this->_walkNode3D(camera, dynamic_cast<Node3D *>(node));
+        }
+    }
+    void Renderer::_walkNode2D(Camera *camera, Node2D *node)
+    {
+        if (node == nullptr)
+        {
+            return;
+        }
+        if (!node->getActiveInHierarchy())
+        {
+            return;
+        }
+        if (!(node->getGroupID() & camera->getGroupIDs()))
+        {
+            return;
+        }
+        Vec3 worldScale = node->getWorldScale();
+        if (worldScale.getX() == 0 || worldScale.getY() == 0)
+        {
+            // 缩放为0 不渲染
+            return;
+        }
         UIRenderer *uiRenderer = node->getUIRenderer();
         if (uiRenderer != nullptr && uiRenderer->isEnabledInHierarchy())
         {
@@ -131,13 +157,10 @@ namespace Boo
                 uiMask->lateRender(camera);
             }
         }
-        else
+        const std::vector<Node *> &nodes = node->getChildren();
+        for (auto node : nodes)
         {
-            const std::vector<Node *> &nodes = node->getChildren();
-            for (auto node : nodes)
-            {
-                this->_walkNode2D(camera, dynamic_cast<Node2D *>(node));
-            }
+            this->_walkNode2D(camera, dynamic_cast<Node2D *>(node));
         }
     }
     Renderer::~Renderer()

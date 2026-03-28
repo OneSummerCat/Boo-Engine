@@ -5,257 +5,217 @@
 #include "texture-asset.h"
 #include "shader-asset.h"
 #include "assets-manager.h"
+#include "gltf-asset.h"
+#include "../../boo.h"
+#include "../../log.h"
+#include "../../platforms/platform.h"
+#include "../../libs/stb/stb_image.h"
+#include <fastgltf/core.hpp>
+#include <fastgltf/tools.hpp>
+#include <fastgltf/glm_element_traits.hpp>
+
 namespace Boo
 {
-	AssetTask::AssetTask(int id) : _id(id),
-								   _isComplete(false)
-
+	AssetTask::AssetTask()
 	{
 	}
-	Asset *AssetTask::load(const std::string &rootPath, const std::string &assetPath)
+	Asset *AssetTask::load(const std::string &assetPath)
 	{
-		// this->_assetPath = path;
+		if (this->_isTextureAsset(assetPath))
+		{
+			return this->_createTexture(assetPath);
+		}
+		else if (this->_isShaderVertAsset(assetPath))
+		{
+			return this->_createShader(assetPath, ShaderVertexAsset);
+		}
+		else if (this->_isShaderFragAsset(assetPath))
+		{
+			return this->_createShader(assetPath, ShaderFragmentAsset);
+		}
+		else if (this->_isMaterialAsset(assetPath))
+		{
+			return this->_createMaterial(assetPath);
+		}
+		else if (this->_isGLBAsset(assetPath))
+		{
+			return this->_createGLBAsset(assetPath);
+		}
+		return nullptr;
+	}
+	bool AssetTask::_isTextureAsset(const std::string &assetPath)
+	{
 		std::string assetExtension = std::filesystem::path(assetPath).extension().string();
-		if (assetExtension == ".png" || assetExtension == ".PNG" || assetExtension == ".jpg" || assetExtension == ".JPG" || assetExtension == ".jpeg" || assetExtension == ".JPEG")
-		{
-			return this->_createTexture(rootPath, assetPath);
-		}
-		else if (assetExtension == ".scene" || assetExtension == ".SCENE" || assetExtension == ".Scene")
-		{
-			return this->_createScene(rootPath, assetPath);
-		}
-		else if (assetExtension == ".spv" || assetExtension == ".SPV")
-		{
-			// 编译后的shader文件
-			return nullptr;
-		}
-		else if (assetExtension == ".vert" || assetExtension == ".VERT" || assetExtension == ".frag" || assetExtension == ".FRAG")
-		{
-			// 未编译的shader文件
-			return nullptr;
-		}
-		else if (assetExtension == ".mtl" || assetExtension == ".MTL")
-		{
-			// 未编译的material文件
-			return nullptr;
-		}
-		return nullptr;
+		return assetExtension == ".png" || assetExtension == ".PNG" || assetExtension == ".jpg" || assetExtension == ".JPG" || assetExtension == ".jpeg" || assetExtension == ".JPEG";
+	}
+	bool AssetTask::_isShaderVertAsset(const std::string &assetPath)
+	{
+		std::string assetExtension = std::filesystem::path(assetPath).extension().string();
+		return assetExtension == ".vert" || assetExtension == ".VERT";
+	}
+	bool AssetTask::_isShaderFragAsset(const std::string &assetPath)
+	{
+		std::string assetExtension = std::filesystem::path(assetPath).extension().string();
+		return assetExtension == ".frag" || assetExtension == ".FRAG";
+	}
+	bool AssetTask::_isMaterialAsset(const std::string &assetPath)
+	{
+		std::string assetExtension = std::filesystem::path(assetPath).extension().string();
+		return assetExtension == ".mtl" || assetExtension == ".MTL";
+	}
+	bool AssetTask::_isGLBAsset(const std::string &assetPath)
+	{
+		std::string assetExtension = std::filesystem::path(assetPath).extension().string();
+		return assetExtension == ".glb" || assetExtension == ".GLB";
+		// assetExtension == ".gltf" || assetExtension == ".GLTF" ||
 	}
 
-	Asset *AssetTask::_createTexture(const std::string &rootPath, const std::string &assetPath)
+	Asset *AssetTask::_createTexture(const std::string &assetPath)
 	{
-		std::filesystem::path fullPath = (std::filesystem::path(rootPath) / assetPath).generic_string();
+		
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		std::filesystem::path fullPath = (std::filesystem::path(assetsManager->getAssetsRoot()) / "assets" / assetPath).generic_string();
 		if (!std::filesystem::exists(fullPath))
 		{
-			std::cerr << "AssetLoad:No such file or directory:" << fullPath << std::endl;
-			this->_loadError();
+			LOGW("AssetLoad:No such file or directory: %s", fullPath.c_str());
 			return nullptr;
 		}
 		if (!std::filesystem::is_regular_file(fullPath))
 		{
-			std::cerr << "AssetLoad:Not a regular file:" << fullPath << std::endl;
-			this->_loadError();
+			LOGW("AssetLoad:Not a regular file: %s", fullPath.c_str());
 			return nullptr;
 		}
-		TextureAsset *texture = new TextureAsset(assetPath);
-		texture->create(fullPath.string());
+		std::string name = std::filesystem::path(fullPath).stem().string();
+		int _width = 0;
+		int _height = 0;
+		int _channels = 4;
+		const void *_pixels = stbi_load(fullPath.string().c_str(), &_width, &_height, nullptr, STBI_rgb_alpha);
+		if (_pixels == nullptr)
+		{
+			LOGW("Failed to load TextureAsset: %s", fullPath.c_str());
+			return nullptr;
+		}
+		std::vector<uint8_t> pixelsVector = std::vector<uint8_t>(static_cast<const uint8_t *>(_pixels), static_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
+		stbi_image_free((void *)_pixels);
+
+		TextureAsset *texture = new TextureAsset(assetPath ,fullPath.string(), name);
+		texture->create(_width, _height, _channels, pixelsVector, GfxTextureFormat::R8G8B8A8_SRGB);
 		return texture;
-	}
-	Asset *AssetTask::_createScene(const std::string &rootPath, const std::string &assetPath)
-	{
-		// std::filesystem::path fullPath = (std::filesystem::path(rootPath) / assetPath).generic_string();
-		// if (!std::filesystem::exists(fullPath))
-		// {
-		// 	std::cerr << "AssetLoad:No such file or directory:" << fullPath << std::endl;
-		// 	this->_loadError();
-		// 	return nullptr;
-		// }
-		// if (!std::filesystem::is_regular_file(fullPath))
-		// {
-		// 	std::cerr << "AssetLoad:Not a regular file:" << fullPath << std::endl;
-		// 	this->_loadError();
-		// 	return nullptr;
-		// }
-		// SceneAsset *scene = new SceneAsset(assetPath);
-		// scene->create(fullPath.string());
-		// return scene;
+#elif defined(BOO_PLATFORM_ANDROID)
+
+#endif
 		return nullptr;
 	}
 
-	Asset *AssetTask::_createShader(const std::string &rootPath, const std::string &assetPath)
+	Asset *AssetTask::_createShader(const std::string &assetPath, const std::string &type)
 	{
-		return nullptr;
-	}
-	Asset *AssetTask::_createMaterial(const std::string &rootPath, const std::string &assetPath)
-	{
-		std::filesystem::path fullPath = (std::filesystem::path(rootPath) / assetPath).generic_string();
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		std::filesystem::path fullPath = (std::filesystem::path(assetsManager->getAssetsRoot()) / "assets" / assetPath).generic_string();
 		if (!std::filesystem::exists(fullPath))
 		{
-			std::cerr << "AssetLoad:No such file or directory:" << fullPath << std::endl;
-			this->_loadError();
+			LOGW("AssetLoad:No such file or directory: %s", fullPath.c_str());
 			return nullptr;
 		}
 		if (!std::filesystem::is_regular_file(fullPath))
 		{
-			std::cerr << "AssetLoad:Not a regular file:" << fullPath << std::endl;
-			this->_loadError();
+			LOGW("AssetLoad:Not a regular file: %s", fullPath.c_str());
 			return nullptr;
 		}
-		MaterialAsset *material = new MaterialAsset(assetPath);
-		material->create(fullPath.string());
+		std::string name = std::filesystem::path(fullPath).stem().string();
+		std::ifstream file(fullPath, std::ios::binary | std::ios::ate);
+		if (!file.is_open())
+		{
+			LOGW("AssetLoad:Failed to load ShaderAsset: %s", fullPath.c_str());
+			return nullptr;
+		}
+		std::string glslData="";
+		size_t fileSize = static_cast<size_t>(file.tellg());
+		glslData.resize(fileSize);
+		file.seekg(0);
+		file.read((char *)glslData.data(), fileSize);
+		file.close();
+
+		ShaderAsset *shaderAsset = new ShaderAsset(assetPath, fullPath.string(), name);
+		shaderAsset->create(type,glslData, {});
+		return shaderAsset;
+#elif defined(BOO_PLATFORM_ANDROID)
+
+#endif
+		return nullptr;
+	}
+	Asset *AssetTask::_createMaterial(const std::string &assetPath)
+	{
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		std::filesystem::path fullPath = (std::filesystem::path(assetsManager->getAssetsRoot()) / "assets" / assetPath).generic_string();
+		if (!std::filesystem::exists(fullPath))
+		{
+			LOGW("AssetLoad:No such file or directory: %s", fullPath.c_str());
+			return nullptr;
+		}
+		if (!std::filesystem::is_regular_file(fullPath))
+		{
+			LOGW("AssetLoad:Not a regular file: %s", fullPath.c_str());
+			return nullptr;
+		}
+		json materialJson = FileUtil::readJsonFromText(fullPath.string());
+		if (materialJson.is_null() || !materialJson.is_object() || !materialJson.contains("renderer") || !materialJson.contains("type") || !materialJson.contains("vert") || !materialJson.contains("frag"))
+		{
+			LOGW("AssetLoad:Failed to load MaterialAsset: %s", fullPath.c_str());
+			return nullptr;
+		}
+		std::string name = std::filesystem::path(fullPath).stem().string();
+		MaterialAsset *material = new MaterialAsset(assetPath, fullPath.string(), name);
+		material->create(materialJson);
 		return material;
+#elif defined(BOO_PLATFORM_ANDROID)
+
+#endif
+		return nullptr;
 	}
-	// void AssetTask::run()
-	// {
-	// 	std::string file=this->_assetDB.uuid + this->_assetDB.extension;
-	// 	std::filesystem::path fullPath = (std::filesystem::path(this->_mgr->getAssetsRoot()) / file).generic_string();
-	// 	if (!std::filesystem::exists(fullPath))
-	// 	{
-	// 		std::cerr << "AssetLoad:No such file or directory:" << fullPath << std::endl;
-	// 		this->_loadError();
-	// 		return;
-	// 	}
-	// 	if (!std::filesystem::is_regular_file(fullPath))
-	// 	{
-	// 		std::cerr << "AssetLoad:Not a regular file:" << fullPath << std::endl;
-	// 		this->_loadError();
-	// 		return;
-	// 	}
-	// 	long long time = TimeUtil::nowTime();
-	// 	std::filesystem::path path = std::filesystem::relative(fullPath, std::filesystem::path(this->_mgr->getAssetsRoot()));
-	// 	std::string resKey = path.generic_string();
-
-	// 	std::string extension = std::filesystem::path(fullPath).extension().string();
-	// 	if (extension == ".png" || extension == ".PNG" || extension == ".jpg" || extension == ".JPG")
-	// 	{
-	// 		this->_createTexture(resKey, fullPath.generic_string());
-	// 	}
-	// 	else if (extension == ".vert" || extension == ".frag")
-	// 	{
-	// 		this->_createGlslShader(resKey, fullPath.generic_string());
-	// 	}
-	// 	else if (extension == ".spv")
-	// 	{
-	// 		this->_createSpirvShader(resKey, fullPath.generic_string());
-	// 	}
-	// 	else if (extension == ".scene")
-	// 	{
-	// 		this->_createScene(resKey, fullPath.generic_string());
-	// 	}
-	// 	else
-	// 	{
-	// 		std::cerr << "AssetLoad:Unknown file extension:" << extension << std::endl;
-	// 		this->_loadError();
-	// 	}
-	// 	std::cout << "load asset " << resKey << " cost :" << TimeUtil::nowTime() - time << " ms" << std::endl;
-	// }
-	// void AssetTask::_createTexture(const std::string uuid, const std::string fullPath)
-	// {
-	// 	/*TextureAsset *texture = new TextureAsset(uuid);
-	// 	texture->create(fullPath);
-	// 	this->_cache->addAssetByUuid(uuid, texture);*/
-
-	// }
-	// void AssetTask::_createGlslShader(const std::string resKey, const std::string fullPath)
-	// {
-	// 	// Shader *shader = new Shader(resKey, fullPath);
-	// 	// shader->loadGlsl();
-	// 	// this->_cache->addAsset(resKey, shader);
-	// 	// this->_loadComplete();
-	// }
-	// void AssetTask::_createSpirvShader(const std::string resKey, const std::string fullPath)
-	// {
-	// 	// Shader *shader = new Shader(resKey, fullPath);
-	// 	// shader->loadSpv();
-	// 	// this->_cache->addAsset(resKey, shader);
-	// 	// this->_loadComplete();
-	// }
-	// void AssetTask::_createScene(const std::string resKey, const std::string fullPath)
-	// {
-	// 	// SceneAsset *scene = new SceneAsset(resKey, fullPath);
-	// 	// this->_cache->addAsset(resKey, scene);		// 添加到普通资产缓存
-	// 	// this->_cache->addSceneAsset(resKey, scene); // 添加到场景资产缓存
-	// 	// this->_loadComplete();
-	// }
-
-	/**
-	 * @brief 清除资产任务回调
-	 */
-	void AssetTask::clearCallback()
+	Asset *AssetTask::_createGLBAsset(const std::string &assetPath)
 	{
-		this->_callbackOnce = nullptr;
-		this->_callbackList = nullptr;
-	}
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+		std::filesystem::path fullPath = (std::filesystem::path(assetsManager->getAssetsRoot()) / "assets" / assetPath).generic_string();
+		if (!std::filesystem::exists(fullPath))
+		{
+			LOGW("AssetLoad:No such file or directory: %s", fullPath.c_str());
+			return nullptr;
+		}
+		if (!std::filesystem::is_regular_file(fullPath))
+		{
+			LOGW("AssetLoad:Not a regular file: %s", fullPath.c_str());
+			return nullptr;
+		}
+		std::string name = std::filesystem::path(fullPath).stem().string();
+		auto bufferResult = fastgltf::GltfDataBuffer::FromPath(fullPath);
+		if (bufferResult.error() != fastgltf::Error::None)
+		{
+			// std::cerr << "Failed to load file: " << fastgltf::getErrorString(bufferResult.error()) << std::endl;
+			LOGE("Failed to load GLTFAsset: %s", fullPath.c_str());
+			return nullptr;
+		}
 
-	void AssetTask::_loadComplete()
-	{
-		// this->_isComplete = true;
-		// if (this->_type == AssetTaskType::Sync)
-		// {
-		// 	return;
-		// }
-		// else if (this->_type == AssetTaskType::AsyncOnce)
-		// {
-		// 	if (this->_callbackOnce != nullptr)
-		// 	{
-		// 		this->_callbackOnce();
-		// 	}
-		// }
-		// else if (this->_type == AssetTaskType::AsyncList)
-		// {
-		// 	if (this->_result == nullptr)
-		// 	{
-		// 		return;
-		// 	}
-		// 	this->_result->complete++;
-		// 	int complete = this->_result->complete;
-		// 	int all = this->_result->all;
-		// 	float progress = (float)complete / (float)all;
-		// 	if (this->_callbackList != nullptr)
-		// 	{
-		// 		this->_callbackList(complete, all, progress);
-		// 	}
-		// 	if (complete >= all)
-		// 	{
-		// 		delete this->_result;
-		// 		this->_result = nullptr;
-		// 	}
-		// }
-	}
-	void AssetTask::_loadError()
-	{
-		// this->_isComplete = true;
-		// if (this->_type == AssetTaskType::Sync)
-		// {
-		// 	return;
-		// }
-		// else if (this->_type == AssetTaskType::AsyncOnce)
-		// {
-		// 	if (this->_callbackOnce != nullptr)
-		// 	{
-		// 		this->_callbackOnce();
-		// 	}
-		// }
-		// else if (this->_type == AssetTaskType::AsyncList)
-		// {
-		// 	if (this->_result == nullptr)
-		// 	{
-		// 		return;
-		// 	}
-		// 	this->_result->complete++;
-		// 	int complete = this->_result->complete;
-		// 	int all = this->_result->all;
-		// 	float progress = (float)complete / (float)all;
-		// 	if (this->_callbackList != nullptr)
-		// 	{
-		// 		this->_callbackList(complete, all, progress);
-		// 	}
-		// 	if (complete >= all)
-		// 	{
-		// 		delete this->_result;
-		// 		this->_result = nullptr;
-		// 	}
-		// }
+		// 2. 配置解析器选项
+		fastgltf::Parser parser;
+		// 设置解析选项：加载 GLB 缓冲区数据，启用网格优化压缩解压
+		auto options = fastgltf::Options::LoadGLBBuffers |
+					   fastgltf::Options::DecomposeNodeMatrices;
+		//  fastgltf::Options::LoadExternalBuffers | 不支持读取并加载外部 .bin 文件的内容
+		auto &dataGetter = bufferResult.get();
+		auto result = parser.loadGltf(dataGetter, fullPath, options);
+		if (result.error() != fastgltf::Error::None)
+		{
+			LOGE("Failed to parse glTFAsset %d %s", result.error(), fullPath.c_str());
+			return nullptr;
+		}
+		std::unique_ptr<fastgltf::Asset> m_asset = std::make_unique<fastgltf::Asset>(std::move(result.get()));
+		GLTFAsset *glTFAsset = new GLTFAsset(assetPath, fullPath.string(), name);
+		glTFAsset->create(std::move(m_asset));
+		return glTFAsset;
+#elif defined(BOO_PLATFORM_ANDROID)
+
+#endif
+		return nullptr;
 	}
 
 	AssetTask::~AssetTask()

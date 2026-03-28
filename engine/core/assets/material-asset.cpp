@@ -1,363 +1,392 @@
 #include "material-asset.h"
+#include "texture-asset.h"
+#include "../../log.h"
+#include "../../boo.h"
 #include "../gfx/gfx-mgr.h"
-#include "../gfx/base/gfx-pipeline-struct.h"
-#include "../gfx/base/gfx-push-constants.h"
-#include "../gfx/base/gfx-mesh.h"
-#include "../gfx/base/gfx-material.h"
 
 namespace Boo
 {
-
-    MaterialAsset::MaterialAsset() : Asset(),
-                                     _gfxMaterial(new GfxMaterial()),
-                                     _render(0),
-                                     _vert(""),
-                                     _frag("")
+    MaterialAsset::MaterialAsset() : Asset()
+    {
+        this->_type = AssetType::Material;
+        this->_uuid = UuidUtil::generateUUID();
+        this->_gfxMaterial = new GfxMaterial();
+        this->_originData = json::object();
+    }
+    MaterialAsset::MaterialAsset(std::string uuid) : Asset(uuid)
     {
         this->_type = AssetType::Material;
         this->_gfxMaterial = new GfxMaterial();
+        this->_originData = json::object();
     }
-    MaterialAsset::MaterialAsset(const std::string uuid) : Asset(uuid),
-                                                           _gfxMaterial(new GfxMaterial()),
-                                                           _render(0),
-                                                           _vert(""),
-                                                           _frag("")
+    MaterialAsset::MaterialAsset(std::string uuid, std::string path, std::string name) : Asset(uuid, path, name)
     {
-    }
-    void MaterialAsset::create(std::string path)
-    {
-        Asset::create(path);
-        json materialJson = FileUtil::readJsonFromText(this->_path);
-        this->_initProperties(materialJson);
-        // 初始化管线结构体
-        this->_initPipelineStruct();
-    }
-
-    void MaterialAsset::create(json &materialData)
-    {
-        this->_initProperties(materialData);
-        // 初始化管线结构体
-        this->_initPipelineStruct();
+        this->_type = AssetType::Material;
+        this->_gfxMaterial = new GfxMaterial();
+        this->_originData = json::object();
     }
     void MaterialAsset::create(MaterialAsset *mtl)
     {
-        this->_render = mtl->getRender();
-        this->_vert = mtl->getVert();
-        this->_frag = mtl->getFrag();
+        if (mtl == nullptr)
+        {
+            LOGE("MaterialAsset::create(MaterialAsset *mtl) mtl is nullptr");
+            return;
+        }
+        this->create(mtl->getOriginData());
+    }
+    void MaterialAsset::create(const json &materialData)
+    {
+        this->_originData = materialData;
+        this->_parse();
+    }
+    void MaterialAsset::_parse()
+    {
+
+        int renderer = this->_originData["renderer"].get<int>();
+        if (renderer != int(RendererCategory::_UI) && renderer != int(RendererCategory::_3D))
+        {
+            LOGE("MaterialAsset::_parse(json &materialData) render is not UI or 3D");
+            return;
+        }
+        std::string vert = this->_originData["vert"].get<std::string>();
+        if (vert.empty())
+        {
+            LOGE("MaterialAsset::_parse(json &materialData) vert is empty");
+            return;
+        }
+        Asset *vertAsset = assetsManager->loadAsset(vert);
+        if (vertAsset == nullptr)
+        {
+            LOGE("MaterialAsset::_parse(json &materialData) vert is not found");
+            this->_originData.clear();
+            return;
+        }
+        std::string frag = this->_originData["frag"].get<std::string>();
+        if (frag.empty())
+        {
+            LOGE("MaterialAsset::_parse(json &materialData) frag is empty");
+            return;
+        }
+        Asset *fragAsset = assetsManager->loadAsset(frag);
+        if (fragAsset == nullptr)
+        {
+            LOGE("MaterialAsset::_parse(json &materialData) frag is not found");
+            this->_originData.clear();
+            return;
+        }
+
+        this->_gfxMaterial->create(GfxRendererCategory(renderer), vert, frag);
+        this->_parseProperties();
+        this->_parseTextures();
+        this->_parseRendererState();
+    }
+    void MaterialAsset::_parseProperties()
+    {
+        if (!this->_originData.contains("properties"))
+        {
+            LOGW("MaterialAsset::_parseProperties() properties is not found");
+            return;
+        }
+        this->_properties.clear();
+        json &properties = this->_originData["properties"];
+        if (properties.is_array())
+        {
+            for (int i = 0; i < properties.size(); i++)
+            {
+                json &param = properties[i];
+                std::string name = param["name"];
+                std::string type = param["type"];
+                if (type == "int")
+                {
+                    int value = param["value"].get<int>();
+                    GfxMaterialDataBlock block = {};
+                    block.offset = 0;
+                    block.size = sizeof(int);
+                    block.type = GfxMaterialPropertyType::Int;
+                    block.data = &value;
+                }
+                else if (type == "float")
+                {
+                    float value = param["value"].get<float>();
+                    GfxMaterialDataBlock block = {};
+                    block.offset = 0;
+                    block.size = sizeof(float);
+                    block.type = GfxMaterialPropertyType::Float;
+                    block.data = &value;
+                }
+                else if (type == "vec2")
+                {
+                    float x = param["value"][0];
+                    float y = param["value"][1];
+                    float value[2] = {x, y};
+                    GfxMaterialDataBlock block = {};
+                    block.offset = 0;
+                    block.size = sizeof(value);
+                    block.type = GfxMaterialPropertyType::Vec2;
+                    block.data = value;
+                }
+                else if (type == "vec3")
+                {
+                    float x = param["value"][0];
+                    float y = param["value"][1];
+                    float z = param["value"][2];
+                    float value[3] = {x, y, z};
+                    GfxMaterialDataBlock block = {};
+                    block.offset = 0;
+                    block.size = sizeof(value);
+                    block.type = GfxMaterialPropertyType::Vec3;
+                    block.data = value;
+                }
+                else if (type == "vec4")
+                {
+                    float x = param["value"][0];
+                    float y = param["value"][1];
+                    float z = param["value"][2];
+                    float w = param["value"][3];
+                    float value[4] = {x, y, z, w};
+                    GfxMaterialDataBlock block = {};
+                    block.offset = 0;
+                    block.size = sizeof(value);
+                    block.type = GfxMaterialPropertyType::Vec4;
+                    block.data = value;
+                }
+            }
+        }
+        this->_gfxMaterial->setProperties(this->_properties);
+    }
+    void MaterialAsset::_parseTextures()
+    {
+        if (!this->_originData.contains("textures"))
+        {
+            return;
+        }
+        json &textures = this->_originData["textures"];
+        if (textures.is_object())
+        {
+            for (auto &texture : textures.items()) // items() 返回键值对迭代器
+            {
+                std::string key = texture.key(); // ✅ 正确
+                json &data = texture.value();    // ✅ 正确
+                if (!data.contains("binding") || !data.contains("path"))
+                {
+                    LOGW("MaterialAsset::_parseTextures() textures %s is not found binding or path", key.c_str());
+                    continue;
+                }
+                int binding = data["binding"];
+                std::string path = data["path"];
+                // 加载关联图片资产
+                Asset *textureAsset = assetsManager->loadAsset(path);
+                if (binding <= 0)
+                {
+                    LOGW("MaterialAsset::_parseTextures() textures %s binding is invalid", key.c_str());
+                    continue;
+                }
+                MaterialTextureBlock textureBlock = {};
+                textureBlock.binding = binding;
+                textureBlock.key = key;
+                textureBlock.path = path;
+                this->_textures[key] = textureBlock;
+                this->_gfxMaterial->setTexture(binding - 1, path);
+            }
+        }
+    }
+    void MaterialAsset::_parseRendererState()
+    {
         // 多边形模式
-        this->_polygonMode = mtl->getPolygonMode();
+        if (this->_originData.contains("polygonMode"))
+        {
+            GfxRendererStatePolygonMode polygonMode = (GfxRendererStatePolygonMode)this->_originData["polygonMode"].get<int>();
+            this->_gfxMaterial->setPolygonMode(polygonMode);
+        }
         // 剔除模式
-        this->_cullMode = mtl->getCullMode();
+        if (this->_originData.contains("cullMode"))
+        {
+            GfxRendererStateCullMode cullMode = (GfxRendererStateCullMode)this->_originData["cullMode"].get<int>();
+            this->_gfxMaterial->setCullMode(cullMode);
+        }
         // 深度测试
-        this->_depthTest = mtl->getDepthTest();
+        if (this->_originData.contains("depthTest"))
+        {
+            this->_gfxMaterial->setDepthTest(this->_originData["depthTest"].get<int>());
+        }
         // 深度写入
-        this->_depthWrite = mtl->getDepthWrite();
+        if (this->_originData.contains("depthWrite"))
+        {
+            this->_gfxMaterial->setDepthWrite(this->_originData["depthWrite"].get<int>());
+        }
         // 深度比较操作
-        this->_depthCompareOp = mtl->getDepthCompareOp();
+        if (this->_originData.contains("depthCompareOp"))
+        {
+            GfxRendererStateCompareOp compareOp = (GfxRendererStateCompareOp)this->_originData["depthCompareOp"].get<int>();
+            this->_gfxMaterial->setDepthCompareOp(compareOp);
+        }
         // 模板测试
-        this->_stencilTest = mtl->getStencilTest();
-        // 模板比较操作
-        this->_stencilFrontCompareOp = mtl->getStencilFrontCompareOp();
-        // 模板失败操作
-        this->_stencilFrontFailOp = mtl->getStencilFrontFailOp();
-        // 模板深度失败操作
-        this->_stencilFrontDepthFailOp = mtl->getStencilFrontDepthFailOp();
-        // 模板通过操作
-        this->_stencilFrontPassOp = mtl->getStencilFrontPassOp();
-        // 模板比较掩码
-        this->_stencilFrontCompareMask = mtl->getStencilFrontCompareMask();
-        // 模板写入掩码
-        this->_stencilFrontWriteMask = mtl->getStencilFrontWriteMask();
-        // 模板参考值
-        this->_stencilFrontRreference = mtl->getStencilFrontRreference();
-        // 模板比较操作
-        this->_stencilBackCompareOp = mtl->getStencilBackCompareOp();
-        // 模板失败操作
-        this->_stencilBackFailOp = mtl->getStencilBackFailOp();
-        // 模板深度失败操作
-        this->_stencilBackDepthFailOp = mtl->getStencilBackDepthFailOp();
-        // 模板通过操作
-        this->_stencilBackPassOp = mtl->getStencilBackPassOp();
-        // 模板比较掩码
-        this->_stencilBackCompareMask = mtl->getStencilBackCompareMask();
-        // 模板写入掩码
-        this->_stencilBackWriteMask = mtl->getStencilBackWriteMask();
-        // 模板参考值
-        this->_stencilBackRreference = mtl->getStencilBackRreference();
-        // 颜色混合
-        this->_colorBlend = mtl->getColorBlend();
+        if (this->_originData.contains("stencilTest"))
+        {
+            this->_gfxMaterial->setStencilTest(this->_originData["stencilTest"].get<int>());
+        }
+        // 正面三角形（逆时针）的Stencil操作
+        if (this->_originData.contains("stencilFrontCompareOp"))
+        {
+            GfxRendererStateCompareOp compareOp = (GfxRendererStateCompareOp)this->_originData["stencilFrontCompareOp"].get<int>();
+            this->_gfxMaterial->setStencilFrontCompareOp(compareOp);
+        }
+        // 正面三角形（逆时针）的Stencil操作
+        if (this->_originData.contains("stencilFrontFailOp"))
+        {
+            GfxRendererStateStencilOp failOp = (GfxRendererStateStencilOp)this->_originData["stencilFrontFailOp"].get<int>();
+            this->_gfxMaterial->setStencilFrontFailOp(failOp);
+        }
+        // 正面三角形（逆时针）的Stencil操作
+        if (this->_originData.contains("stencilFrontDepthFailOp"))
+        {
+            GfxRendererStateStencilOp depthFailOp = (GfxRendererStateStencilOp)this->_originData["stencilFrontDepthFailOp"].get<int>();
+            this->_gfxMaterial->setStencilFrontDepthFailOp(depthFailOp);
+        }
+        // 正面三角形（逆时针）的Stencil操作
+        if (this->_originData.contains("stencilFrontPassOp"))
+        {
+            GfxRendererStateStencilOp passOp = (GfxRendererStateStencilOp)this->_originData["stencilFrontPassOp"].get<int>();
+            this->_gfxMaterial->setStencilFrontPassOp(passOp);
+        }
+        // // 正面三角形（逆时针）的Stencil操作
+        // if(originData.contains("stencilFrontCompareMask")){
+        //     this->_rendererState.stencilFrontCompareMask = originData["stencilFrontCompareMask"];
+        // }else{
+        //     this->_rendererState.stencilFrontCompareMask = 0xFFFFFFFF;
+        // }
+        // // 正面三角形（逆时针）的Stencil操作
+        // if(originData.contains("stencilFrontWriteMask")){
+        //     this->_rendererState.stencilFrontWriteMask = originData["stencilFrontWriteMask"];
+        // }else{
+        //     this->_rendererState.stencilFrontWriteMask = 0xFFFFFFFF;
+        // }
+        // // 正面三角形（逆时针）的Stencil操作
+        // if(originData.contains("stencilFrontRreference")){
+        //     this->_rendererState.stencilFrontRreference = originData["stencilFrontRreference"];
+        // }else{
+        //     this->_rendererState.stencilFrontRreference = 0;
+        // }
+        // 反面三角形（顺时针）的Stencil操作
+        if (this->_originData.contains("stencilBackCompareOp"))
+        {
+            GfxRendererStateCompareOp compareOp = (GfxRendererStateCompareOp)this->_originData["stencilBackCompareOp"].get<int>();
+            this->_gfxMaterial->setStencilBackCompareOp(compareOp);
+        }
+        // 反面三角形（顺时针）的Stencil操作
+        if (this->_originData.contains("stencilBackFailOp"))
+        {
+            GfxRendererStateStencilOp failOp = (GfxRendererStateStencilOp)this->_originData["stencilBackFailOp"].get<int>();
+            this->_gfxMaterial->setStencilBackFailOp(failOp);
+        }
+        // 反面三角形（顺时针）的Stencil操作
+        if (this->_originData.contains("stencilBackDepthFailOp"))
+        {
+            GfxRendererStateStencilOp depthFailOp = (GfxRendererStateStencilOp)this->_originData["stencilBackDepthFailOp"].get<int>();
+            this->_gfxMaterial->setStencilBackDepthFailOp(depthFailOp);
+        }
+        // 正面三角形（逆时针）的Stencil操作
+        if (this->_originData.contains("stencilBackPassOp"))
+        {
+            GfxRendererStateStencilOp passOp = (GfxRendererStateStencilOp)this->_originData["stencilBackPassOp"].get<int>();
+            this->_gfxMaterial->setStencilBackPassOp(passOp);
+        }
+        // 反面三角形（顺时针）的Stencil操作
+        // if(originData.contains("stencilBackCompareMask")){
+        //     this->_rendererState.stencilBackCompareMask = originData["stencilBackCompareMask"];
+        // }else{
+        //     this->_rendererState.stencilBackCompareMask = 0xFFFFFFFF;
+        // }
+        // // 反面三角形（顺时针）的Stencil操作
+        // if(originData.contains("stencilBackWriteMask")){
+        //     this->_rendererState.stencilBackWriteMask = originData["stencilBackWriteMask"];
+        // }else{
+        //     this->_rendererState.stencilBackWriteMask = 0xFFFFFFFF;
+        // }
+        // // 反面三角形（顺时针）的Stencil操作
+        // if(originData.contains("stencilBackRreference")){
+        //     this->_rendererState.stencilBackRreference = originData["stencilBackRreference"];
+        // }else{
+        //     this->_rendererState.stencilBackRreference = 0;
+        // }
+
+        // 颜色缓和
+        // 开关
+        if (this->_originData.contains("colorBlend"))
+        {
+            this->_gfxMaterial->setColorBlend((int)this->_originData["colorBlend"]);
+        }
         // 源颜色混合因子
-        this->_srcColorBlendFactor = mtl->getSrcColorBlendFactor();
+        if (this->_originData.contains("srcColorBlendFactor"))
+        {
+            GfxRendererStateColorBlendFactor srcColorBlendFactor = (GfxRendererStateColorBlendFactor)this->_originData["srcColorBlendFactor"].get<int>();
+            this->_gfxMaterial->setSrcColorBlendFactor(srcColorBlendFactor);
+        }
         // 目标颜色混合因子
-        this->_dstColorBlendFactor = mtl->getDstColorBlendFactor();
+        if (this->_originData.contains("dstColorBlendFactor"))
+        {
+            GfxRendererStateColorBlendFactor dstColorBlendFactor = (GfxRendererStateColorBlendFactor)this->_originData["dstColorBlendFactor"].get<int>();
+            this->_gfxMaterial->setDstColorBlendFactor(dstColorBlendFactor);
+        }
         // 颜色混合操作
-        this->_colorBlendOp = mtl->getColorBlendOp();
-        // 目标Alpha混合因子
-        this->_dstAlphaBlendFactor = mtl->getDstAlphaBlendFactor();
-        // 颜色混合操作
-        this->_colorBlendOp = mtl->getColorBlendOp();
-        // 初始化管线结构体
-        this->_initPipelineStruct();
+        if (this->_originData.contains("colorBlendOp"))
+        {
+            GfxRendererStateColorBlendOp colorBlendOp = (GfxRendererStateColorBlendOp)this->_originData["colorBlendOp"].get<int>();
+            this->_gfxMaterial->setColorBlendOp(colorBlendOp);
+        }
+        // 源alpha混合因子
+        if (this->_originData.contains("srcAlphaBlendFactor"))
+        {
+            GfxRendererStateColorBlendFactor srcAlphaBlendFactor = (GfxRendererStateColorBlendFactor)this->_originData["srcAlphaBlendFactor"].get<int>();
+            this->_gfxMaterial->setSrcAlphaBlendFactor(srcAlphaBlendFactor);
+        }
+        // 目标alpha混合因子
+        if (this->_originData.contains("dstAlphaBlendFactor"))
+        {
+            GfxRendererStateColorBlendFactor dstAlphaBlendFactor = (GfxRendererStateColorBlendFactor)this->_originData["dstAlphaBlendFactor"].get<int>();
+            this->_gfxMaterial->setDstAlphaBlendFactor(dstAlphaBlendFactor);
+        }
+        // alpha混合操作
+        if (this->_originData.contains("alphaBlendOp"))
+        {
+            GfxRendererStateColorBlendOp alphaBlendOp = (GfxRendererStateColorBlendOp)this->_originData["alphaBlendOp"].get<int>();
+            this->_gfxMaterial->setAlphaBlendOp(alphaBlendOp);
+        }
     }
-    void MaterialAsset::_initProperties(json &materialJson)
+
+    void MaterialAsset::setModelWorldMatrix(const std::array<float, 16> &modelMatrix)
     {
-        this->_render = materialJson["render"].get<int>();
-
-        if (materialJson.contains("vert"))
-        {
-            this->_vert = materialJson["vert"].get<std::string>();
-            if (this->_vert.empty())
-            {
-                // this->_vert = this->_render == 0 ? "builtin-ui.vert" : "builtin-vert.vert";
-                this->_vert = "builtin-ui.vert";
-            }
-        }
-        if (materialJson.contains("frag"))
-        {
-            this->_frag = materialJson["frag"].get<std::string>();
-            if (this->_frag.empty())
-            {
-                this->_frag = this->_render == 0 ? "builtin-ui.frag" : "builtin-frag.frag";
-            }
-        }
-        // 多边形模式
-        if (materialJson.contains("polygonMode"))
-        {
-            this->_polygonMode = materialJson["polygonMode"].get<int>();
-        }
-        else
-        {
-            this->_polygonMode = static_cast<int>(GfxPipelinePolygonMode::Fill);
-        }
-        // 剔除模式
-        if (materialJson.contains("cullMode"))
-        {
-            this->_cullMode = materialJson["cullMode"].get<int>();
-        }
-        else
-        {
-            this->_cullMode = 0;
-        }
-        // 深度测试
-        if (materialJson.contains("depthTest"))
-        {
-            this->_depthTest = materialJson["depthTest"].get<int>();
-        }
-        else
-        {
-            this->_depthTest = 0;
-        }
-        // 深度写入
-        if (materialJson.contains("depthWrite"))
-        {
-            this->_depthWrite = materialJson["depthWrite"].get<int>();
-        }
-        else
-        {
-            this->_depthWrite = 0;
-        }
-        // 深度比较操作
-        if (materialJson.contains("depthCompareOp"))
-        {
-            this->_depthCompareOp = materialJson["depthCompareOp"].get<int>();
-        }
-        else
-        {
-            this->_depthCompareOp = static_cast<int>(GfxPipelineCompareOp::Always);
-        }
-
-        if (materialJson.contains("stencilTest"))
-        {
-            this->_stencilTest = materialJson["stencilTest"].get<int>();
-        }
-        else
-        {
-            this->_stencilTest = 0;
-        }
-        // 模版测试 比较操作
-        if (materialJson.contains("stencilFrontCompareOp"))
-        {
-            this->_stencilFrontCompareOp = materialJson["stencilFrontCompareOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilFrontCompareOp = static_cast<int>(GfxPipelineCompareOp::Equal);
-        }
-        // 模版测试 失败操作
-        if (materialJson.contains("stencilFrontFailOp"))
-        {
-            this->_stencilFrontFailOp = materialJson["stencilFrontFailOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilFrontFailOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 模版测试 深度失败操作
-        if (materialJson.contains("stencilFrontDepthFailOp"))
-        {
-            this->_stencilFrontDepthFailOp = materialJson["stencilFrontDepthFailOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilFrontDepthFailOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 模版测试 通过操作
-        if (materialJson.contains("stencilFrontPassOp"))
-        {
-            this->_stencilFrontPassOp = materialJson["stencilFrontPassOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilFrontPassOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 模版测试 比较掩码
-        if (materialJson.contains("stencilBackCompareOp"))
-        {
-            this->_stencilBackCompareOp = materialJson["stencilBackCompareOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilBackCompareOp = static_cast<int>(GfxPipelineCompareOp::Equal);
-        }
-        // 模版测试 写入掩码
-        if (materialJson.contains("stencilBackFailOp"))
-        {
-            this->_stencilBackFailOp = materialJson["stencilBackFailOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilBackFailOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 模版测试 深度失败操作
-        if (materialJson.contains("stencilBackDepthFailOp"))
-        {
-            this->_stencilBackDepthFailOp = materialJson["stencilBackDepthFailOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilBackDepthFailOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 模版测试 通过操作
-        if (materialJson.contains("stencilBackPassOp"))
-        {
-            this->_stencilBackPassOp = materialJson["stencilBackPassOp"].get<int>();
-        }
-        else
-        {
-            this->_stencilBackPassOp = static_cast<int>(GfxPipelineStencilOp::Keep);
-        }
-        // 颜色混合 开启
-        if (materialJson.contains("colorBlend"))
-        {
-            this->_colorBlend = materialJson["colorBlend"].get<int>();
-        }
-        else
-        {
-            this->_colorBlend = 0;
-        }
-        // 颜色混合 源因子
-        if (materialJson.contains("srcColorBlendFactor"))
-        {
-            this->_srcColorBlendFactor = materialJson["srcColorBlendFactor"].get<int>();
-        }
-        else
-        {
-            this->_srcColorBlendFactor = 4;
-        }
-        // 颜色混合 目标因子
-        if (materialJson.contains("dstColorBlendFactor"))
-        {
-            this->_dstColorBlendFactor = materialJson["dstColorBlendFactor"].get<int>();
-        }
-        else
-        {
-            this->_dstColorBlendFactor = 6;
-        }
-        // 颜色混合 混合操作
-        if (materialJson.contains("colorBlendOp"))
-        {
-            this->_colorBlendOp = materialJson["colorBlendOp"].get<int>();
-        }
-        else
-        {
-            this->_colorBlendOp = 0;
-        }
-        // 透明度混合 源因子
-        if (materialJson.contains("srcAlphaBlendFactor"))
-        {
-            this->_srcAlphaBlendFactor = materialJson["srcAlphaBlendFactor"].get<int>();
-        }
-        else
-        {
-            this->_srcAlphaBlendFactor = 0;
-        }
-        // 透明度混合 目标因子
-        if (materialJson.contains("dstAlphaBlendFactor"))
-        {
-            this->_dstAlphaBlendFactor = materialJson["dstAlphaBlendFactor"].get<int>();
-        }
-        else
-        {
-            this->_dstAlphaBlendFactor = 6;
-        }
-        // 透明度混合 混合操作
-        if (materialJson.contains("alphaBlendOp"))
-        {
-            this->_alphaBlendOp = materialJson["alphaBlendOp"].get<int>();
-        }
-        else
-        {
-            this->_alphaBlendOp = 0;
-        }
+        this->_gfxMaterial->setModelWorldMatrix(modelMatrix);
     }
-    void MaterialAsset::_initPipelineStruct()
+    void MaterialAsset::setUIColor(float r, float g, float b, float w)
     {
-        GfxPipelineStruct uiPipeline = {};
-        uiPipeline.render = this->_render;
-        uiPipeline.vert = this->_vert;
-        uiPipeline.frag = this->_frag;
-        // 多边形模式 填充
-        uiPipeline.polygonMode = static_cast<GfxPipelinePolygonMode>(this->_polygonMode);
-        // 剔除模式 背面
-        uiPipeline.cullMode = static_cast<GfxPipelineCullMode>(this->_cullMode);
-        // 深度测试 开启
-        uiPipeline.depthTest = this->_depthTest;
-        // 深度写入 开启
-        uiPipeline.depthWrite = this->_depthWrite;
-        // 深度比较操作 小于等于
-        uiPipeline.depthCompareOp = static_cast<GfxPipelineCompareOp>(this->_depthCompareOp);
-
-        // 模版测试 启用（用于UI遮罩）
-        uiPipeline.stencilTest = this->_stencilTest;
-        uiPipeline.stencilFrontCompareOp = static_cast<GfxPipelineCompareOp>(this->_stencilFrontCompareOp);     // 只在模板值相等时绘制
-        uiPipeline.stencilFrontFailOp = static_cast<GfxPipelineStencilOp>(this->_stencilFrontFailOp);           // 测试失败：保持
-        uiPipeline.stencilFrontDepthFailOp = static_cast<GfxPipelineStencilOp>(this->_stencilFrontDepthFailOp); // 深度 失败：保持
-        uiPipeline.stencilFrontPassOp = static_cast<GfxPipelineStencilOp>(this->_stencilFrontPassOp);           // 测试通过：保持（不修改模板值）
-        uiPipeline.stencilBackCompareOp = static_cast<GfxPipelineCompareOp>(this->_stencilBackCompareOp);
-        uiPipeline.stencilBackFailOp = static_cast<GfxPipelineStencilOp>(this->_stencilBackFailOp);
-        uiPipeline.stencilBackDepthFailOp = static_cast<GfxPipelineStencilOp>(this->_stencilBackDepthFailOp);
-        uiPipeline.stencilBackPassOp = static_cast<GfxPipelineStencilOp>(this->_stencilBackPassOp);
-        // 颜色混合 开启
-        uiPipeline.colorBlend = this->_colorBlend;
-        uiPipeline.srcColorBlendFactor = static_cast<GfxPipelineColorBlendFactor>(this->_srcColorBlendFactor);
-        uiPipeline.dstColorBlendFactor = static_cast<GfxPipelineColorBlendFactor>(this->_dstColorBlendFactor);
-        uiPipeline.colorBlendOp = static_cast<GfxPipelineColorBlendOp>(this->_colorBlendOp);
-        uiPipeline.srcAlphaBlendFactor = static_cast<GfxPipelineColorBlendFactor>(this->_srcAlphaBlendFactor);
-        uiPipeline.dstAlphaBlendFactor = static_cast<GfxPipelineColorBlendFactor>(this->_dstAlphaBlendFactor);
-        uiPipeline.alphaBlendOp = static_cast<GfxPipelineColorBlendOp>(this->_alphaBlendOp);
-        // 推送常量 开启
-        uiPipeline.pushConstant = 1;
-        uiPipeline.pushConstantSize = 0;
-
-        this->_gfxMaterial->setPipelineStruct(uiPipeline);
+        this->_gfxMaterial->setUIColor(r, g, b, w);
     }
-    void MaterialAsset::setTexture(const std::string &texture)
+    void MaterialAsset::setTexture(const std::string &key, TextureAsset *texture)
     {
-        this->_textures.resize(1);
-        this->_textures[0] = texture;
-        this->_gfxMaterial->setTextures(this->_textures);
+        if (texture == nullptr)
+        {
+            LOGE("MaterialAsset::setTexture(const std::string &key, TextureAsset *texture) texture is nullptr");
+            return;
+        }
+        if (this->_textures.find(key) == this->_textures.end())
+        {
+            LOGW("MaterialAsset::setTexture(const std::string &key, TextureAsset *texture) key %s is not found", key.c_str());
+            return;
+        }
+        MaterialTextureBlock &textureBlock = this->_textures[key];
+        int binding = textureBlock.binding;
+        this->_gfxMaterial->setTexture(binding, texture->getUuid());
     }
 
+    const json &MaterialAsset::getOriginData()
+    {
+        return this->_originData;
+    }
+    GfxMaterial *MaterialAsset::getGfxMaterial()
+    {
+        return this->_gfxMaterial;
+    }
     void MaterialAsset::destroy()
     {
     }

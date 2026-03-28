@@ -44,8 +44,8 @@ namespace Boo
     class Game
     {
     private:
-        float _logicTime = 0.0f;
-        float _renderTime = 0.0f;
+        // float _logicTime = 0.0f;
+        // float _renderTime = 0.0f;
         long long _deltaTime;
         int _frameRate;
 
@@ -73,21 +73,6 @@ namespace Boo
 
     private:
         /**
-         * @brief 初始化图形库
-         */
-        void _initGFX();
-
-        void _initModules();
-        /**
-         * @brief 初始化视图
-         * @param uiDesignWidth 设计宽度
-         * @param uiDesignHeight 设计高度
-         * @param fitMode 适配模式
-         * @param width 实际宽度
-         * @param height 实际高度
-         */
-        void _initView(int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode, int width, int height);
-        /**
          * @brief 初始化事件系统
          */
         void _initEvent();
@@ -99,11 +84,17 @@ namespace Boo
          * @brief 初始化字体系统
          */
         void _initFont();
-        /**_renderCameras
+        /**
          * @brief 初始化资产系统
          */
-        void _initAssets();
-
+        void _initAssets(Window *window, Android *android);
+        /**
+         * @brief 初始化性能分析系统
+         */
+        void _initProfiler();
+        /**
+         * @brief 初始化渲染系统
+         */
         void _initRenderer();
 
         /**
@@ -111,6 +102,17 @@ namespace Boo
          */
         void _initAlpha();
 
+        /**
+         * @brief 初始化视图
+         * @param uiDesignWidth 设计宽度
+         * @param uiDesignHeight 设计高度
+         * @param fitMode 适配模式
+         * @param width 实际宽度
+         * @param height 实际高度
+         */
+        void _initView(int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode, int width, int height);
+
+        
         void _update(float dt);
         void _updateSchedules(float dt);
         void _lateUpdate(float dt);

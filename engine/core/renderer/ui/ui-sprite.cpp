@@ -11,12 +11,18 @@ namespace Boo
 
     UISprite::UISprite(std::string name, Node *node, std::string uuid) : UIRenderer(name, node, uuid)
     {
+        this->sizeMode = SizeMode::Custom;
+        // 默认纹理
+        this->_textureAsset = nullptr;
+        // 默认UI材质
+        this->_materialAsset = new MaterialAsset(AssetBuiltinMaterial::UI,"","");
+        MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UI));
+        this->_materialAsset->create(mtl);
     }
 
     void UISprite::Awake()
     {
         UIRenderer::Awake();
-        this->setMaterial(AssetBuiltinMaterial::UI);
     }
 
     void UISprite::Enable()
@@ -96,20 +102,54 @@ namespace Boo
     }
     void UISprite::setTexture(TextureAsset *texture)
     {
-        if (texture == nullptr)
+        if (this->_textureAsset == texture)
         {
-            LOGW("[UISprite]:setTexture: texture %s not found", texture->getName().c_str());
             return;
         }
-        this->_setTexture(texture);
+        this->_textureAsset = texture;
+        if (this->_textureAsset == nullptr)
+        {
+            return;
+        }
+        if (this->sizeMode == SizeMode::Raw)
+        {
+            float width = this->_textureAsset->getWidth();
+            float height = this->_textureAsset->getHeight();
+            this->_node2D->removeSizeLock(Node2DSizeLock::SpriteRaw);
+            this->_node2D->setSize(width, height);
+            this->_node2D->addSizeLock(Node2DSizeLock::SpriteRaw);
+        }
+        if (this->_materialAsset == nullptr)
+        {
+            return;
+        }
+        // this->_materialAsset->setTexture("");
     }
     void UISprite::setRenderTexture()
     {
-        // this->_renderTexture = renderTexture;
-        // if (this->_renderTexture != nullptr)
-        // {
-        //     this->_materialAsset->setTexture(this->_renderTexture->getColorTextureUuid());
-        // }
+    }
+    void UISprite::setSizeMode(SizeMode sizeMode)
+    {
+        if (this->sizeMode == sizeMode)
+        {
+            return;
+        }
+        this->sizeMode = sizeMode;
+        if (this->sizeMode == SizeMode::Raw)
+        {
+            if (this->_textureAsset != nullptr)
+            {
+                float width = this->_textureAsset->getWidth();
+                float height = this->_textureAsset->getHeight();
+                this->_node2D->removeSizeLock(Node2DSizeLock::SpriteRaw);
+                this->_node2D->setSize(width, height);
+            }
+            this->_node2D->addSizeLock(Node2DSizeLock::SpriteRaw);
+        }
+        else
+        {
+            this->_node2D->removeSizeLock(Node2DSizeLock::SpriteRaw);
+        }
     }
 
     void UISprite::Update(float deltaTime)

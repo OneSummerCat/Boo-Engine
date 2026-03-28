@@ -19,6 +19,10 @@ namespace Boo
 	 * @brief 渲染系统
 	 */
 	Renderer *renderer = nullptr;
+	/**
+	 * @brief 性能分析系统
+	 */
+	Profiler *profiler = nullptr;
 
 	// /**
 	//  * @brief 字体系统

@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include "ui-renderer.h"
+#include "../../font/freetype-mgr.h"
 #include "../../component/component-register.h"
 
 namespace Boo
@@ -19,9 +20,7 @@ namespace Boo
         int _fontSize;
         int _lineHeight;
 
-        // TextTexture _fontTexture;
-        TextureAsset *_texture = nullptr;
-
+        FontTexture _fontTexture;
         void _updateNodeSize();
         void _clearTexture();
 
