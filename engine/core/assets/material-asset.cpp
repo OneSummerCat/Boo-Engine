@@ -1,5 +1,6 @@
 #include "material-asset.h"
 #include "texture-asset.h"
+#include "shader-asset.h"
 #include "../../log.h"
 #include "../../boo.h"
 #include "../gfx/gfx-mgr.h"
@@ -42,10 +43,10 @@ namespace Boo
     void MaterialAsset::_parse()
     {
 
-        int renderer = this->_originData["renderer"].get<int>();
-        if (renderer != int(RendererCategory::_UI) && renderer != int(RendererCategory::_3D))
+        int layer = this->_originData["layer"].get<int>();
+        if (layer != int(RendererLayer::_UI) && layer != int(RendererLayer::_3D))
         {
-            LOGE("MaterialAsset::_parse(json &materialData) render is not UI or 3D");
+            LOGE("MaterialAsset::_parse(json &materialData) layer is not UI or 3D");
             return;
         }
         std::string vert = this->_originData["vert"].get<std::string>();
@@ -54,8 +55,8 @@ namespace Boo
             LOGE("MaterialAsset::_parse(json &materialData) vert is empty");
             return;
         }
-        Asset *vertAsset = assetsManager->loadAsset(vert);
-        if (vertAsset == nullptr)
+        this->_vertex = dynamic_cast<ShaderAsset *>(assetsManager->loadAsset(vert));
+        if (this->_vertex == nullptr)
         {
             LOGE("MaterialAsset::_parse(json &materialData) vert is not found");
             this->_originData.clear();
@@ -67,15 +68,15 @@ namespace Boo
             LOGE("MaterialAsset::_parse(json &materialData) frag is empty");
             return;
         }
-        Asset *fragAsset = assetsManager->loadAsset(frag);
-        if (fragAsset == nullptr)
+        this->_fragment = dynamic_cast<ShaderAsset *>(assetsManager->loadAsset(frag));
+        if (this->_fragment == nullptr)
         {
             LOGE("MaterialAsset::_parse(json &materialData) frag is not found");
             this->_originData.clear();
             return;
         }
 
-        this->_gfxMaterial->create(GfxRendererCategory(renderer), vert, frag);
+        this->_gfxMaterial->create(GfxRendererLayer(layer), vert, frag);
         this->_parseProperties();
         this->_parseTextures();
         this->_parseRendererState();
@@ -354,13 +355,97 @@ namespace Boo
         }
     }
 
+    void MaterialAsset::setVertexShader(const std::string &vert)
+    {
+        if (vert.empty())
+        {
+            LOGE("MaterialAsset::setVertexShader(const std::string &vert) vert is empty");
+            return;
+        }
+        ShaderAsset *vertex = dynamic_cast<ShaderAsset *>(assetsManager->getAsset(vert, true));
+        if (vertex == nullptr)
+        {
+            LOGE("MaterialAsset::setVertexShader(const std::string &vert) vertex is nullptr");
+            return;
+        }
+        this->setVertexShader(vertex);
+    }
+    void MaterialAsset::setFragmentShader(const std::string &frag)
+    {
+        if (frag.empty())
+        {
+            LOGE("MaterialAsset::setFragmentShader(const std::string &frag) frag is empty");
+            return;
+        }
+        ShaderAsset *fragment = dynamic_cast<ShaderAsset *>(assetsManager->getAsset(frag, true));
+        if (fragment == nullptr)
+        {
+            LOGE("MaterialAsset::setFragmentShader(const std::string &frag) fragment is nullptr");
+            return;
+        }
+        this->setFragmentShader(fragment);
+    }
+    void MaterialAsset::setVertexShader(ShaderAsset *vertex)
+    {
+        if (vertex == nullptr)
+        {
+            LOGE("MaterialAsset::setVertexShader(ShaderAsset *vertex) vertex is nullptr");
+            return;
+        }
+        if(this->_gfxMaterial == nullptr)
+        {
+            LOGE("MaterialAsset::setVertexShader(ShaderAsset *vertex) gfxMaterial is nullptr");
+            return;
+        }
+        this->_vertex = vertex;
+        this->_gfxMaterial->setVertexShader(vertex->getUuid());
+    }
+    void MaterialAsset::setFragmentShader(ShaderAsset *fragment)
+    {
+        if (fragment == nullptr)
+        {
+            LOGE("MaterialAsset::setFragmentShader(ShaderAsset *fragment) fragment is nullptr");
+            return;
+        }
+        if(this->_gfxMaterial == nullptr)
+        {
+            LOGE("MaterialAsset::setFragmentShader(ShaderAsset *fragment) gfxMaterial is nullptr");
+            return;
+        }
+        this->_fragment = fragment;
+        this->_gfxMaterial->setFragmentShader(fragment->getUuid());
+    }
+
     void MaterialAsset::setModelWorldMatrix(const std::array<float, 16> &modelMatrix)
     {
         this->_gfxMaterial->setModelWorldMatrix(modelMatrix);
     }
+    /**
+     * @brief 设置模型世界矩阵的逆转置矩阵
+     * @param modelMatrixIT 模型世界矩阵的逆转置矩阵
+     */
+    void MaterialAsset::setModelWorldMatrixIT(const std::array<float, 16> &modelMatrixIT)
+    {
+        this->_gfxMaterial->setModelWorldMatrixIT(modelMatrixIT);
+    }
     void MaterialAsset::setUIColor(float r, float g, float b, float w)
     {
         this->_gfxMaterial->setUIColor(r, g, b, w);
+    }
+    void MaterialAsset::setTexture(TextureAsset *texture)
+    {
+        if (texture == nullptr)
+        {
+            LOGE("MaterialAsset::setTexture(const std::string &key, TextureAsset *texture) texture is nullptr");
+            return;
+        }
+        for (auto &[key, textureBlock] : this->_textures)
+        {
+            if (textureBlock.binding == 1)
+            {
+                this->_gfxMaterial->setTexture(0, texture->getUuid());
+            }
+        }
     }
     void MaterialAsset::setTexture(const std::string &key, TextureAsset *texture)
     {
@@ -376,7 +461,7 @@ namespace Boo
         }
         MaterialTextureBlock &textureBlock = this->_textures[key];
         int binding = textureBlock.binding;
-        this->_gfxMaterial->setTexture(binding, texture->getUuid());
+        this->_gfxMaterial->setTexture(binding - 1, texture->getUuid());
     }
 
     const json &MaterialAsset::getOriginData()

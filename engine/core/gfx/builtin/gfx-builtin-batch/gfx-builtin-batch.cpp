@@ -13,12 +13,19 @@
 #include "../gfx-builtin-renderer.h"
 #include "../gfx-builtin-pipeline/gfx-builtin-pipeline.h"
 
-GfxBuiltinBatch::GfxBuiltinBatch(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh)
+GfxBuiltinBatch::GfxBuiltinBatch()
 {
+}
+void GfxBuiltinBatch::init(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, const std::array<float, 4> &cameraPosition)
+{
+    this->_clear();
     this->_renderer = renderer;
     this->_renderTexture = renderTexture;
     this->_material = material;
     this->_mesh = mesh;
+    this->_viewMatrix = viewMatrix;
+    this->_projMatrix = projMatrix;
+    this->_cameraPos = cameraPosition;
 }
 // 后续带上每个物体独有的数据
 void GfxBuiltinBatch::addObject(const std::vector<char> &instanceData)
@@ -26,9 +33,11 @@ void GfxBuiltinBatch::addObject(const std::vector<char> &instanceData)
     this->_instanceDatas.insert(this->_instanceDatas.end(), instanceData.begin(), instanceData.end());
     this->_instanceCount++;
 }
-void GfxBuiltinBatch::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo)
+void GfxBuiltinBatch::render(VkCommandBuffer &queueCommandBuffer)
 {
-   
+}
+void GfxBuiltinBatch::_bindUniformBuffer()
+{
 }
 void GfxBuiltinBatch::_bindPipeline(VkCommandBuffer &queueCommandBuffer, GfxBuiltinPipeline *pipeline)
 {
@@ -54,12 +63,12 @@ void GfxBuiltinBatch::_setViewportScissor(VkCommandBuffer &queueCommandBuffer)
 }
 void GfxBuiltinBatch::_bindDescriptorSets(VkCommandBuffer &queueCommandBuffer, GfxBuiltinPipeline *pipeline, GfxBuffer *ubo)
 {
-    
 }
 void GfxBuiltinBatch::_bindVertexIndicesBuffers(VkCommandBuffer &queueCommandBuffer)
 {
+    
     GfxBuffer *instanceBuffer = Gfx::_bufferInstance->getBuffer(this->_instanceDatas.size());
-    memcpy(instanceBuffer->getMappedData(), this->_instanceDatas.data(), this->_instanceDatas.size() * sizeof(float));
+    memcpy(instanceBuffer->getMappedData(), this->_instanceDatas.data(), this->_instanceDatas.size());
     VkDeviceSize offsets[2] = {0, 0};
     VkBuffer vertexBuffer = this->_mesh->getVertexBuffer();
     VkBuffer indexBuffer = this->_mesh->getIndexBuffer();
@@ -71,20 +80,26 @@ void GfxBuiltinBatch::_drawIndexed(VkCommandBuffer &queueCommandBuffer)
 {
     vkCmdDrawIndexed(
         queueCommandBuffer,
-        this->_mesh->getIndexCount(),                     // 只绘制3个索引（第一个三角形）
-        this->_instanceCount, // 实例数 （2的话代表绘制2个实例，也就是绘制两次）
-        0,                    // 第一个顶点的索引 每个 UI 元素占用 6 个顶点
-        0,                    // 第一个实例的索引 从第 0 个实例开始绘制
-        0                     // 实例偏移
+        this->_mesh->getIndexCount(), // 只绘制3个索引（第一个三角形）
+        this->_instanceCount,         // 实例数 （2的话代表绘制2个实例，也就是绘制两次）
+        0,                            // 第一个顶点的索引 每个 UI 元素占用 6 个顶点
+        0,                            // 第一个实例的索引 从第 0 个实例开始绘制
+        0                             // 实例偏移
     );
+    Gfx::_drawCount++;
 }
-
-void GfxBuiltinBatch::destroy()
+void GfxBuiltinBatch::_clear()
 {
     this->_renderer = nullptr;
     this->_renderTexture = nullptr;
     this->_material = nullptr;
     this->_mesh = nullptr;
+    this->_instanceDatas.clear();
+    this->_instanceCount = 0;
+}
+void GfxBuiltinBatch::destroy()
+{
+    this->_clear();
 }
 GfxBuiltinBatch::~GfxBuiltinBatch()
 {

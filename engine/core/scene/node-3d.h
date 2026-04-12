@@ -31,7 +31,10 @@ namespace Boo
          * 获取UI渲染组件
          */
         MeshRenderer *getMeshRenderer();
-
+        /**
+		 * 获取世界矩阵的逆转置矩阵
+		 */
+		const Mat4 &getWorldMatrixIT();
         void update(float deltaTime) override;
         void lateUpdate(float deltaTime) override;
         void clearNodeFrameFlag() override;

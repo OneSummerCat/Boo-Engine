@@ -6,7 +6,8 @@
 #include <random>
 #include <chrono>
 #include <functional>
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
+#include "../gfx-struct.h"
 
 class GfxTexture;
 class GfxRenderPass;

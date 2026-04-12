@@ -40,13 +40,17 @@ namespace Boo
         ~Vec3();
 
     public:
-        static void add(Vec3 &out, Vec3 &a, Vec3 &b);
-        static void subtract(Vec3 &out, Vec3 &a, Vec3 &b);
+        static void add(Vec3 &a, Vec3 &b, Vec3 &out);
+        static void subtract(Vec3 &a, Vec3 &b, Vec3 &out);
         static float dot(Vec3 &a, Vec3 &b);
         /**
          * 转换四元数
          */
-        static void transformQuat(Vec3 &out, Vec3 &v, Quat &q);
+        static void transformQuat(Vec3 &v, Quat &q, Vec3 &out);
+        /**
+         * 归一化
+         */
+        static void normalize(Vec3 &v, Vec3 &out);
     };
 
 } // namespace Boo

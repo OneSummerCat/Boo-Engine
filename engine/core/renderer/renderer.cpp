@@ -78,7 +78,11 @@ namespace Boo
         // LOGI("[Renderer]:_renderCameras 4: %s", camera->getName().c_str());
         camera->Render();
         // LOGI("[Renderer]:_renderCameras 5: %s", camera->getName().c_str());
+        //std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
         this->_walkNode3D(camera, scene->getRoot3D());
+        /*std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+        float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+        LOGI("render frame 3D submit object duration: %f", frameDuration);*/
         this->_walkNode2D(camera, scene->getRoot2D());
     }
     void Renderer::_walkNode3D(Camera *camera, Node3D *node)
@@ -109,7 +113,7 @@ namespace Boo
         {
             meshRenderer->Render(camera);
         }
-        const std::vector<Node *> &nodes = node->getChildren();
+        std::vector<Node *> &nodes = node->getChildren();
         for (auto node : nodes)
         {
             this->_walkNode3D(camera, dynamic_cast<Node3D *>(node));
@@ -138,15 +142,8 @@ namespace Boo
         UIRenderer *uiRenderer = node->getUIRenderer();
         if (uiRenderer != nullptr && uiRenderer->isEnabledInHierarchy())
         {
-            const Color &color = uiRenderer->getColor();
-            float alpha = color.getA();
-            if (alpha <= 0.0f)
-            {
-                // 透明度为0 不渲染
-                return;
-            }
             uiRenderer->Render(camera);
-            const std::vector<Node *> &nodes = node->getChildren();
+            std::vector<Node *> &nodes = node->getChildren();
             for (auto node : nodes)
             {
                 this->_walkNode2D(camera, dynamic_cast<Node2D *>(node));
@@ -157,7 +154,7 @@ namespace Boo
                 uiMask->lateRender(camera);
             }
         }
-        const std::vector<Node *> &nodes = node->getChildren();
+        std::vector<Node *> &nodes = node->getChildren();
         for (auto node : nodes)
         {
             this->_walkNode2D(camera, dynamic_cast<Node2D *>(node));

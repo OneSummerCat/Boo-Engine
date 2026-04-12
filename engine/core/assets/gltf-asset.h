@@ -9,7 +9,7 @@
 #include <variant>
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
-#include <fastgltf/glm_element_traits.hpp>
+// #include <fastgltf/glm_element_traits.hpp>
 //参考: https://fastgltf.readthedocs.io/latest/guides.html#iterating-over-the-node-hierarchy
 #include "../math/math-api.h"
 #include "mesh-asset.h"
@@ -28,6 +28,10 @@ namespace Boo
 		 */
 		Mat4 local;
 		/**
+		 * 相对场景的路径
+		 */
+		std::string path;
+		/**
 		 * 网格UUID列表
 		 * 空字符串表示没有网格
 		 */
@@ -42,8 +46,13 @@ namespace Boo
 	{
 	private:
         std::unique_ptr<fastgltf::Asset> m_asset;
-		std::vector<GLTFNode> _nodes;
+		GLTFNode _root;
+		/**
+		 * 网格索引映射
+		 */
+		std::map<size_t,std::string> _meshIndexMap;
 		std::vector<MeshAsset*> _meshAssets;
+		
         
         void _parseScenes();
         void _parseNode(GLTFNode &parent, size_t nodeIdx);
@@ -55,6 +64,7 @@ namespace Boo
 		GLTFAsset(std::string uuid);
 		GLTFAsset(std::string uuid, std::string path, std::string name);
 		void create(std::unique_ptr<fastgltf::Asset> m_asset);
+		const GLTFNode &getRoot();
 		const std::vector<MeshAsset*> &getMeshAssets();
 		void destroy() override;
 		~GLTFAsset();

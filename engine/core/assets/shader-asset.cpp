@@ -25,10 +25,10 @@ namespace Boo
         this->_glslData = glslData;
         this->gfxShader = GfxMgr::getInstance()->createGlslShader(this->_uuid, type, this->_glslData, macros);
     }
-    // void ShaderAsset::create(const std::vector<uint32_t> &data)
-    // {
-        //     this->gfxShader = GfxMgr::getInstance()->createSpirvShader(this->_uuid, data);
-    // }
+    void ShaderAsset::create(const std::vector<uint32_t> &data)
+    {
+            this->gfxShader = GfxMgr::getInstance()->createSpirvShader(this->_uuid, data);
+    }
 
     void ShaderAsset::destroy()
     {

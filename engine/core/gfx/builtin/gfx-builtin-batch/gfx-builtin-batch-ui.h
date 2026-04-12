@@ -15,12 +15,14 @@ protected:
 
     void _stencilTest(VkCommandBuffer &queueCommandBuffer, const GfxRendererState &rendererState);
     void _setViewportScissor(VkCommandBuffer &queueCommandBuffer) override;
+    void _bindUniformBuffer() override;
     void _bindDescriptorSets(VkCommandBuffer &queueCommandBuffer, GfxBuiltinPipeline *pipeline, GfxBuffer *ubo) override;
     void _bindVertexIndicesBuffers(VkCommandBuffer &queueCommandBuffer) override;
     void _drawIndexed(VkCommandBuffer &queueCommandBuffer) override;
     
 public:
-    GfxBuiltinBatchUI(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh);
-    void render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo) override;
+    GfxBuiltinBatchUI();
+    virtual void addObject(const std::vector<char> &instanceData);
+    void render(VkCommandBuffer &queueCommandBuffer) override;
     ~GfxBuiltinBatchUI();
 };

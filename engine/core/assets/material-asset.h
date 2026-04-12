@@ -7,7 +7,9 @@
 #include "../gfx/base/gfx-material.h"
 namespace Boo
 {
-    enum class RendererCategory
+    class TextureAsset;
+    class ShaderAsset;
+    enum class RendererLayer
     {
         _UI = 0,
         _3D = 1,
@@ -17,7 +19,6 @@ namespace Boo
         _Opaque = 0,
         _Transparent = 1,
     };
-    class TextureAsset;
     struct MaterialTextureBlock
     {
         int binding;
@@ -29,12 +30,15 @@ namespace Boo
     private:
         json _originData;
         GfxMaterial *_gfxMaterial;
+        ShaderAsset *_vertex;
+        ShaderAsset *_fragment;
         std::vector<GfxMaterialDataBlock> _properties;
         std::map<std::string, MaterialTextureBlock> _textures;
         void _parse();
         void _parseProperties();
         void _parseTextures();
         void _parseRendererState();
+
     public:
         MaterialAsset();
         MaterialAsset(std::string uuid);
@@ -43,15 +47,25 @@ namespace Boo
         void create(const json &materialData);
         void create(MaterialAsset *mtl);
         const json &getOriginData();
+        void setVertexShader(ShaderAsset *vertex);
+        void setFragmentShader(ShaderAsset *fragment);
+        void setVertexShader(const std::string &vert);
+        void setFragmentShader(const std::string &frag);
 
         /**
          * @brief 更新模型矩阵
          * @param modelMatrix 模型矩阵
          */
         void setModelWorldMatrix(const std::array<float, 16> &modelMatrix);
+        /**
+         * @brief 更新模型世界矩阵的逆转置矩阵
+         * @param modelMatrixIT 模型世界矩阵的逆转置矩阵
+         */
+        void setModelWorldMatrixIT(const std::array<float, 16> &modelMatrixIT);
         void setUIColor(float r, float g, float b, float w);
+        void setTexture(TextureAsset *texture);
         void setTexture(const std::string &key, TextureAsset *texture);
-        
+
         /**
          * @brief 获取图形材质
          * @return GfxMaterial* 图形材质

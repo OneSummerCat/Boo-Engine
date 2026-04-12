@@ -1,9 +1,8 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
-
+#include "../gfx-struct.h"
 #include "../base/gfx-render-pass.h"
 
 class GfxDefaultRenderPass : public GfxRenderPass

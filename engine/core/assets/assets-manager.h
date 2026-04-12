@@ -11,6 +11,7 @@
 #include "asset-builtin.h"
 #include "texture-asset.h"
 #include "material-asset.h"
+#include "mesh-asset.h"
 #include "shader-asset.h"
 #include "gltf-asset.h"
 
@@ -58,7 +59,7 @@ namespace Boo
 		AssetCache *getAssetsCache();
 
 		Asset *loadAsset(const std::string &uuid);
-		Asset *getAsset(const std::string &uuid);
+		Asset *getAsset(const std::string &uuid, bool loadIfNotFound = false);
 		void unloadAsset(const std::string &uuid);
 
 		void update(float deltaTime);

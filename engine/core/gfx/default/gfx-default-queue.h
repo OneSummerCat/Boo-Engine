@@ -1,5 +1,4 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -8,6 +7,7 @@
 #include <map>
 #include <array>
 #include <cstdint>
+#include "../gfx-struct.h"
 
 class GfxDefaultRenderer;
 class GfxDefaultPipeline;

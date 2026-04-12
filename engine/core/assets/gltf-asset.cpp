@@ -1,5 +1,6 @@
 #include "gltf-asset.h"
 #include "../../log.h"
+#include "../../boo.h"
 
 namespace Boo
 {
@@ -20,8 +21,12 @@ namespace Boo
     }
     void GLTFAsset::create(std::unique_ptr<fastgltf::Asset> m_asset)
     {
+        // std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
         this->m_asset = std::move(m_asset);
         this->_parseScenes();
+        // std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+        // float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+        // LOGI("[GLTFAsset : create] :: parseScenes duration: %f", frameDuration);
     }
     void GLTFAsset::_parseScenes()
     {
@@ -31,22 +36,22 @@ namespace Boo
             LOGW("No scenes in asset");
             return;
         }
+        this->_root = {};
+        this->_root.name = this->_name.empty() ? "gltf_root" : this->_name;
+        this->_root.local = Mat4::identity();
+        this->_root.meshUuid = "";
+        this->_root.path = this->_name;
         // 解析场景
         // 为每个场景加载数据
         for (size_t i = 0; i < m_asset->scenes.size(); ++i)
         {
             const auto &scene = m_asset->scenes[i];
-            std::string sceneName = std::string(scene.name);
-            GLTFNode root{};
-            root.name = sceneName;
-            root.local = Mat4::identity();
-            root.meshUuid = "";
             for (size_t nodeIdx : scene.nodeIndices)
             {
-                this->_parseNode(root, nodeIdx);
+                this->_parseNode(this->_root, nodeIdx);
             }
-            this->_nodes.push_back(std::move(root));
         }
+        // std::cout << "GLTFAsset::_parseScenes:root name=" << this->_root.name << " child count=" << this->_root.children.size() << std::endl;
     }
     void GLTFAsset::_parseNode(GLTFNode &parent, size_t nodeIdx)
     {
@@ -55,18 +60,21 @@ namespace Boo
             return;
         }
         const fastgltf::Node &node = m_asset->nodes[nodeIdx];
+        std::string nodeName = std::string(node.name);
         GLTFNode nodeData{};
-        nodeData.name = std::string(node.name);
+        nodeData.name = nodeName;
         nodeData.local = Mat4::identity();
         nodeData.meshUuid = "";
+        nodeData.path = parent.path + "/" + nodeData.name;
         fastgltf::math::fmat4x4 matrix = fastgltf::getTransformMatrix(node);
         this->_fmatToMat4(nodeData.local, matrix);
         this->_parseMeshes(node, nodeData);
-        parent.children.push_back(nodeData);
+        // std::cout << "GLTFAsset::_parseNode:node name=" << nodeData.name << " child count=" << nodeData.children.size() << std::endl;
         for (size_t childIdx : node.children)
         {
             this->_parseNode(nodeData, childIdx);
         }
+        parent.children.push_back(nodeData);
     }
     /**
      * @brief 解析网格
@@ -87,14 +95,25 @@ namespace Boo
             nodeData.meshUuid = "";
             return;
         }
+        if (this->_meshIndexMap.find(meshIndex) != this->_meshIndexMap.end())
+        {
+            nodeData.meshUuid = this->_meshIndexMap[meshIndex];
+            return;
+        }
+        // std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
         const fastgltf::Mesh &mesh = m_asset->meshes[meshIndex];
         const std::string meshName = std::string(mesh.name);
+        // std::cout << "Mesh name: " << meshName <<"   mesh size:"<< mesh.primitives.size() << std::endl;
+        std::string meshUuid = this->_uuid + ":" + nodeData.path + ":" + meshName;
+        nodeData.meshUuid = meshUuid;
         // 解析所有子网格数据
         std::vector<MeshPrimitive> primitives;
         int index = 0;
         for (const auto &primitive : mesh.primitives)
         {
             MeshPrimitive primitiveData{};
+            primitiveData.index = index;
+            primitiveData.type = 1;
             this->_parsePrimitive(index, primitive, primitiveData);
             if (primitiveData._indices.empty())
             {
@@ -103,15 +122,17 @@ namespace Boo
             index++;
             primitives.push_back(primitiveData);
         }
-        // std::cout << "Mesh: idx=" << meshIndex << ", name=" << meshName << ", primitives=" << index << std::endl;
+        // std::cout << "Mesh uuid: " << meshName << "   uuid:" << meshUuid <<"aaaa:"<< primitives.size() << std::endl;
+        this->_meshIndexMap[meshIndex] = meshUuid;
         // 创建网格资产
-        std::string meshUuid = this->_uuid + "_" + meshName + ":" + std::to_string(meshIndex);
-        nodeData.meshUuid = meshUuid;
         MeshAsset *meshAsset = new MeshAsset(meshUuid, "", meshName);
         meshAsset->create(primitives);
-        // std::cout << "MeshAsset: idx=" << meshIndex << ", name=" << meshName << ", primitives=" << index << std::endl;
         this->_meshAssets.push_back(meshAsset);
+        assetsManager->getAssetsCache()->addAsset(meshUuid, meshAsset);
 
+        // std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+        // float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+        // LOGI("[GLTFAsset : create] :: parseMeshes %s duration: %f", meshName.c_str(), frameDuration);
     }
     /**
      * @brief 解析子网格
@@ -121,6 +142,7 @@ namespace Boo
      */
     void GLTFAsset::_parsePrimitive(int index, const fastgltf::Primitive &primitive, MeshPrimitive &primitiveData)
     {
+        // std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
         primitiveData.index = index;
         auto *positionAttribute = primitive.findAttribute("POSITION");
         if (positionAttribute == primitive.attributes.end())
@@ -128,53 +150,29 @@ namespace Boo
             LOGW("No position attribute in primitive");
             return;
         }
-        primitiveData._positions.clear();
-        primitiveData._normals.clear();
-        primitiveData._uvs.clear();
-        primitiveData._uvs1.clear();
-        primitiveData._uvs2.clear();
-        primitiveData._colors.clear();
-        primitiveData._tangents.clear();
-        primitiveData._indices.clear();
         // 1. 读取位置数据
         const auto &positionAccessor = m_asset->accessors[positionAttribute->accessorIndex];
-        auto positionIterable = fastgltf::iterateAccessor<fastgltf::math::fvec3>(
-            *m_asset,
-            positionAccessor);
-
+        auto positionIterable = fastgltf::iterateAccessor<fastgltf::math::fvec3>(*m_asset, positionAccessor);
+        size_t vertexCount = positionAccessor.count;
+        primitiveData._positions.resize(vertexCount * 3);
+        primitiveData._normals.resize(vertexCount * 3);
+        primitiveData._uvs.resize(vertexCount * 2);
+        primitiveData._uvs1.resize(vertexCount * 2);
+        primitiveData._uvs2.resize(vertexCount * 2);
+        primitiveData._colors.resize(vertexCount * 4, 1.0f);
+        primitiveData._tangents.resize(vertexCount * 4);
+        size_t pIdx = 0;
         for (const auto &position : positionIterable)
         {
             // 3个顶点float坐标
-            primitiveData._positions.push_back(position.x());
-            primitiveData._positions.push_back(position.y());
-            primitiveData._positions.push_back(position.z());
-            // 3个法线float坐标
-            primitiveData._normals.push_back(0.0f);
-            primitiveData._normals.push_back(0.0f);
-            primitiveData._normals.push_back(1.0f);
-            // 2个uv坐标坐标
-            primitiveData._uvs.push_back(0.0f);
-            primitiveData._uvs.push_back(0.0f);
-            // 2个uv坐标坐标
-            primitiveData._uvs1.push_back(0.0f);
-            primitiveData._uvs1.push_back(0.0f);
-            // 2个uv坐标坐标
-            primitiveData._uvs2.push_back(0.0f);
-            primitiveData._uvs2.push_back(0.0f);
-            // 4个颜色float坐标
-            primitiveData._colors.push_back(1.0f);
-            primitiveData._colors.push_back(1.0f);
-            primitiveData._colors.push_back(1.0f);
-            primitiveData._colors.push_back(1.0f);
-            // 4个切线float坐标
-            primitiveData._tangents.push_back(0.0f);
-            primitiveData._tangents.push_back(0.0f);
-            primitiveData._tangents.push_back(0.0f);
-            primitiveData._tangents.push_back(0.0f);
+            primitiveData._positions[pIdx++] = position.x();
+            primitiveData._positions[pIdx++] = position.y();
+            primitiveData._positions[pIdx++] = position.z();
         }
 
         // 2. 读取法线数据（如果存在）
         auto normIter = primitive.findAttribute("NORMAL");
+
         if (normIter != primitive.attributes.end())
         {
             const auto &normAccessor = m_asset->accessors[normIter->accessorIndex];
@@ -184,10 +182,9 @@ namespace Boo
             size_t nIdx = 0;
             for (auto norm : normals)
             {
-                primitiveData._normals[nIdx * 3 + 0] = norm.x();
-                primitiveData._normals[nIdx * 3 + 1] = norm.y();
-                primitiveData._normals[nIdx * 3 + 2] = norm.z();
-                nIdx++;
+                primitiveData._normals[nIdx++] = norm.x();
+                primitiveData._normals[nIdx++] = norm.y();
+                primitiveData._normals[nIdx++] = norm.z();
             }
         }
         // 3. 读取纹理坐标（如果存在）
@@ -201,9 +198,8 @@ namespace Boo
             size_t tIdx = 0;
             for (auto tex : texCoords)
             {
-                primitiveData._uvs[tIdx * 2 + 0] = tex.x();
-                primitiveData._uvs[tIdx * 2 + 1] = tex.y();
-                tIdx++;
+                primitiveData._uvs[tIdx++] = tex.x();
+                primitiveData._uvs[tIdx++] = tex.y();
             }
         }
         // 4. 读取切线数据（如果存在）
@@ -217,11 +213,10 @@ namespace Boo
             size_t tanIdx = 0;
             for (auto tan : tangents)
             {
-                primitiveData._tangents[tanIdx * 4 + 0] = tan.x();
-                primitiveData._tangents[tanIdx * 4 + 1] = tan.y();
-                primitiveData._tangents[tanIdx * 4 + 2] = tan.z();
-                primitiveData._tangents[tanIdx * 4 + 3] = tan.w(); // w 分量不变
-                tanIdx++;
+                primitiveData._tangents[tanIdx++] = tan.x();
+                primitiveData._tangents[tanIdx++] = tan.y();
+                primitiveData._tangents[tanIdx++] = tan.z();
+                primitiveData._tangents[tanIdx++] = tan.w(); // w 分量不变
             }
         }
         // 6. 读取索引数据（重要！）
@@ -231,34 +226,43 @@ namespace Boo
             if (idxAccessorIdx < m_asset->accessors.size())
             {
                 const auto &idxAccessor = m_asset->accessors[idxAccessorIdx];
-
+                primitiveData._indices.resize(idxAccessor.count);
                 switch (idxAccessor.componentType)
                 {
                 case fastgltf::ComponentType::UnsignedByte:
                 {
                     auto indices = fastgltf::iterateAccessor<uint8_t>(*m_asset, idxAccessor);
-                    for (auto index : indices)
-                    {
-                        primitiveData._indices.push_back(index);
-                    }
+                    // size_t iIdx = 0;
+                    // for (auto index : indices)
+                    // {
+                    //     // primitiveData._indices.push_back(index);
+                    //     primitiveData._indices[iIdx++] = index;
+                    // }
+                    std::copy(indices.begin(), indices.end(), primitiveData._indices.begin());
                     break;
                 }
                 case fastgltf::ComponentType::UnsignedShort:
                 {
                     auto indices = fastgltf::iterateAccessor<uint16_t>(*m_asset, idxAccessor);
-                    for (auto index : indices)
-                    {
-                        primitiveData._indices.push_back(index);
-                    }
+                    // size_t iIdx = 0;
+                    // for (auto index : indices)
+                    // {
+                    //     // primitiveData._indices.push_back(index);
+                    //     primitiveData._indices[iIdx++] = index;
+                    // }
+                    std::copy(indices.begin(), indices.end(), primitiveData._indices.begin());
                     break;
                 }
                 case fastgltf::ComponentType::UnsignedInt:
                 {
                     auto indices = fastgltf::iterateAccessor<uint32_t>(*m_asset, idxAccessor);
-                    for (auto index : indices)
-                    {
-                        primitiveData._indices.push_back(index);
-                    }
+                    // size_t iIdx = 0;
+                    // for (auto index : indices)
+                    // {
+                    //     // primitiveData._indices.push_back(index);
+                    //     primitiveData._indices[iIdx++] = index;
+                    // }
+                    std::copy(indices.begin(), indices.end(), primitiveData._indices.begin());
                     break;
                 }
                 default:
@@ -271,13 +275,18 @@ namespace Boo
         {
             // 没有索引数据，生成顺序索引（三角形列表）
             size_t vertexCount = positionAccessor.count;
+            primitiveData._indices.resize(vertexCount * 3);
+            size_t iIdx = 0;
             for (size_t i = 0; i < vertexCount; i += 3)
             {
-                primitiveData._indices.push_back(i);
-                primitiveData._indices.push_back(i + 1);
-                primitiveData._indices.push_back(i + 2);
+                primitiveData._indices[iIdx++] = i;
+                primitiveData._indices[iIdx++] = i + 1;
+                primitiveData._indices[iIdx++] = i + 2;
             }
         }
+        // std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+        // float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+        // LOGI("[GLTFAsset : create] :: parsePrimitive triangle count: %d duration: %f", primitiveData._indices.size() / 3, frameDuration);
     }
 
     void GLTFAsset::_fmatToMat4(Mat4 &mat, const fastgltf::math::fmat4x4 &fmat)
@@ -292,7 +301,11 @@ namespace Boo
         }
         mat.set(result);
     }
-    const std::vector<MeshAsset*> &GLTFAsset::getMeshAssets()
+    const GLTFNode &GLTFAsset::getRoot()
+    {
+        return this->_root;
+    }
+    const std::vector<MeshAsset *> &GLTFAsset::getMeshAssets()
     {
         return this->_meshAssets;
     }

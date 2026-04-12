@@ -2,7 +2,7 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <vulkan/vulkan_core.h>
+#include "../gfx-struct.h"
 #include "../base/gfx-pipeline.h"
 
 class GfxDefaultPipeline : public GfxPipeline

@@ -1,8 +1,9 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include "../gfx-struct.h"
 class GfxContext;
 
 class GfxRenderPass

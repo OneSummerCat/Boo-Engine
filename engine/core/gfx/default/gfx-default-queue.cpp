@@ -82,8 +82,8 @@ void GfxDefaultQueue::_createVertexBuffers()
         0, 2, 3};
     // 顶点缓冲区
     GfxMgr::getInstance()->createBuffer(
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &this->_vertexBuffer,
         &this->_vertexMemory,
         interleavedVertices.size() * sizeof(float), // 总字节数
@@ -92,8 +92,8 @@ void GfxDefaultQueue::_createVertexBuffers()
 
     // 索引缓冲区（不变）
     GfxMgr::getInstance()->createBuffer(
-        VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
         &this->_indexBuffer,
         &this->_indexMemory,
         indices.size() * sizeof(uint32_t),
@@ -102,6 +102,7 @@ void GfxDefaultQueue::_createVertexBuffers()
 }
 void GfxDefaultQueue::render(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers, std::vector<std::string> &pipelineOutds)
 {
+    
     GfxDefaultPipeline *pipeline = this->_renderer->getPipeline();
     this->_resetCommandBuffer(imageIndex);
     this->_beginCommandBuffer(imageIndex);
@@ -205,14 +206,11 @@ void GfxDefaultQueue::_beginRenderPass(uint32_t imageIndex)
     renderPassInfo.renderArea.extent = Gfx::_context->getSwapChainExtent();
     renderPassInfo.renderPass = this->_renderer->getRenderPass()->getVKRenderPass();
     renderPassInfo.renderArea.offset = {0, 0};
-
     VkClearValue clearColor{};
     clearColor.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
     renderPassInfo.pClearValues = &clearColor;
     renderPassInfo.clearValueCount = 1;
-
     vkCmdBeginRenderPass(this->_commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-    // std::cout << "[Gfx : GfxDefaultQueue]:: render: begin render pass" << std::endl;
 }
 void GfxDefaultQueue::_bindPipeline(uint32_t imageIndex, GfxDefaultPipeline *pipeline)
 {

@@ -10,7 +10,6 @@
 #include "../../platforms/android/android.h"
 
 // 校验层
-const bool enableValidationLayers = true;
 std::vector<const char *> ValidationLayers = {"VK_LAYER_KHRONOS_validation"};
 std::vector<const char *> DeviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME,             // 交换链扩展
@@ -65,13 +64,12 @@ void GfxContext::init(Android *android)
 void GfxContext::_createInstance()
 {
     LOGI("[Gfx Context]:CREATE INSTANCE");
-    if (enableValidationLayers)
+#if VK_VALIDATION_LAYER_ENABLE
+    if (!this->_checkValidationLayerSupport())
     {
-        if (!this->_checkValidationLayerSupport())
-        {
-            throw std::runtime_error("Validation layers requested, but not available!");
-        }
+        throw std::runtime_error("Validation layers requested, but not available!");
     }
+#endif
     /**
      * 程序信息
      */
@@ -106,20 +104,20 @@ void GfxContext::_createInstance()
     createInfo.enabledLayerCount = 0;
     createInfo.pNext = nullptr;
 
-    if (enableValidationLayers)
-    {
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-        createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#if VK_VALIDATION_LAYER_ENABLE
+    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
+    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+    createInfo.ppEnabledLayerNames = ValidationLayers.data();
 
-        this->_populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
-    }
-
+    this->_populateDebugMessengerCreateInfo(debugCreateInfo);
+    createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
+#endif
     if (vkCreateInstance(&createInfo, nullptr, &this->_vkinstance) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create instance!");
     }
+    // 3. 加载实例级函数指针（关键步骤！）
+    volkLoadInstance(this->_vkinstance);
 }
 bool GfxContext::_checkValidationLayerSupport()
 {
@@ -153,37 +151,33 @@ std::vector<const char *> GfxContext::_getRequiredExtensions()
 {
     uint32_t glfwExtensionCount = 0;
     const char **glfwExtensions;
- #if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
-    //在 Windows 或 macOS 上，GLFW 会自动添加必要的扩展，包括 VK_KHR_SURFACE_EXTENSION_NAME
+#if defined(BOO_PLATFORM_WINDOWS) || defined(BOO_PLATFORM_MACOS)
+    // 在 Windows 或 macOS 上，GLFW 会自动添加必要的扩展，包括 VK_KHR_SURFACE_EXTENSION_NAME
     glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
- #endif
+#endif
     std::vector<const char *> extensions(glfwExtensions,
                                          glfwExtensions + glfwExtensionCount);
-    if (enableValidationLayers)
-    {
-        extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // 添加调试扩展
-    }
+#if VK_VALIDATION_LAYER_ENABLE
+    extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME); // 添加调试扩展
+#endif
     extensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 #if defined(BOO_PLATFORM_MACOS)
-    //在 macOS 或 iOS 这类没有原生 Vulkan 驱动的系统上，需要通过 MoltenVK 这样的兼容层，把 Vulkan API 调用“翻译”成 Apple 的 Metal API 才能运行
+    // 在 macOS 或 iOS 这类没有原生 Vulkan 驱动的系统上，需要通过 MoltenVK 这样的兼容层，把 Vulkan API 调用“翻译”成 Apple 的 Metal API 才能运行
     extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
 #elif defined(BOO_PLATFORM_ANDROID)
-    //VK_KHR_ANDROID_SURFACE_EXTENSION_NAME 是一个 Vulkan 实例扩展，它的核心作用是将 Android 的原生窗口（ANativeWindow）转换成 Vulkan 可以使用的抽象窗口表面（VkSurfaceKHR）
-    extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);  //windows renderdoc 报错 
-    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);  //windows renderdoc 报错 
+    // VK_KHR_ANDROID_SURFACE_EXTENSION_NAME 是一个 Vulkan 实例扩展，它的核心作用是将 Android 的原生窗口（ANativeWindow）转换成 Vulkan 可以使用的抽象窗口表面（VkSurfaceKHR）
+    extensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME); // windows renderdoc 报错
+    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);         // windows renderdoc 报错
 #endif
-    
     return extensions;
 }
 
 void GfxContext::_setupDebugMessenger()
 {
     LOGI("[Gfx Context]:SETUP DEBUG MESSENGER");
-    if (!enableValidationLayers)
-    {
-        return;
-    }
-
+#if VK_VALIDATION_LAYER_ENABLE == 0
+    return;
+#endif
     VkDebugUtilsMessengerCreateInfoEXT createInfo;
     this->_populateDebugMessengerCreateInfo(createInfo);
 
@@ -289,15 +283,12 @@ void GfxContext::_createLogicalDevice()
     createInfo.enabledExtensionCount = static_cast<uint32_t>(localDeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = localDeviceExtensions.data();
 
-    if (enableValidationLayers)
-    {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
-        createInfo.ppEnabledLayerNames = ValidationLayers.data();
-    }
-    else
-    {
-        createInfo.enabledLayerCount = 0;
-    }
+#if VK_VALIDATION_LAYER_ENABLE
+    createInfo.enabledLayerCount = static_cast<uint32_t>(ValidationLayers.size());
+    createInfo.ppEnabledLayerNames = ValidationLayers.data();
+#else
+    createInfo.enabledLayerCount = 0;
+#endif
 
     if (vkCreateDevice(this->_physicalDevice, &createInfo, nullptr, &this->_vkdevice) != VK_SUCCESS)
     {
@@ -307,6 +298,8 @@ void GfxContext::_createLogicalDevice()
     /* / GfxMgr::Log("create logical device success"); */
     vkGetDeviceQueue(this->_vkdevice, indices.graphicsFamily, 0, &this->_graphicsQueue);
     vkGetDeviceQueue(this->_vkdevice, indices.presentFamily, 0, &this->_presentQueue);
+    // 3. 加载设备级函数指针（关键步骤！）
+    volkLoadDevice(this->_vkdevice);
 }
 
 /*
@@ -739,7 +732,9 @@ void GfxContext::_cleanSyncObjects()
 //         this->_depthMsaaTexture = nullptr;
 //     }
 // }
-
+/**
+ * 阻塞CPU，直到 GPU 完成 上一帧 的所有渲染任务（即关联到这个栅栏的命令全部执行完毕）。
+ */
 void GfxContext::frameFencesPrepare(size_t currentFrame)
 {
     /* // std::cout << "update1" << this->_inFlightFences[this->_currentFrame] << std::endl;

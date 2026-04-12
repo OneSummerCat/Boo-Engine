@@ -18,31 +18,39 @@ namespace Boo
     }
     void AssetBuiltin::_initDefaultTextureLogo()
     {
-        // TextureAsset *texture = new TextureAsset(AssetBuiltinTexture::Default, AssetBuiltinTexture::Default, AssetBuiltinTexture::Default);
-        // texture->create(GfxTextureDefault, sizeof(GfxTextureDefault));
-        // assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Default, texture);
+        TextureAsset *texture = new TextureAsset(AssetBuiltinTexture::Default, AssetBuiltinTexture::Default, AssetBuiltinTexture::Default);
+        texture->create(GfxTextureDefault, sizeof(GfxTextureDefault));
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Default, texture);
 
-        // // 默认logo纹理
-        // TextureAsset *logo = new TextureAsset(AssetBuiltinTexture::Logo, AssetBuiltinTexture::Logo, AssetBuiltinTexture::Logo);
-        // logo->create(GfxTextureLogo, sizeof(GfxTextureLogo));
-        // assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Logo, logo);
+        // 默认splash纹理
+        TextureAsset *splash = new TextureAsset(AssetBuiltinTexture::Splash, AssetBuiltinTexture::Splash, AssetBuiltinTexture::Splash);
+        splash->create(GfxTextureSplash, sizeof(GfxTextureSplash));
+        assetsManager->getAssetsCache()->addAsset(AssetBuiltinTexture::Splash, splash);
     }
     void AssetBuiltin::_initDefaultShaderUI()
     {
         ShaderAsset *vert = new ShaderAsset(AssetBuiltinShader::UIVert, AssetBuiltinShader::UIVert, AssetBuiltinShader::UIVert);
-        vert->create(ShaderVertexAsset, std::string(AssetBuiltinShaderUIVert()), {});
+        // vert->create(ShaderVertexAsset, std::string(AssetBuiltinShaderUIVert()), {});
+        std::vector<uint32_t> vertSPV(std::begin(AssetBuiltinShaderUIVert), std::end(AssetBuiltinShaderUIVert));
+        vert->create(vertSPV);
         assetsManager->getAssetsCache()->addAsset(AssetBuiltinShader::UIVert, vert);
         ShaderAsset *frag = new ShaderAsset(AssetBuiltinShader::UIFrag, AssetBuiltinShader::UIFrag, AssetBuiltinShader::UIFrag);
-        frag->create(ShaderFragmentAsset, std::string(AssetBuiltinShaderUIFrag()), {});
+        // frag->create(ShaderFragmentAsset, std::string(AssetBuiltinShaderUIFrag()), {});
+        std::vector<uint32_t> fragSPV(std::begin(AssetBuiltinShaderUIFrag), std::end(AssetBuiltinShaderUIFrag));
+        frag->create(fragSPV);
         assetsManager->getAssetsCache()->addAsset(AssetBuiltinShader::UIFrag, frag);
     }
     void AssetBuiltin::_initDefaultShaderUnlit()
     {
         ShaderAsset *vert = new ShaderAsset(AssetBuiltinShader::UnlitVert, AssetBuiltinShader::UnlitVert, AssetBuiltinShader::UnlitVert);
-        vert->create(ShaderVertexAsset, std::string(AssetBuiltinShaderUnlitVert()), {});
+        // vert->create(ShaderVertexAsset, std::string(AssetBuiltinShaderUnlitVert()), {});
+        std::vector<uint32_t> vertSPV(std::begin(AssetBuiltinShaderUnlitVert), std::end(AssetBuiltinShaderUnlitVert));
+        vert->create(vertSPV);
         assetsManager->getAssetsCache()->addAsset(AssetBuiltinShader::UnlitVert, vert);
         ShaderAsset *frag = new ShaderAsset(AssetBuiltinShader::UnlitFrag, AssetBuiltinShader::UnlitFrag, AssetBuiltinShader::UnlitFrag);
-        frag->create(ShaderFragmentAsset, std::string(AssetBuiltinShaderUnlitFrag()), {});
+        // frag->create(ShaderFragmentAsset, std::string(AssetBuiltinShaderUnlitFrag()), {});
+        std::vector<uint32_t> fragSPV(std::begin(AssetBuiltinShaderUnlitFrag), std::end(AssetBuiltinShaderUnlitFrag));
+        frag->create(fragSPV);
         assetsManager->getAssetsCache()->addAsset(AssetBuiltinShader::UnlitFrag, frag);
     }
     void AssetBuiltin::_initDefaultMaterialUI()

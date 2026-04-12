@@ -21,13 +21,10 @@ namespace Boo
         _ndAlpha(nullptr),
         _spriteAlpha(nullptr),
         _textureBg(nullptr),
-        _ndLogo(nullptr),
-        _spriteLogo(nullptr),
-        _textureLogo(nullptr),
-        _logoTxWidth(0.0f),
-        _logoTxHeight(0.0f),
+        _ndSplash(nullptr),
+        _spriteSplash(nullptr),
         _alphaDuration(1.0f),
-        _logoAlphaNum(0.0f),
+        _splashAlphaNum(0.0f),
         _isAlphaEnd(false)
   {
     this->_init();
@@ -38,6 +35,16 @@ namespace Boo
     LOGI("[Alpha]: init");
     this->_initCamera();
     this->_initAlpha();
+    // 添加text
+    // Node2D *node2d = this->getRoot2D();
+    // Node2D *ndText = new Node2D("Text");
+    // node2d->addChild(ndText);
+    // ndText->setPosition(0.0f, 100.0f, 0.0f);
+    // UIText *compText = dynamic_cast<UIText *>(ndText->addComponent("UIText"));
+    // if (compText != nullptr)
+    // {
+    //   compText->setText("Alpha Boo!");
+    // }
   }
   void Alpha::_initCamera()
   {
@@ -52,10 +59,11 @@ namespace Boo
   void Alpha::_initAlpha()
   {
     this->_initAlphaBg();
-    this->_initAlphaLogo();
+    this->_initAlphaSplash();
   }
   void Alpha::_initAlphaBg()
   {
+    // std::cout << "initAlphaBg" << std::endl;
     Node2D *node2d = this->getRoot2D();
     this->_ndAlpha = new Node2D("Alpha");
     this->_ndAlpha->setSize(view->getDesignWidth(), view->getDesignHeight());
@@ -68,42 +76,22 @@ namespace Boo
       this->_spriteAlpha->setColor(0.0f, 0.0f, 0.0f, 1.0f);
     }
   }
-  void Alpha::_initAlphaLogo()
+  void Alpha::_initAlphaSplash()
   {
+    // std::cout << "initAlphaSplash" << std::endl;
     Node2D *node2d = this->getRoot2D();
-    // 添加logo
-    this->_ndLogo = new Node2D("Logo");
-    node2d->addChild(this->_ndLogo);
-    this->_ndLogo->setPosition(0.0f, 100.0f, 0.0f);
-    Component *compLogo = this->_ndLogo->addComponent("UISprite");
-    if (compLogo != nullptr)
+    // 添加logo splash
+    this->_ndSplash = new Node2D("Splash");
+    node2d->addChild(this->_ndSplash);
+    this->_ndSplash->setPosition(0.0f, 50.0f, 0.0f);
+    this->_ndSplash->setSize(144.0f, 144.0f);
+    Component *compSplash = this->_ndSplash->addComponent("UISprite");
+    if (compSplash != nullptr)
     {
-      this->_spriteLogo = dynamic_cast<UISprite *>(compLogo);
-      this->_spriteLogo->setMaterial(AssetBuiltinMaterial::UI);
-      // this->_spriteLogo->setTexture(AssetBuiltinTexture::Logo);
-      // this->_spriteLogo->setEnabled(true);
-      this->_spriteLogo->setColor(0.1f, 0.1f, 0.1f, 0.0f);
-    }
-
-    Asset *text = assetsManager->getAsset("builtin::logo.png");
-    if (text != nullptr)
-    {
-      TextureAsset *texture = dynamic_cast<TextureAsset *>(text);
-      this->_logoTxWidth = texture->getWidth();
-      this->_logoTxHeight = texture->getHeight();
-      float _width = 0.0f;
-      float _height = 0.0f;
-      if (view->getDesignWidth() > view->getDesignHeight())
-      {
-        _height = view->getDesignHeight() * 0.5;
-        _width = this->_logoTxWidth * (_height / this->_logoTxHeight);
-      }
-      else
-      {
-        _width = view->getDesignWidth() * 0.5;
-        _height = this->_logoTxHeight * (_width / this->_logoTxWidth);
-      }
-      this->_ndLogo->setSize(_width, _height);
+      this->_spriteSplash = dynamic_cast<UISprite *>(compSplash);
+      this->_spriteSplash->setMaterial(AssetBuiltinMaterial::UI);
+      this->_spriteSplash->setColor(1.0f, 1.0f, 1.0f, 0.0f);
+      this->_spriteSplash->setTexture(AssetBuiltinTexture::Splash);
     }
   }
   void Alpha::update(float deltaTime)
@@ -113,11 +101,11 @@ namespace Boo
   }
   void Alpha::_updateLogoAlpha(float deltaTime)
   {
-    if (this->_spriteLogo == nullptr)
+    if (this->_spriteSplash == nullptr)
     {
       return;
     }
-    if (this->_logoAlphaNum > this->_alphaDuration)
+    if (this->_splashAlphaNum > this->_alphaDuration)
     {
       if (this->_isAlphaEnd == false)
       {
@@ -126,9 +114,9 @@ namespace Boo
       }
       return;
     }
-    this->_logoAlphaNum += deltaTime;
-    float alpha = this->_logoAlphaNum / this->_alphaDuration;
-    this->_spriteLogo->setAlpha(alpha);
+    this->_splashAlphaNum += deltaTime;
+    float alpha = this->_splashAlphaNum / this->_alphaDuration;
+    this->_spriteSplash->setAlpha(alpha);
   }
 
   void Alpha::destroy()

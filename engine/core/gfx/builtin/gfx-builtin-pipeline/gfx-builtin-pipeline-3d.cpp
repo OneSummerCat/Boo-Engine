@@ -5,7 +5,7 @@
 #include "../../base/gfx-pipeline.h"
 #include "../../base/gfx-shader.h"
 #include "../../base/gfx-render-pass.h"
-#include "../../log.h"
+#include "../../../log.h"
 
 GfxBuiltinPipeline3D::GfxBuiltinPipeline3D(const std::string &name) : GfxBuiltinPipeline(name)
 {
@@ -33,7 +33,7 @@ void GfxBuiltinPipeline3D::_initVertexInputState()
     // 初始化实例输入属性描述
     this->_vInputBindInstanceDescription = {};
     this->_vInputBindInstanceDescription.binding = 1;
-    this->_vInputBindInstanceDescription.stride = sizeof(float) * (16); // 16个float(模型变换矩阵)
+    this->_vInputBindInstanceDescription.stride = sizeof(float) * (16 + 16); // 16个float(模型变换矩阵)+16个float(转置矩阵变换矩阵)
     this->_vInputBindInstanceDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 
     this->_vertexInputAttributes = {
@@ -114,8 +114,36 @@ void GfxBuiltinPipeline3D::_initVertexInputState()
             .binding = 1,
             .format = VK_FORMAT_R32G32B32A32_SFLOAT,
             .offset = sizeof(float) * 12,
-        }
-    };
+        },
+        //-----模型逆转置矩阵
+        // 矩阵第一行 (location 2)
+        {
+            .location = 11,
+            .binding = 1, // 从绑定1读取！
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .offset = sizeof(float) * 16,
+        },
+        // 矩阵第二行 (location 3)
+        {
+            .location = 12,
+            .binding = 1,
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .offset = sizeof(float) * 20,
+        },
+        // 矩阵第三行 (location 4)
+        {
+            .location = 13,
+            .binding = 1,
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .offset = sizeof(float) * 24,
+        },
+        // 矩阵第四行 (location 5)
+        {
+            .location = 14,
+            .binding = 1,
+            .format = VK_FORMAT_R32G32B32A32_SFLOAT,
+            .offset = sizeof(float) * 28,
+        }};
 
     this->_vertexInputBindings.push_back(this->_vInputBindDescription);
     this->_vertexInputBindings.push_back(this->_vInputBindInstanceDescription);

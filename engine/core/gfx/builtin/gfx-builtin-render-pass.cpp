@@ -1,7 +1,6 @@
 #include "gfx-builtin-render-pass.h"
 #include "../gfx.h"
 #include "../gfx-context.h"
-#include "../../log.h"
 /**
  * 渲染pass
  * 只有一个颜色附件

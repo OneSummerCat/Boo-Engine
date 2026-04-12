@@ -4,13 +4,17 @@
 #include "ui-renderer.h"
 #include "../../font/freetype-mgr.h"
 #include "../../component/component-register.h"
+#include "../../math/math-api.h"
 
 namespace Boo
 {
 
+    class MaterialAsset;
     class TextureAsset;
+    class MeshAsset;
     class Camera;
     class Size;
+    class MeshAsset;
 
     class UIText : public UIRenderer
     {
@@ -19,10 +23,19 @@ namespace Boo
         std::string _text;
         int _fontSize;
         int _lineHeight;
+        Color _color;
+        MeshAsset *_meshAsset;
+        MaterialAsset *_materialAsset;
 
-        FontTexture _fontTexture;
+        void _createDefaultMaterial();
+        void _createDefaultMesh();
+
+    private:
+        int _realWidth;
+        int _realHeight;
+        int _fontRealSize;
+
         void _updateNodeSize();
-        void _clearTexture();
 
     public:
         UIText(std::string name, Node *node, std::string uuid = "");
@@ -38,6 +51,8 @@ namespace Boo
         void setColor(std::string color);
         void setColor(float r, float g, float b, float a);
         void setAlpha(float alpha);
+        void setMaterial(std::string material);
+        void setMaterial(MaterialAsset *material);
 
         void Update(float deltaTime) override;
         void LateUpdate(float deltaTime) override;

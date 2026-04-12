@@ -12,11 +12,20 @@
 #include "../gfx-builtin-renderer.h"
 #include "../gfx-builtin-pipeline/gfx-builtin-pipeline.h"
 
-GfxBuiltinBatch3D::GfxBuiltinBatch3D(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh)
-    : GfxBuiltinBatch(renderer, renderTexture, material, mesh)
+GfxBuiltinBatch3D::GfxBuiltinBatch3D()
+    : GfxBuiltinBatch()
 {
 }
-void GfxBuiltinBatch3D::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo)
+void GfxBuiltinBatch3D::addObject(const std::vector<char> &instanceData)
+{
+    if (instanceData.size() !=128)
+    {
+        LOGE("[Gfx : BatchBuiltin3D] :: addObject: instanceData size must be 32! Current size: %d", (int)instanceData.size());
+        return;
+    }
+    GfxBuiltinBatch::addObject(instanceData);
+}
+void GfxBuiltinBatch3D::render(VkCommandBuffer &queueCommandBuffer)
 {
     const GfxRendererState &pipelineState = this->_material->getRendererState();
     GfxBuiltinPipeline *pipeline = this->_renderer->getPipeline(pipelineState);
@@ -25,11 +34,28 @@ void GfxBuiltinBatch3D::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *u
         LOGE("[Gfx : BatchBuiltin] :: render: pipeline not found!");
         return;
     }
+    this->_bindUniformBuffer();
     this->_bindPipeline(queueCommandBuffer, pipeline);
     this->_setViewportScissor(queueCommandBuffer);
-    this->_bindDescriptorSets(queueCommandBuffer, pipeline, ubo);
+    this->_bindDescriptorSets(queueCommandBuffer, pipeline, this->_ubo);
     this->_bindVertexIndicesBuffers(queueCommandBuffer);
     this->_drawIndexed(queueCommandBuffer);
+}
+void GfxBuiltinBatch3D::_bindUniformBuffer()
+{
+    this->_ubo = Gfx::_bufferUBO->getBuffer((16 + 16 + 1+ 4 + 4 + 4) * sizeof(float)); // 视图矩阵+投影矩阵+时间+相机位置+主光方向+主光颜色
+    this->_ubo->setIsOccupied(true);
+    // 提交视图矩阵和投影矩阵
+    memcpy(this->_ubo->getMappedData(), this->_viewMatrix.data(), sizeof(float) * 16);
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 16, this->_projMatrix.data(), sizeof(float) * 16);
+    // 提交时间
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 32, &Gfx::_frameTime, sizeof(float));
+    // 提交相机位置
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 36, this->_cameraPos.data(), sizeof(float) * 4);
+    // 提交主光方向
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 40, Gfx::_mainLitDir.data(), sizeof(float) * 4);
+    // 提交主光颜色
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 44, Gfx::_mainLitColor.data(), sizeof(float) * 4);
 }
 
 void GfxBuiltinBatch3D::_setViewportScissor(VkCommandBuffer &queueCommandBuffer)
@@ -55,12 +81,12 @@ void GfxBuiltinBatch3D::_bindDescriptorSets(VkCommandBuffer &queueCommandBuffer,
     descriptorWrites[0].pBufferInfo = &bufferInfo;
     // 绑定采样器
     std::array<VkDescriptorImageInfo, 10> imageInfos;
-    GfxTexture *defaultTexture = Gfx::_textures.at("Gfx::Texture::default.png");
+    GfxTexture *defaultTexture = Gfx::_textures.at("builtin::default.png");
 
     for (size_t i = 0; i < 10; i++)
     {
         imageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        if (i < this->_material->getTextures().size())
+        if (i >= this->_material->getTextures().size())
         {
             imageInfos[i].imageView = defaultTexture->getImageView();
             imageInfos[i].sampler = defaultTexture->getSampler();

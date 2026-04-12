@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -31,6 +31,7 @@ class GfxMaterial
 {
 private:
     GfxRendererState _rendererState;
+    std::string _rendererStateKey;
     /**
      * 实例数据
      */
@@ -53,7 +54,9 @@ private:
 
 public:
     GfxMaterial();
-    void create(GfxRendererCategory type, const std::string &vert, const std::string &frag);
+    void create(GfxRendererLayer layer, const std::string &vert, const std::string &frag);
+    void setVertexShader(const std::string &vert);
+    void setFragmentShader(const std::string &frag);
     void setProperties(std::vector<GfxMaterialDataBlock> &properties);
     void setPolygonMode(GfxRendererStatePolygonMode polygonMode);
     void setCullMode(GfxRendererStateCullMode cullMode);
@@ -82,8 +85,10 @@ public:
     void setSrcAlphaBlendFactor(GfxRendererStateColorBlendFactor srcAlphaBlendFactor);
     void setDstAlphaBlendFactor(GfxRendererStateColorBlendFactor dstAlphaBlendFactor);
     void setAlphaBlendOp(GfxRendererStateColorBlendOp alphaBlendOp);
+
     void setTexture(const int index, const std::string &texture);
     void setModelWorldMatrix(const std::array<float, 16> &modelWorldMatrix);
+    void setModelWorldMatrixIT(const std::array<float, 16> &modelWorldMatrixIT);
     void setUIColor(const float r, const float g, const float b, const float a);
     void setPropertyInt(const std::string &key, const int value);
     void setPropertyFloat(const std::string &key, const float value);
@@ -98,7 +103,8 @@ public:
      * @return false
      */
     bool equals(const GfxMaterial *material) const;
-    GfxRendererState getRendererState() const;
+    GfxRendererState &getRendererState();
+    std::string getRendererStateKey() const;
     const std::vector<char> &getInstanceData() const;
     const std::vector<std::string> &getTextures() const;
 

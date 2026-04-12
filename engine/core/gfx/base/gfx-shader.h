@@ -1,7 +1,8 @@
 #pragma once
 #include <string>
 #include <vector>
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
+#include "../gfx-struct.h"
 
 class GfxShader
 {

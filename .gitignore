@@ -20,3 +20,5 @@
 /test-win/out
 /test-win/ai
 /test-win/engine
+/build
+/dist

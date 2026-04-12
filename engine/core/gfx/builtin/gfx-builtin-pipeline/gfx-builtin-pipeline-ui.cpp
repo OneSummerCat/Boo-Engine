@@ -5,7 +5,7 @@
 #include "../../base/gfx-pipeline.h"
 #include "../../base/gfx-shader.h"
 #include "../../base/gfx-render-pass.h"
-#include "../../log.h"
+#include "../../../log.h"
 
 GfxBuiltinPipelineUI::GfxBuiltinPipelineUI(const std::string &name) : GfxBuiltinPipeline(name)
 {

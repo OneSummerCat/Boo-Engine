@@ -13,7 +13,7 @@
 #include "gfx-builtin-pipeline/gfx-builtin-pipeline-3d.h"
 #include "gfx-builtin-render-pass.h"
 #include "gfx-builtin-queue.h"
-#include "../../log.h"
+
 
 
 uint32_t GfxBuiltinRenderer::StencilRef = 0;
@@ -254,13 +254,13 @@ void GfxBuiltinRenderer::createPipeline(std::string name, GfxRendererState rende
         LOGI("[Gfx : RendererBuiltin] :: createPipeline:pass not found:");
         return;
     }
-    if (rendererState.renderer == GfxRendererCategory::_UI)
+    if (rendererState.layer == GfxRendererLayer::_UI)
     {
         GfxBuiltinPipelineUI *pipeline = new GfxBuiltinPipelineUI(name);
         pipeline->create(this->_pass, Gfx::_shaders[rendererState.vert], Gfx::_shaders[rendererState.frag], this->_uiDescriptorSetLayout, rendererState);
         this->_pipelines[name] = pipeline;
     }
-    else if (rendererState.renderer == GfxRendererCategory::_3D)
+    else if (rendererState.layer == GfxRendererLayer::_3D)
     {
         GfxBuiltinPipeline3D *pipeline = new GfxBuiltinPipeline3D(name);
         pipeline->create(this->_pass, Gfx::_shaders[rendererState.vert], Gfx::_shaders[rendererState.frag], this->_3dDescriptorSetLayout, rendererState);
@@ -282,17 +282,14 @@ GfxBuiltinPipeline *GfxBuiltinRenderer::getPipeline(const GfxRendererState &pipe
 
 
 
-void GfxBuiltinRenderer::initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority)
+void GfxBuiltinRenderer::createRenderQueue(std::string renderId, int priority, uint32_t width, uint32_t height)
 {
     if (this->_renderQueues.find(renderId) != this->_renderQueues.end())
     {
-        LOGI("[Gfx : RendererBuiltin] :: initRenderQueue:renderId already exists:%s", renderId.c_str());
+        LOGI("[Gfx : RendererBuiltin] :: createRenderQueue:renderId already exists:%s", renderId.c_str());
         return;
     }
-    // 绑定渲染pass
-    renderTexture->bindRenderPass(this->_pass);
-    // 创建渲染队列
-    GfxBuiltinQueue *queue = new GfxBuiltinQueue(this, renderTexture);
+    GfxBuiltinQueue *queue = new GfxBuiltinQueue(renderId,width, height, this);
     queue->init();
     queue->setPriority(priority);
     this->_renderQueues[renderId] = queue;
@@ -306,6 +303,24 @@ void GfxBuiltinRenderer::setRenderQueuePriority(std::string renderId, int priori
     }
     this->_renderQueues[renderId]->setPriority(priority);
 }
+GfxRenderTexture *GfxBuiltinRenderer::getRenderQueueRT(std::string renderId)
+{
+    if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
+    {
+        LOGI("[Gfx : RendererBuiltin] :: getRenderQueueRT:renderId not found:%s", renderId.c_str());
+        return nullptr;
+    }
+    return this->_renderQueues[renderId]->getRenderTexture();
+}
+void GfxBuiltinRenderer::resizeRenderQueue(std::string renderId, uint32_t width, uint32_t height)
+{
+    if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
+    {
+        LOGI("[Gfx : RendererBuiltin] :: resizeRenderQueue:renderId not found:%s", renderId.c_str());
+        return;
+    }
+    this->_renderQueues[renderId]->resize(width, height);
+}
 void GfxBuiltinRenderer::delRenderQueue(std::string renderId)
 {
     if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
@@ -313,20 +328,20 @@ void GfxBuiltinRenderer::delRenderQueue(std::string renderId)
         LOGI("[Gfx : RendererBuiltin] :: delRenderQueue:renderId not found:%s", renderId.c_str());
         return;
     }
-    this->_renderQueues[renderId]->destroy();
-    // 销毁渲染队列
-    delete this->_renderQueues[renderId];
+    // this->_renderQueues[renderId]->destroy();
+    // // 销毁渲染队列
+    // delete this->_renderQueues[renderId];
     this->_renderQueues.erase(renderId);
    
 }
-void GfxBuiltinRenderer::submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen)
+void GfxBuiltinRenderer::submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen, std::array<float, 4> &cameraPosition)
 {
     if (this->_renderQueues.find(renderId) == this->_renderQueues.end())
     {
         LOGI("[Gfx : RendererBuiltin] :: submitRenderMat:renderId not found:%s", renderId.c_str());
         return;
     }
-    this->_renderQueues[renderId]->submitData(viewMatrix, projMatrix, isOnScreen);
+    this->_renderQueues[renderId]->submitData(viewMatrix, projMatrix, isOnScreen, cameraPosition);
 }
 void GfxBuiltinRenderer::submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh)
 {
@@ -377,7 +392,6 @@ void GfxBuiltinRenderer::getOffScreenOutds(std::vector<std::string> &pipelineOut
         {
             continue;
         }
-        // renderTexture->saveToFile1(renderTargetUid+".png");
         pipelineOutds.push_back(renderTargetUid);
     }
 }
@@ -394,11 +408,16 @@ void GfxBuiltinRenderer::frameRendererBefore()
     }
     GfxBuiltinRenderer::StencilRef = 0;
 }
-void GfxBuiltinRenderer::frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers)
+void GfxBuiltinRenderer::frameRenderer(std::vector<VkCommandBuffer> &commandBuffers)
 {
     for (auto &renderQueue : this->_renderQueues)
     {
+        // LOGI("render renderQueue:%s start...........", renderQueue.first.c_str());
+        // std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
         renderQueue.second->render(commandBuffers);
+        // std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+        // float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+        // LOGI("render renderQueue:%s end duration: %f", renderQueue.first.c_str(), frameDuration);
     }
 }
 void GfxBuiltinRenderer::frameRendererAfter()

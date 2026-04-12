@@ -3,47 +3,39 @@
 #include "../gfx-context.h"
 #include "../gfx-mgr.h"
 #include "../../../libs/stb/stb_image_write.h"
-#include "../../log.h"
+#include "../../../log.h"
 
 /* // 主要用于创建附件贴图 */
-GfxTexture::GfxTexture(std::string uuid)
+GfxTexture::GfxTexture(std::string uuid, uint32_t width, uint32_t height, uint32_t channels, VkFormat format)
 {
     this->_uuid = uuid;
-}
-void GfxTexture::create(const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels, VkFormat format)
-{
     this->_width = width;
     this->_height = height;
     this->_channels = channels;
-    this->_pixels = pixels;
     this->_format = format;
-    this->_createTextureImage();
-    this->_createTextureImageView();
-    this->_createTextureSampler();
-    std::cout << "GfxTexture::create success:" << this->_uuid << std::endl;
 }
-void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
-                             VkImageTiling tiling, VkImageUsageFlags usage,
-                             VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples)
+
+void GfxTexture::create(const std::vector<uint8_t> *pixels)
 {
-    this->createImage(width, height, format, tiling, usage, properties, samples, this->_textureImage, this->_textureImageMemory);
+    this->_pixels = *pixels;
+    /*  // 创建纹理图像 */
+    this->createImage(VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT);
+    this->createImageView(VK_IMAGE_ASPECT_COLOR_BIT);
+    this->crateImageSampler();
+    this->_updateTextureData();
+    LOGI("GfxTexture::create success: %s", this->_uuid.c_str());
 }
-/*
-// 以下实现辅助方法... */
-void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
-                             VkImageTiling tiling, VkImageUsageFlags usage,
-                             VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples,
-                             VkImage &image, VkDeviceMemory &imageMemory)
+void GfxTexture::createImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples)
 {
     VkImageCreateInfo imageInfo{};
     imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     imageInfo.imageType = VK_IMAGE_TYPE_2D;
-    imageInfo.extent.width = width;
-    imageInfo.extent.height = height;
+    imageInfo.extent.width = this->_width;
+    imageInfo.extent.height = this->_height;
     imageInfo.extent.depth = 1;
     imageInfo.mipLevels = 1;
     imageInfo.arrayLayers = 1;
-    imageInfo.format = format;
+    imageInfo.format = this->_format;
     imageInfo.tiling = tiling;
     imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     imageInfo.usage = usage;
@@ -51,44 +43,39 @@ void GfxTexture::createImage(uint32_t width, uint32_t height, VkFormat format,
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     imageInfo.flags = 0;
 
-    if (vkCreateImage(Gfx::_context->getVkDevice(), &imageInfo, nullptr, &image) != VK_SUCCESS)
+    if (vkCreateImage(Gfx::_context->getVkDevice(), &imageInfo, nullptr, &this->_textureImage) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create image!");
     }
 
     VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(Gfx::_context->getVkDevice(), image, &memRequirements);
+    vkGetImageMemoryRequirements(Gfx::_context->getVkDevice(), this->_textureImage, &memRequirements);
 
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = GfxMgr::getInstance()->getMemoryTypeIndex(memRequirements.memoryTypeBits, properties);
 
-    if (vkAllocateMemory(Gfx::_context->getVkDevice(), &allocInfo, nullptr, &imageMemory) != VK_SUCCESS)
+    if (vkAllocateMemory(Gfx::_context->getVkDevice(), &allocInfo, nullptr, &this->_textureImageMemory) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate image memory!");
     }
 
-    vkBindImageMemory(Gfx::_context->getVkDevice(), image, imageMemory, 0);
+    vkBindImageMemory(Gfx::_context->getVkDevice(), this->_textureImage, this->_textureImageMemory, 0);
 }
-
-void GfxTexture::createImageView(VkFormat format, VkImageAspectFlags aspectFlags)
-{
-    this->createImageView(this->_textureImage, format, aspectFlags, this->_textureImageView);
-}
-void GfxTexture::createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView &imageView)
+void GfxTexture::createImageView(VkImageAspectFlags aspectFlags)
 {
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    viewInfo.image = image;
+    viewInfo.image = this->_textureImage;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    viewInfo.format = format;
+    viewInfo.format = this->_format;
     viewInfo.subresourceRange.aspectMask = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
-    if (format == VK_FORMAT_R8_UNORM)
+    if (this->_format == VK_FORMAT_R8_UNORM)
     {
         /* // 单通道纹理的组件映射 */
         viewInfo.components.r = VK_COMPONENT_SWIZZLE_R;
@@ -97,56 +84,12 @@ void GfxTexture::createImageView(VkImage image, VkFormat format, VkImageAspectFl
         viewInfo.components.a = VK_COMPONENT_SWIZZLE_ONE;
     }
 
-    if (vkCreateImageView(Gfx::_context->getVkDevice(), &viewInfo, nullptr, &imageView) != VK_SUCCESS)
+    if (vkCreateImageView(Gfx::_context->getVkDevice(), &viewInfo, nullptr, &this->_textureImageView) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create texture image view!");
     }
 }
-
-
-void GfxTexture::_createTextureImage()
-{
-    /* // 创建暂存缓冲区 */
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    // 计算暂存缓冲区大小
-    VkDeviceSize imageSize = this->_width * this->_height * this->_channels;
-    // 创建暂存缓冲区
-    GfxMgr::getInstance()->createBuffer(
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-        &stagingBuffer,
-        &stagingBufferMemory,
-        imageSize, nullptr);
-    /* // 复制数据到暂存缓冲区 */
-    void *data;
-    vkMapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, this->_pixels->data(), static_cast<size_t>(imageSize));
-    vkUnmapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory);
-    /*  // 创建纹理图像 */
-    this->createImage(this->_width, this->_height, this->_format, VK_IMAGE_TILING_OPTIMAL,
-                      VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, VK_SAMPLE_COUNT_1_BIT,
-                      this->_textureImage, this->_textureImageMemory);
-    /* // 转换布局并复制数据
-    // VK_IMAGE_LAYOUT_UNDEFINED 待确定 */
-    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
-    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-    /*  // 清理暂存资源 */
-    vkDestroyBuffer(Gfx::_context->getVkDevice(), stagingBuffer, nullptr);
-    vkFreeMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, nullptr);
-}
-void GfxTexture::_createTextureImageView()
-{
-    this->createImageView(this->_textureImage, this->_format, VK_IMAGE_ASPECT_COLOR_BIT, this->_textureImageView);
-}
 void GfxTexture::crateImageSampler()
-{
-    this->_createTextureSampler();
-}
-void GfxTexture::_createTextureSampler()
 {
     VkSamplerCreateInfo samplerInfo{};
     samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -169,6 +112,36 @@ void GfxTexture::_createTextureSampler()
     {
         throw std::runtime_error("failed to create texture sampler!");
     }
+}
+void GfxTexture::_updateTextureData()
+{
+    /* // 创建暂存缓冲区 */
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    // 计算暂存缓冲区大小
+    VkDeviceSize imageSize = this->_width * this->_height * this->_channels;
+    // 创建暂存缓冲区
+    GfxMgr::getInstance()->createBuffer(
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        &stagingBuffer,
+        &stagingBufferMemory,
+        imageSize, nullptr);
+    /* // 复制数据到暂存缓冲区 */
+    void *data;
+    vkMapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, 0, imageSize, 0, &data);
+    memcpy(data, this->_pixels.data(), static_cast<size_t>(imageSize));
+    vkUnmapMemory(Gfx::_context->getVkDevice(), stagingBufferMemory);
+
+    /* // 转换布局并复制数据
+    // VK_IMAGE_LAYOUT_UNDEFINED 待确定 */
+    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    this->_copyBufferToImage(stagingBuffer, this->_textureImage, static_cast<uint32_t>(this->_width), static_cast<uint32_t>(this->_height));
+    this->_transitionImageLayout(this->_textureImage, this->_format, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+    /*  // 清理暂存资源 */
+    vkDestroyBuffer(Gfx::_context->getVkDevice(), stagingBuffer, nullptr);
+    vkFreeMemory(Gfx::_context->getVkDevice(), stagingBufferMemory, nullptr);
 }
 
 void GfxTexture::_transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels)
@@ -301,6 +274,29 @@ void GfxTexture::_copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t wid
 
     this->_endSingleTimeCommands(commandBuffer);
 }
+void GfxTexture::setPixel(uint32_t x, uint32_t y, std::vector<uint8_t> pixel)
+{
+    this->_changeFlag++;
+    if (this->_channels != pixel.size())
+    {
+        LOGW("GfxTexture::setPixel: pixel size must match channels");
+        return;
+    }
+    size_t pixelIndex = (y * this->_width + x) * this->_channels;
+    for (size_t i = 0; i < this->_channels; i++)
+    {
+        this->_pixels[pixelIndex + i] = pixel[i];
+    }
+}
+void GfxTexture::updateData()
+{
+    if (this->_changeFlag == 0)
+    {
+        return;
+    }
+    this->_changeFlag = 0;
+    this->_updateTextureData();
+}
 
 VkImage GfxTexture::getImage()
 {
@@ -319,21 +315,12 @@ std::string GfxTexture::getUuid()
     return this->_uuid;
 }
 
-// 绑定less 索引
-uint32_t GfxTexture::getBindlessIndex()
-{
-    return this->_bindlessIndex;
-}
-void GfxTexture::setBindlessIndex(uint32_t index)
-{
-    this->_bindlessIndex = index;
-}
-bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t height)
+bool GfxTexture::saveToFile(std::string filePath)
 {
     /* // 1. 创建 staging buffer 用于从 GPU 复制数据到 CPU */
     // std::cout << "GfxTexture::saveToFile width: " << width << std::endl;
     // std::cout << "GfxTexture::saveToFile height: " << height << std::endl;
-    VkDeviceSize imageSize = width * height * 4; /* // RGBA 格式 */
+    VkDeviceSize imageSize = this->_width * this->_height * this->_channels; /* // RGBA 格式 */
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
 
@@ -382,7 +369,7 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
     region.imageSubresource.baseArrayLayer = 0;
     region.imageSubresource.layerCount = 1;
     region.imageOffset = {0, 0, 0};
-    region.imageExtent = {width, height, 1};
+    region.imageExtent = {this->_width, this->_height, 1};
 
     vkCmdCopyImageToBuffer(
         commandBuffer,
@@ -423,15 +410,15 @@ bool GfxTexture::saveToFile(std::string filePath, uint32_t width, uint32_t heigh
 
     if (extension == "png" || extension == "PNG")
     {
-        success = stbi_write_png(filePath.c_str(), width, height, 4, data, width * 4);
+        success = stbi_write_png(filePath.c_str(), this->_width, this->_height, this->_channels, data, this->_width * this->_channels);
     }
     else if (extension == "jpg" || extension == "JPG" || extension == "jpeg" || extension == "JPEG")
     {
-        success = stbi_write_jpg(filePath.c_str(), width, height, 4, data, 90);
+        success = stbi_write_jpg(filePath.c_str(), this->_width, this->_height, this->_channels, data, 90);
     }
     else if (extension == "bmp" || extension == "BMP")
     {
-        success = stbi_write_bmp(filePath.c_str(), width, height, 4, data);
+        success = stbi_write_bmp(filePath.c_str(), this->_width, this->_height, this->_channels, data);
     }
     else
     {

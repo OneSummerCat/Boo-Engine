@@ -1,16 +1,17 @@
 #pragma once
 #include <iostream>
+#include <regex>
 #include <algorithm>
 #include <fstream>
 #include <vector>
 #include <string>
+#include <chrono>
+#include <iomanip>
 #include <set>
 #include <map>
 #include <cstdint>
 #include <unordered_map>
 #include <sstream>
-#include <vulkan/vulkan_core.h>
-#include <shaderc/shaderc.hpp>
 #include "gfx-struct.h"
 
 class GfxContext;
@@ -33,11 +34,6 @@ private:
 	std::vector<GfxShader *> _destroyShaderCaches;
 	std::vector<GfxRenderTexture *> _destroyRenderTextureCaches;
 	std::vector<GfxMesh *> _destroyMeshCaches;
-
-	/**
-	 * @brief 初始化默认纹理
-	 */
-	void _initDefaultTexture();
 	/**
 	 * @brief 编译GLSL着色器到SPIR-V
 	 *
@@ -62,16 +58,17 @@ public:
 	void destroyTexture(GfxTexture *texture);
 	
 	/**
+	 * @brief 创建SPIR-V着色器
+	 */
+	GfxShader *createSpirvShader(const std::string &uuid, const std::vector<uint32_t> &data);
+	/**
 	 * @brief 创建着色器
 	 *
 	 * @param shaderName 着色器名称
 	 * @param buffer 着色器字节码
 	 */
 	GfxShader *createGlslShader(const std::string &uuid, const std::string &shaderType, const std::string &data, const std::map<std::string, int> &macros);
-	/**
-	 * @brief 创建SPIR-V着色器
-	 */
-	GfxShader *createSpirvShader(const std::string &uuid, const std::vector<uint32_t> &data);
+	
 	/**
 	 * @brief 销毁着色器
 	 */
@@ -79,29 +76,23 @@ public:
 	/**
 	 * @brief 创建网格
 	 */
-	GfxMesh *createMesh(std::string meshUuid, const std::vector<float> &_positions, const std::vector<float> &_normals, const std::vector<float> &_uvs, const std::vector<float> &_uvs1, const std::vector<float> &_uvs2, const std::vector<float> &_colors, const std::vector<float> &_tangents, const std::vector<int> &_indices);
+	GfxMesh *createMesh(std::string meshUuid, int meshMode, const std::vector<float> &vertices, const std::vector<uint32_t> &indices);
+	/**
+	 * @brief 创建UI网格
+	 */
+	GfxMesh *createUIMesh(std::string meshUuid,int meshMode,  const std::vector<float> &vertices, const std::vector<uint32_t> &indices);
 	/**
 	 * @brief 销毁网格
 	 */
 	void destroyMesh(GfxMesh *mesh);
 
-	/**
-	 * @brief 创建渲染纹理
-	 *
-	 * @param renderTextureUuid 渲染纹理UUID
-	 * @param width 宽度
-	 * @param height 高度
-	 * @param channels 通道数
-	 * @param pixels 像素数据
-	 */
-	GfxRenderTexture *createRenderTexture(std::string renderTextureUuid, uint32_t width, uint32_t height);
-	void destroyRenderTexture(GfxRenderTexture *renderTexture);
-
-	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority);
+	void createRenderQueue(std::string renderId, int priority, uint32_t width, uint32_t height);
 	void setRenderQueuePriority(std::string renderId, int priority);
+	GfxRenderTexture *getRenderQueueRT(std::string renderId);
+	void resizeRenderQueue(std::string renderId, uint32_t width, uint32_t height);
 	void delRenderQueue(std::string renderId);
 
-	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen);
+	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen, std::array<float, 4> &cameraPosition);
 	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh);
 	
 	void frameRendererBefore();

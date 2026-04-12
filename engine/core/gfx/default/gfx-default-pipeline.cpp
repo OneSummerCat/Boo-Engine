@@ -2,7 +2,6 @@
 #include "../gfx.h"
 #include "../gfx-context.h"
 #include "../gfx-renderer.h"
-#include "../../log.h"
 
 #include "../base/gfx-pipeline.h"
 #include "../base/gfx-shader.h"

@@ -31,16 +31,31 @@ namespace Boo
         MeshAsset *_meshAsset;
         std::vector<MaterialAsset *> _materials;
 
+        void _clearMaterials();
+        void _resetMaterials();
     public:
         MeshRenderer(std::string name, Node *node, std::string uuid = "");
         void Awake() override;
         void Enable() override;
+        std::vector<MaterialAsset *> getMaterials();
+        MaterialAsset *getMaterial();
+        MaterialAsset *getMaterial(int index);
+        
+        /**
+         * @brief 设置网格资产
+         * @param meshAsset 网格资产
+         */
+        void setMesh(MeshAsset *meshAsset);
+        /**
+         * @brief 设置材质资产
+         * @param materialName 材质名称
+         */
+        void setMaterial(std::string materialName);
+        void setMaterial(MaterialAsset *materialAsset);
+        void setMaterial(int index, std::string materialName);
+        void setMaterial(int index, MaterialAsset *materialAsset);
+       
 
-        void setMeshAsset(MeshAsset *meshAsset);
-        void setMaterialAsset(std::string materialName);
-        void setMaterialAsset(MaterialAsset *materialAsset);
-        void setMaterialAsset(int index, std::string materialName);
-        void setMaterialAsset(int index, MaterialAsset *materialAsset);
         void Update(float deltaTime) override;
         void LateUpdate(float deltaTime) override;
         /**

@@ -22,7 +22,7 @@ namespace Boo
 		ShaderAsset(std::string uuid);
 		ShaderAsset(std::string uuid, std::string path, std::string name);
 		void create(const std::string &type, const std::string &glslData, const std::map<std::string, int> &macros);
-		// void create(const std::vector<uint32_t> &data);
+		void create(const std::vector<uint32_t> &data);
 		void destroy() override;
 		~ShaderAsset() {}
 	};

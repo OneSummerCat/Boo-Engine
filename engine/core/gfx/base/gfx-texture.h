@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -8,16 +8,18 @@
 #include <set>
 #include <map>
 #include <cstdint>
+#include "../gfx-struct.h"
 
 class GfxTexture
 {
 private:
     std::string _uuid;
-    int _width;
-    int _height;
-    int _channels;
+    uint32_t _width;
+    uint32_t _height;
+    uint32_t _channels;
     VkFormat _format;
-    const std::vector<uint8_t> *_pixels;
+    std::vector<uint8_t> _pixels;
+    int _changeFlag = 0;
 
     VkImage _textureImage = VK_NULL_HANDLE;
     VkDeviceMemory _textureImageMemory = VK_NULL_HANDLE;
@@ -30,60 +32,43 @@ private:
     // 绑定less 索引
     uint32_t _bindlessIndex = 0;
 
-    void _createTextureImage();
-    void _createTextureImageView();
-    void _createTextureSampler();
-
+    void _updateTextureData();
     void _transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout, uint32_t mipLevels = 1);
     VkCommandBuffer _beginSingleTimeCommands();
     void _endSingleTimeCommands(VkCommandBuffer commandBuffer);
     bool _hasStencilComponent(VkFormat format);
     void _copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-    void _Log(std::string msg);
 
 public:
     /**
      * @brief 创建纹理
-     * 
+     *
      * @�理uuid
      */
-    GfxTexture(std::string uuid);
+    GfxTexture(std::string uuid, uint32_t width, uint32_t height, uint32_t channels, VkFormat format);
     /**
      * @brief 创建纹理
-     * 
+     *
      * @param pixels 纹理数据
      * @param width 纹理宽度
      * @param height 纹理高度
      * @param channels 纹理通道数
      * @param format 纹理格式
      */
-    void create(const std::vector<uint8_t> *pixels, uint32_t width, uint32_t height, uint32_t channels, VkFormat format);
-
-
-
-    void createImage(uint32_t width, uint32_t height, VkFormat format,
-                     VkImageTiling tiling, VkImageUsageFlags usage,
-                     VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples,
-                     VkImage &image, VkDeviceMemory &imageMemory);
-    void createImage(uint32_t width, uint32_t height, VkFormat format,
-                     VkImageTiling tiling, VkImageUsageFlags usage,
-                     VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples);
-    void createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView &imageView);
-    void createImageView(VkFormat format, VkImageAspectFlags aspectFlags);
-
+    void create(const std::vector<uint8_t> *pixels);
+    void createImage(VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkSampleCountFlagBits samples);
+    void createImageView(VkImageAspectFlags aspectFlags);
     void crateImageSampler();
+
+    void setPixel(uint32_t x, uint32_t y, std::vector<uint8_t> pixel);
+    void updateData();
 
     VkImage getImage();
     VkImageView getImageView();
     VkSampler getSampler();
     std::string getUuid();
-
-    // 绑定less 索引
-    uint32_t getBindlessIndex();
-    void setBindlessIndex(uint32_t index);
     void destroy();
-
-    bool saveToFile(std::string filePath, uint32_t width, uint32_t height);
+    bool saveToFile(std::string filePath);
     ~GfxTexture();
 };
 

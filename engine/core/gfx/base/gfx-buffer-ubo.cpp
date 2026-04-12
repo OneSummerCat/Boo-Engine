@@ -6,7 +6,7 @@
 GfxBufferUBO::GfxBufferUBO()
 {
 }
-GfxBuffer *GfxBufferUBO::getBuffer(int size)
+GfxBuffer *GfxBufferUBO::getBuffer(size_t size)
 {
     // 检查是否存在该大小的池
     if (this->pools.find(size) == this->pools.end())

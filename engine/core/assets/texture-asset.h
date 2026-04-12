@@ -32,7 +32,13 @@ namespace Boo
      */
     void create(int width, int height, int channels,
                 std::vector<uint8_t> pixelsVector, GfxTextureFormat format);
-    
+    /**
+     * @brief 创建纹理资产
+     * @param pixels 像素数据
+     * @param size 像素数据大小
+     */
+    void create(const unsigned char *data, size_t size);
+
     /**
      * @brief 获取纹理宽度
      *
@@ -52,6 +58,16 @@ namespace Boo
      */
     int channels() const { return _channels; }
 
+    /**
+     * @brief 获取 GfxTexture 资产
+     *
+     * @return GfxTexture*
+     */
+    GfxTexture *getGfxTexture();
+    /**
+     * @brief 销毁纹理资产
+     *
+     */
     void destroy() override;
     ~TextureAsset() {}
   };

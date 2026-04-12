@@ -7,7 +7,6 @@
 #include "gfx-default-pipeline.h"
 #include "gfx-default-queue.h"
 #include "gfx-default-struct.h"
-#include "../../log.h"
 
 GfxDefaultRenderer::GfxDefaultRenderer(std::string name)
 {
@@ -104,13 +103,13 @@ void GfxDefaultRenderer::_initDefaultShader()
 void GfxDefaultRenderer::_initDefaultPipeline()
 {
     GfxRendererState pipelineStruct = {};
-    pipelineStruct.renderer = GfxRendererCategory::_UI;
+    pipelineStruct.layer = GfxRendererLayer::_UI;
     pipelineStruct.vert = "default.vert";
     pipelineStruct.frag = "default.frag";
     // 多边形模式 填充
     pipelineStruct.polygonMode = GfxRendererStatePolygonMode::Fill;
     // 剔除模式 背面
-    pipelineStruct.cullMode = GfxRendererStateCullMode::Back;
+    pipelineStruct.cullMode = GfxRendererStateCullMode::None;
     pipelineStruct.depthTest = 0;
     pipelineStruct.depthWrite = 0;
     pipelineStruct.depthCompareOp = GfxRendererStateCompareOp::Always;

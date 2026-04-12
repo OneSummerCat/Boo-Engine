@@ -48,8 +48,11 @@ namespace Boo
 		return this->_assetsLoad->loadAsset(path);
 	}
 
-	Asset *AssetsManager::getAsset(const std::string &path)
+	Asset *AssetsManager::getAsset(const std::string &path, bool loadIfNotFound)
 	{
+		if (loadIfNotFound) {
+			return this->_assetsLoad->loadAsset(path);
+		}
 		return this->_assetsCache->getAsset(path);
 	}
 	void AssetsManager::unloadAsset(const std::string &path)

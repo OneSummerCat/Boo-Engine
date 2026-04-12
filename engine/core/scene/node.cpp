@@ -38,12 +38,13 @@ namespace Boo
 
 	void Node::setPosition(float x, float y, float z)
 	{
+		if (this->_isLocked)
+			return;
 		if (this->_position.getX() == x && this->_position.getY() == y && this->_position.getZ() == z)
 		{
 			return;
 		}
 		this->_position.set(x, y, z);
-		this->_localMatrix.translate(x, y, z);
 		this->_updateWorldTransformFlag(NodeTransformFlag::POSITION_FLAG);
 	}
 	/**
@@ -58,12 +59,20 @@ namespace Boo
 	 */
 	void Node::setWorldPosition(float x, float y, float z)
 	{
-		// if (this->_worldPosition.getX() == x && this->_worldPosition.getY() == y && this->_worldPosition.getZ() == z)
-		// {
-		// 	return;
-		// }
-		// this->_worldPosition.set(x, y, z);
-		// this->_updateWorldTransformFlag(NodeTransformFlag::POSITION_FLAG);
+		if (this->_parent == nullptr)
+			return;
+		if (this->_isLocked)
+			return;
+		if (this->_worldPosition.getX() == x && this->_worldPosition.getY() == y && this->_worldPosition.getZ() == z)
+		{
+			return;
+		}
+		Mat4 parentMatInv{};
+		Vec3 worldPos(x, y, z);
+		Mat4::inverse(this->_parent->getWorldMatrix(), parentMatInv);
+		Vec3 localPos{};
+		Mat4::multiplyVec3(parentMatInv, worldPos, localPos);
+		this->setPosition(localPos.getX(), localPos.getY(), localPos.getZ());
 	}
 	/**
 	 * 获取世界位置
@@ -73,19 +82,39 @@ namespace Boo
 		this->_updateWorldTransform();
 		return this->_worldPosition;
 	}
-
+	/**
+	 * 设置欧拉角
+	 */
+	void Node::setEulerAngles(float x, float y, float z)
+	{
+		if (this->_isLocked)
+			return;
+		this->_eulerAngles.set(x, y, z);
+		Quat rotation;
+		Quat::fromEuler(x, y, z, RotationOrder::YZX, rotation);
+		this->setRotation(rotation.getX(), rotation.getY(), rotation.getZ(), rotation.getW());
+	}
+	/**
+	 * 获取欧拉角
+	 */
+	const Vec3 &Node::getEulerAngles()
+	{
+		return this->_eulerAngles;
+	}
 	/**
 	 * 设置四元素角度
 	 */
 	void Node::setRotation(float x, float y, float z, float w)
 	{
-		// if (this->_rotation.getX() == x && this->_rotation.getY() == y && this->_rotation.getZ() == z && this->_rotation.getW() == w)
-		// {
-		// 	return;
-		// }
-		// this->_rotation.set(x, y, z, w);
-		// this->_localMatrix.rotate(x, y, z, w);
-		// this->_updateWorldTransformFlag(NodeTransformFlag::ROTATION_FLAG);
+		if (this->_isLocked)
+			return;
+		if (this->_rotation.getX() == x && this->_rotation.getY() == y && this->_rotation.getZ() == z && this->_rotation.getW() == w)
+		{
+			return;
+		}
+		this->_rotation.set(x, y, z, w);
+		Quat::toEuler(this->_rotation, false, this->_eulerAngles);
+		this->_updateWorldTransformFlag(NodeTransformFlag::ROTATION_FLAG);
 	}
 	/**
 	 * 获取本地角度
@@ -99,12 +128,21 @@ namespace Boo
 	 */
 	void Node::setWorldRotation(float x, float y, float z, float w)
 	{
-		// if (this->_worldRotation.getX() == x && this->_worldRotation.getY() == y && this->_worldRotation.getZ() == z && this->_worldRotation.getW() == w)
-		// {
-		// 	return;
-		// }
-		// this->_worldRotation.set(x, y, z, w);
-		// this->_updateWorldTransformFlag(NodeTransformFlag::ROTATION_FLAG);
+		if (this->_parent == nullptr)
+			return;
+		if (this->_isLocked)
+			return;
+		if (this->_worldRotation.getX() == x && this->_worldRotation.getY() == y && this->_worldRotation.getZ() == z && this->_worldRotation.getW() == w)
+		{
+			return;
+		}
+		const Quat &parentWorldQuat = this->_parent->getWorldRotation();
+		Quat conjugateQuat;
+		Quat::conjugate(parentWorldQuat, conjugateQuat);
+		Quat localQuat{0, 0, 0, 1};
+		Quat worldQuat{x, y, z, w};
+		Quat::multiply(conjugateQuat, worldQuat, localQuat);
+		this->setRotation(localQuat.getX(), localQuat.getY(), localQuat.getZ(), localQuat.getW());
 	}
 	const Quat &Node::getWorldRotation()
 	{
@@ -117,12 +155,13 @@ namespace Boo
 	 */
 	void Node::setScale(float x, float y, float z)
 	{
+		if (this->_isLocked)
+			return;
 		if (this->_scale.getX() == x && this->_scale.getY() == y && this->_scale.getZ() == z)
 		{
 			return;
 		}
 		this->_scale.set(x, y, z);
-		this->_localMatrix.scale(x, y, z);
 		this->_updateWorldTransformFlag(NodeTransformFlag::SCALE_FLAG);
 	}
 	/**
@@ -137,13 +176,43 @@ namespace Boo
 	 */
 	void Node::setWorldScale(float x, float y, float z)
 	{
-		// if (this->_worldScale.getX() == x && this->_worldScale.getY() == y && this->_worldScale.getZ() == z)
-		// {
-		// 	return;
-		// }
-		// this->_worldScale.set(x, y, z);
-		// this->_localMatrix.scale(x, y, z);
-		// this->_updateWorldTransformFlag(NodeTransformFlag::SCALE_FLAG);
+		if (this->_parent == nullptr)
+			return;
+		if (this->_isLocked)
+			return;
+		if (this->_worldScale.getX() == x && this->_worldScale.getY() == y && this->_worldScale.getZ() == z)
+		{
+			return;
+		}
+		Mat4 parentMatInv{};
+		Mat4::inverse(this->_parent->getWorldMatrix(), parentMatInv);
+		// 1. 构建一个"只有缩放"的世界矩阵
+		Mat4 _worldScaleMatrix{};
+		_worldScaleMatrix.setM0(x);
+		_worldScaleMatrix.setM5(y);
+		_worldScaleMatrix.setM10(z);
+		//2. 用世界矩阵的逆矩阵乘以"只有缩放"的世界矩阵,得到"只有缩放"的本地矩阵
+		Mat4 localMatrix{};
+		Mat4::multiply(parentMatInv, _worldScaleMatrix, localMatrix);
+		// 3. 从本地矩阵中提取缩放
+		Vec3 localScale{};
+		Mat4::getScale(localMatrix, localScale);
+		this->setScale(localScale.getX(), localScale.getY(), localScale.getZ());
+	}
+	/**
+	 * @brief 设置本地矩阵
+	 * @param matrix 本地矩阵
+	 */
+	void Node::setMatrix(const Mat4 &matrix)
+	{
+		Mat4::toSRT(matrix, &this->_position, &this->_rotation, &this->_scale);
+		Quat::toEuler(this->_rotation, false, this->_eulerAngles);
+		this->_updateWorldTransformFlag(NodeTransformFlag::ALL_FLAG);
+	}
+
+	const Mat4 &Node::getLocalMatrix()
+	{
+		return this->_localMatrix;
 	}
 	/**
 	 * 获取世界缩放
@@ -152,22 +221,6 @@ namespace Boo
 	{
 		this->_updateWorldTransform();
 		return this->_worldScale;
-	}
-
-	/**
-	 * 设置欧拉角
-	 */
-	void Node::setEulerAngles(float x, float y, float z)
-	{
-		this->_eulerAngles.set(x, y, z);
-		this->_updateWorldTransformFlag(NodeTransformFlag::ROTATION_FLAG);
-	}
-	/**
-	 * 获取欧拉角
-	 */
-	const Vec3 &Node::getEulerAngles()
-	{
-		return this->_eulerAngles;
 	}
 	void Node::_updateWorldTransformFlag(NodeTransformFlag flag)
 	{
@@ -185,6 +238,8 @@ namespace Boo
 			return;
 		if (this->_worldTransformFlag == NodeTransformFlag::NONE_FLAG)
 			return;
+		// 通过位移,旋转,缩放计算本地矩阵
+		this->_localMatrix.fromTRS(this->_position, this->_rotation, this->_scale);
 		if (this->_parent)
 		{
 			Mat4::multiply(this->_localMatrix, this->_parent->getWorldMatrix(), this->_worldMatrix);
@@ -193,8 +248,9 @@ namespace Boo
 		{
 			this->_worldMatrix = this->_localMatrix;
 		}
-		this->_worldPosition.set(this->_worldMatrix.getM30(), this->_worldMatrix.getM31(), this->_worldMatrix.getM32());
-		this->_worldScale.set(this->_worldMatrix.getM00(), this->_worldMatrix.getM11(), this->_worldMatrix.getM22());
+		Mat4::getPosition(this->_worldMatrix, this->_worldPosition);
+		Mat4::getScale(this->_worldMatrix, this->_worldScale);
+		Mat4::getRotation(this->_worldMatrix, this->_worldRotation);
 		this->_worldTransformFlag = NodeTransformFlag::NONE_FLAG;
 	}
 	/**
@@ -215,7 +271,6 @@ namespace Boo
 		this->_updateWorldTransform();
 		return this->_worldMatrix;
 	}
-
 	/**
 	 * 添加子节点
 	 */
@@ -280,7 +335,7 @@ namespace Boo
 		bool _isActiveInHierarchy = this->_parent->_isActiveInHierarchy && this->_active;
 		this->_updateActiveInHierarchyState(_isActiveInHierarchy);
 	}
-	const std::vector<Node *> &Node::getChildren()
+	std::vector<Node *> &Node::getChildren()
 	{
 		return this->_children;
 	}

@@ -13,12 +13,14 @@ class GfxBuiltinBatch3D : public GfxBuiltinBatch
 {
 protected:
     void _setViewportScissor(VkCommandBuffer &queueCommandBuffer) override;
+    void _bindUniformBuffer() override;
     void _bindDescriptorSets(VkCommandBuffer &queueCommandBuffer, GfxBuiltinPipeline *pipeline, GfxBuffer *ubo) override;
     void _bindVertexIndicesBuffers(VkCommandBuffer &queueCommandBuffer) override;
     void _drawIndexed(VkCommandBuffer &queueCommandBuffer) override;
     
 public:
-    GfxBuiltinBatch3D(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh);
-    void render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo) override;
+    GfxBuiltinBatch3D();
+    virtual void addObject(const std::vector<char> &instanceData);
+    void render(VkCommandBuffer &queueCommandBuffer) override;
     ~GfxBuiltinBatch3D();
 };

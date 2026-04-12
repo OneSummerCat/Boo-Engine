@@ -42,7 +42,7 @@ void UIMask::Awake()
 void UIMask::Enable()
 {
     Component::Enable();
-    this->_setColor(1.0, 1.0, 1.0, 1.0);
+    // this->_setColor(1.0, 1.0, 1.0, 1.0);
     this->_updateNodeMask();
 }
 void UIMask::_updateNodeMask()

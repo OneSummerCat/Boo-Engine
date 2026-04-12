@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -7,6 +7,7 @@
 #include <set>
 #include <map>
 #include <cstdint>
+#include "../gfx-struct.h"
 
 class GfxBuffer
 {
@@ -23,7 +24,7 @@ private:
 
 public:
     GfxBuffer();
-    void create(int size,VkBufferUsageFlags usageFlags);
+    void create(size_t size,VkBufferUsageFlags usageFlags);
     void setIsOccupied(bool isOccupied);
     bool getIsOccupied() const;
     void *getMappedData();

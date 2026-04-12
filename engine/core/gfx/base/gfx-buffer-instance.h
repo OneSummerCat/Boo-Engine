@@ -1,5 +1,5 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
+// #include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -7,6 +7,7 @@
 #include <set>
 #include <map>
 #include <cstdint>
+#include "../gfx-struct.h"
 
 class GfxBuffer;
 
@@ -19,11 +20,11 @@ struct GfxBufferInstancePool
 class GfxBufferInstance
 {
 private:
-    std::map<int, GfxBufferInstancePool *> pools;
+    std::map<size_t, GfxBufferInstancePool *> pools;
 
 public:
     GfxBufferInstance();
-     GfxBuffer *getBuffer(int size);
+     GfxBuffer *getBuffer(size_t size);
      void clear();
     ~GfxBufferInstance();
 };

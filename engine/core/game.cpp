@@ -15,7 +15,7 @@
 namespace Boo
 {
 
-	Game::Game() : _deltaTime(TimeUtil::nowTime()),
+	Game::Game() : _deltaTime(0),
 				   _frameRate(30),
 				   _viewChanged(false),
 				   _viewChangedTime(0.0f),
@@ -147,6 +147,10 @@ namespace Boo
 			renderer->clearCameras();
 		}
 	}
+	Scene *Game::getScene()
+	{
+		return this->_curScene;
+	}
 	void Game::addCompClearCaches(Component *comp)
 	{
 		this->_compClearCaches.push_back(comp);
@@ -155,14 +159,31 @@ namespace Boo
 	{
 		this->_nodeClearCaches.push_back(node);
 	}
-
+	void Game::setFrameRate(int frameRate)
+	{
+		this->_frameRate = frameRate;
+	}
+	const int Game::getFrameRate() const
+	{
+		return this->_frameRate;
+	}
+	const int Game::getFps() const
+	{
+		return this->_fps;
+	}
 	void Game::tick()
 	{
+		if (this->_deltaTime == 0)
+		{
+			this->_deltaTime = TimeUtil::nowTime();
+			return;
+		}
 		long long deltaTime = TimeUtil::nowTime();
 		long long t = deltaTime - this->_deltaTime;
 		if (t > (1000.0f / this->_frameRate))
 		{
 			float dt = t / 1000.0f;
+			this->_fps = static_cast<int>(std::ceil(1.0f / dt));
 			this->_deltaTime = deltaTime;
 			this->_update(dt);
 			this->_lateUpdate(dt);
@@ -172,10 +193,6 @@ namespace Boo
 	}
 	void Game::_update(float dt)
 	{
-		if (profiler != nullptr)
-		{
-			profiler->logicStartTime();
-		}
 		if (this->_curScene)
 		{
 			this->_curScene->update(dt);
@@ -191,10 +208,6 @@ namespace Boo
 		if (this->_curScene)
 		{
 			this->_curScene->lateUpdate(dt);
-		}
-		if (profiler != nullptr)
-		{
-			profiler->logicEndTime();
 		}
 	}
 	void Game::_render(float dt)
@@ -230,10 +243,6 @@ namespace Boo
 			this->_curScene->clearNodeFrameFlag();
 		}
 		this->_updateClearCaches();
-		if (profiler != nullptr)
-		{
-			profiler->clear();
-		}
 	}
 
 	void Game::_updateSchedules(float dt)

@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <unordered_map>
 #include <sstream>
-#include <vulkan/vulkan_core.h>
-#include <shaderc/shaderc.hpp>
 #include "../gfx-struct.h"
 
 class GfxContext;
@@ -85,7 +83,6 @@ private:
 	 */
 	std::map<std::string, GfxBuiltinQueue *> _renderQueues;
 
-
 public:
 	GfxBuiltinRenderer(std::string name);
 	void init();
@@ -97,15 +94,17 @@ public:
 
 	void createPipeline(std::string name, GfxRendererState rendererState);
 
-	void initRenderQueue(std::string renderId, GfxRenderTexture *renderTexture, int priority);
+	void createRenderQueue(std::string renderId, int priority, uint32_t width, uint32_t height);
 	void setRenderQueuePriority(std::string renderId, int priority);
+	GfxRenderTexture *getRenderQueueRT(std::string renderId);
+	void resizeRenderQueue(std::string renderId, uint32_t width, uint32_t height);
 	void delRenderQueue(std::string renderId);
 
-	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen);
+	void submitRenderData(std::string renderId, const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen, std::array<float, 4> &cameraPosition);
 	void submitRenderObject(std::string renderId, GfxMaterial *material, GfxMesh *mesh);
 	void getOffScreenOutds(std::vector<std::string> &pipelineOutds);
 	void frameRendererBefore();
-	void frameRenderer(uint32_t imageIndex, std::vector<VkCommandBuffer> &commandBuffers);
+	void frameRenderer(std::vector<VkCommandBuffer> &commandBuffers);
 	void frameRendererAfter();
 
 	void _cleanRendererState();

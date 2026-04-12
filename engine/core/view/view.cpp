@@ -37,9 +37,11 @@ namespace Boo
         default:
             break;
         }
-        std::cout << "scaleX: " << scaleX << std::endl;
-        std::cout << "scaleY: " << scaleY << std::endl;
-        this->_fitMat.scale(scaleX, scaleY, 1.0f);
+        // LOGI("scaleX: %f", scaleX);
+        // LOGI("scaleY: %f", scaleY);
+        this->_fitMat.setM0(scaleX);
+        this->_fitMat.setM5(scaleY);
+        this->_fitMat.setM11(1.0f);
     }
     void View::resize(int width, int height)
     {

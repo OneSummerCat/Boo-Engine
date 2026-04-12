@@ -58,7 +58,7 @@ namespace Boo
     }
     float Vec3::len() const
     {
-        return sqrt(this->_x * this->_x + this->_y * this->_y + this->_z + this->_z);
+        return sqrt(this->_x * this->_x + this->_y * this->_y + this->_z * this->_z);
     }
     void Vec3::add(Vec3 &v)
     {
@@ -123,15 +123,15 @@ namespace Boo
 } // namespace Boo
 namespace Boo
 {
-    void Vec3::add(Vec3 &out, Vec3 &a, Vec3 &b)
+    void Vec3::add(Vec3 &a, Vec3 &b, Vec3 &out)
     {
         out.set(a.getX() + b.getX(), a.getY() + b.getY(), a.getZ() + b.getZ());
     }
-    void Vec3::subtract(Vec3 &out, Vec3 &a, Vec3 &b)
+    void Vec3::subtract(Vec3 &a, Vec3 &b, Vec3 &out)
     {
         out.set(a.getX() - b.getX(), a.getY() - b.getY(), a.getZ() - b.getZ());
     }
-    void Vec3::transformQuat(Vec3 &out, Vec3 &v, Quat &q)
+    void Vec3::transformQuat(Vec3 &v, Quat &q, Vec3 &out)
     {
         const float qx = q.getX();
         const float qy = q.getY();
@@ -150,6 +150,18 @@ namespace Boo
     float Vec3::dot(Vec3 &a, Vec3 &b)
     {
         return a.getX() * b.getX() + a.getY() * b.getY() + a.getZ() * b.getZ();
+    }
+    void Vec3::normalize(Vec3 &v, Vec3 &out)
+    {
+        float len = v.len();
+        if (len > 0.0f)
+        {
+            len = 1.0f / len;
+            out.set(v.getX() * len, v.getY() * len, v.getZ() * len);
+        }else
+        {
+            out.set(0.0f, 0.0f, 0.0f);
+        }
     }
 
 }

@@ -6,7 +6,7 @@
 #include "gfx-texture.h"
 #include "gfx-render-pass.h"
 #include "gfx-pipeline.h"
-#include "../../log.h"
+#include "../../../log.h"
 
 GfxRenderTexture::GfxRenderTexture(std::string uuid, int width, int height)
 {
@@ -51,7 +51,7 @@ void GfxRenderTexture::_createFrameBuffer()
         LOGI("[Gfx : RenderTexture]::bindRenderPass: pass is null %s", this->_uuid.c_str());
         return;
     }
-    if (this->_framebuffer!= VK_NULL_HANDLE)
+    if (this->_framebuffer != VK_NULL_HANDLE)
     {
         vkDestroyFramebuffer(Gfx::_context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;
@@ -81,7 +81,7 @@ void GfxRenderTexture::_createCommandBuffer()
         LOGI("[Gfx : RenderTexture]::bindRenderPass: pass is null %s", this->_uuid.c_str());
         return;
     }
-    if (this->_commandBuffer!= VK_NULL_HANDLE)
+    if (this->_commandBuffer != VK_NULL_HANDLE)
     {
         vkFreeCommandBuffers(Gfx::_context->getVkDevice(), Gfx::_context->getCommandPool(), 1, &this->_commandBuffer);
         this->_commandBuffer = VK_NULL_HANDLE;
@@ -120,7 +120,7 @@ void GfxRenderTexture::resize(uint32_t width, uint32_t height)
         LOGI("[Gfx : RenderTexture]::resize: width and height is same %s", this->_uuid.c_str());
         return;
     }
-    if (this->_colorTexture!=nullptr)
+    if (this->_colorTexture != nullptr)
     {
         Gfx::_renderer->destroyTexture(this->_colorTexture);
         this->_colorTexture = nullptr;
@@ -156,29 +156,23 @@ void GfxRenderTexture::_createTextures()
         return;
     }
     LOGI("[Gfx : RenderTexture]:: create textures success %s width:%d height:%d", this->_uuid.c_str(), this->_width, this->_height);
-    this->_colorTexture = new GfxTexture(this->_colorUuid);
+    this->_colorTexture = new GfxTexture(this->_colorUuid, this->_width, this->_height, 4, Gfx::_context->getSwapChainImageFormat());
     this->_colorTexture->createImage(
-        this->_width, this->_height,
-        Gfx::_context->getSwapChainImageFormat(),
         VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, /* // 可作为纹理采样 */
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         VK_SAMPLE_COUNT_1_BIT);
     this->_colorTexture->createImageView(
-        Gfx::_context->getSwapChainImageFormat(),
         VK_IMAGE_ASPECT_COLOR_BIT);
     this->_colorTexture->crateImageSampler();
 
-    this->_depthTexture = new GfxTexture(this->_depthUuid);
+    this->_depthTexture = new GfxTexture(this->_depthUuid, this->_width, this->_height, 4, VK_FORMAT_D32_SFLOAT_S8_UINT);
     this->_depthTexture->createImage(
-        this->_width, this->_height,
-        VK_FORMAT_D32_SFLOAT_S8_UINT, // 32位深度 + 8位模板
         VK_IMAGE_TILING_OPTIMAL,
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
         VK_SAMPLE_COUNT_1_BIT);
     this->_depthTexture->createImageView(
-        VK_FORMAT_D32_SFLOAT_S8_UINT,                             // 32位深度 + 8位模板
         VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT); // 包含深度和模板aspect
     this->_depthTexture->crateImageSampler();
 
@@ -293,7 +287,7 @@ bool GfxRenderTexture::saveToFile1(std::string filePath)
         LOGI("[Gfx : RenderTexture]:: Cannot save, color texture is null %s", this->_uuid.c_str());
         return false;
     }
-    return this->_colorTexture->saveToFile(filePath, this->_width, this->_height);
+    return this->_colorTexture->saveToFile(filePath);
 }
 void GfxRenderTexture::destroy()
 {
@@ -309,7 +303,7 @@ void GfxRenderTexture::destroy()
         delete this->_depthTexture;
         this->_depthTexture = nullptr;
     }
-    if (this->_framebuffer!= VK_NULL_HANDLE)
+    if (this->_framebuffer != VK_NULL_HANDLE)
     {
         vkDestroyFramebuffer(Gfx::_context->getVkDevice(), this->_framebuffer, nullptr);
         this->_framebuffer = VK_NULL_HANDLE;

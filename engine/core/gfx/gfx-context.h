@@ -1,5 +1,4 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
@@ -10,6 +9,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <sstream>
+#include "gfx-struct.h"
 class Window;
 class Android;
 

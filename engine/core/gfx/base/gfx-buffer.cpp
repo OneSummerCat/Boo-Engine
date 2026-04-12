@@ -5,12 +5,12 @@
 GfxBuffer::GfxBuffer()
 {
 }
-void GfxBuffer::create(int size, VkBufferUsageFlags usageFlags)
+void GfxBuffer::create(size_t size, VkBufferUsageFlags usageFlags)
 {
     this->_buffer = VK_NULL_HANDLE;
     this->_bufferMemory = VK_NULL_HANDLE;
     this->_bufferMapped = VK_NULL_HANDLE;
-    VkDeviceSize bufferSize = sizeof(float) * size;
+    VkDeviceSize bufferSize =  size;
     // 创建缓冲区
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -76,6 +76,12 @@ VkBuffer GfxBuffer::getBuffer() const
 }
 void GfxBuffer::destroy()
 {
+    if (this->_bufferMapped != VK_NULL_HANDLE)
+    {
+        vkUnmapMemory(Gfx::_context->getVkDevice(), this->_bufferMemory);
+        this->_bufferMapped = VK_NULL_HANDLE;
+    }
+    
     if (this->_buffer != VK_NULL_HANDLE)
     {
         vkDestroyBuffer(Gfx::_context->getVkDevice(), this->_buffer, nullptr);
@@ -86,11 +92,7 @@ void GfxBuffer::destroy()
         vkFreeMemory(Gfx::_context->getVkDevice(), this->_bufferMemory, nullptr);
         this->_bufferMemory = VK_NULL_HANDLE;
     }
-    if (this->_bufferMapped != VK_NULL_HANDLE)
-    {
-        vkUnmapMemory(Gfx::_context->getVkDevice(), this->_bufferMemory);
-        this->_bufferMapped = VK_NULL_HANDLE;
-    }
+    
 }
 
 GfxBuffer::~GfxBuffer()

@@ -123,15 +123,17 @@ namespace Boo
 		}
 		Node::_updateWorldTransform();
 		// 坐标
-		float x = this->_worldMatrix.getM30() + (0.5 - this->_anchor.getX()) * this->_size.getWidth();
-		float y = this->_worldMatrix.getM31() + (0.5 - this->_anchor.getY()) * this->_size.getHeight();
+		float x = this->_worldMatrix.getM12() + (0.5 - this->_anchor.getX()) * this->_size.getWidth();
+		float y = this->_worldMatrix.getM13() + (0.5 - this->_anchor.getY()) * this->_size.getHeight();
 		// 尺寸
-		float width = this->_worldMatrix.getM00() * this->_size.getWidth();
-		float height = this->_worldMatrix.getM11() * this->_size.getHeight();
-		this->_uiWorldMatrix.setM30(x);
-		this->_uiWorldMatrix.setM31(y);
-		this->_uiWorldMatrix.setM00(width); // 宽高和缩放进行相乘
-		this->_uiWorldMatrix.setM11(height);
+		float width = this->_worldMatrix.getM0() * this->_size.getWidth();
+		float height = this->_worldMatrix.getM5() * this->_size.getHeight();
+		
+		this->_uiWorldMatrix.setM0(width); // 宽高和缩放进行相乘
+		this->_uiWorldMatrix.setM5(height);
+		this->_uiWorldMatrix.setM11(1.0f);
+		this->_uiWorldMatrix.setM12(x);
+		this->_uiWorldMatrix.setM13(y);
 	}
 	const Mat4 &Node2D::getUIWorldMatrix()
 	{
@@ -238,10 +240,10 @@ namespace Boo
 	bool Node2D::inHitMask(float x, float y)
 	{
 		const Mat4 &uiMat = this->getUIWorldMatrix();
-		float _x = uiMat.getM30();
-		float _y = uiMat.getM31();
-		float _width = uiMat.getM00();
-		float _height = uiMat.getM11();
+		float _x = uiMat.getM12();
+		float _y = uiMat.getM13();
+		float _width = uiMat.getM0();
+		float _height = uiMat.getM5();
 		if (x >= _x - _width / 2.0 && x <= _x + _width / 2.0 && y >= _y - _height / 2.0 && y <= _y + _height / 2.0)
 		{
 			return true;
@@ -259,10 +261,10 @@ namespace Boo
 	{
 		// UI Mask属于特殊情况，必须在ui-node里边，并且同时在ui-mask里边
 		const Mat4 &uiMat = this->getUIWorldMatrix();
-		float _x = uiMat.getM30();
-		float _y = uiMat.getM31();
-		float _width = uiMat.getM00();
-		float _height = uiMat.getM11();
+		float _x = uiMat.getM12();
+		float _y = uiMat.getM13();
+		float _width = uiMat.getM0();
+		float _height = uiMat.getM5();
 
 		float _left = _x - _width / 2.0;
 		float _right = _x + _width / 2.0;

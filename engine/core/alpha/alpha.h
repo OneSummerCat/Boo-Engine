@@ -24,19 +24,16 @@ namespace Boo
 		Node2D *_ndAlpha;
 		UISprite *_spriteAlpha;
 		TextureAsset *_textureBg;
-		// logo
-		Node2D *_ndLogo;
-		UISprite *_spriteLogo;
-		TextureAsset *_textureLogo;
-		float _logoTxWidth;
-		float _logoTxHeight;
+		// logo splash
+		Node2D *_ndSplash;
+		UISprite *_spriteSplash;
 		float _alphaDuration;
-		float _logoAlphaNum;
+		float _splashAlphaNum;
 		bool _isAlphaEnd = false;
 		void _init();
 		void _initAlpha();
 		void _initAlphaBg();
-		void _initAlphaLogo();
+		void _initAlphaSplash();
 
 		void _updateLogoAlpha(float deltaTime);
 		// void _updateBgSize(float width, float height);

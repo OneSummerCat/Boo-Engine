@@ -17,19 +17,26 @@
 #include "gfx-builtin-renderer.h"
 #include "../../../log.h"
 
-GfxBuiltinQueue::GfxBuiltinQueue(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture)
+GfxBuiltinQueue::GfxBuiltinQueue(std::string renderId, uint32_t width, uint32_t height, GfxBuiltinRenderer *renderer)
 {
     this->_renderer = renderer;
-    this->_renderTexture = renderTexture;
+    this->_renderTexture = new GfxRenderTexture(renderId, width, height);
+    this->_renderTexture->bindRenderPass(this->_renderer->getRenderPass());
+    this->_uiBatches.reserve(500);         // 500个ui批次，足够多，避免频繁创建ui批次
+    this->_3dOpaqueBatches.reserve(500);   // 500个3d不透明批次，足够多，避免频繁创建3d不透明批次
+    this->_3dOpaqueMeshes.reserve(500);    // 500个3d不透明网格，足够多，避免频繁创建3d不透明网格
+    this->_3dOpaqueMaterials.reserve(500); // 500个3d不透明材质，足够多，避免频繁创建3d不透明材质
+    // this->_3dTransparentBatches.reserve(500); // 500个3d透明批次，足够多，避免频繁创建3d透明批次
 }
 void GfxBuiltinQueue::init()
 {
 }
-void GfxBuiltinQueue::submitData(const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen)
+void GfxBuiltinQueue::submitData(const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen, std::array<float, 4> &cameraPosition)
 {
     this->_viewMatrix = viewMatrix;
     this->_projMatrix = projMatrix;
     this->_isOnScreen = isOnScreen;
+    this->_cameraPosition = cameraPosition;
 }
 bool GfxBuiltinQueue::getIsOnScreen()
 {
@@ -43,6 +50,10 @@ void GfxBuiltinQueue::setPriority(int priority)
 {
     this->_priority = priority;
 }
+void GfxBuiltinQueue::resize(uint32_t width, uint32_t height)
+{
+    this->_renderTexture->resize(width, height);
+}
 void GfxBuiltinQueue::submitObject(GfxMaterial *material, GfxMesh *mesh)
 {
     if (material == nullptr || mesh == nullptr)
@@ -50,49 +61,123 @@ void GfxBuiltinQueue::submitObject(GfxMaterial *material, GfxMesh *mesh)
         LOGE("[Gfx : QueueBuiltin] :: submitObject: material or mesh is nullptr");
         return;
     }
-    if (this->_batches.empty())
+    if (!mesh->isVisible())
     {
-        this->_createNewBatch(material, mesh);
+        return;
+    }
+    GfxRendererState &pipelineState = material->getRendererState();
+    if (pipelineState.layer == GfxRendererLayer::_UI)
+    {
+        this->_submitObjectUI(material, mesh);
+    }
+    else if (pipelineState.layer == GfxRendererLayer::_3D)
+    {
+        if (pipelineState.type == GfxRendererType::_Opaque)
+        {
+            this->_submitObject3DOpaque(material, mesh);
+        }
+        else if (pipelineState.type == GfxRendererType::_Transparent)
+        {
+            this->_submitObject3DTransparent(material, mesh);
+        }
+    }
+}
+void GfxBuiltinQueue::_submitObjectUI(GfxMaterial *material, GfxMesh *mesh)
+{
+    if (this->_uiBatches.size() <= 0)
+    {
+        // 创建新的ui批次
+        GfxBuiltinBatchUI *uiBatch = new GfxBuiltinBatchUI();
+        uiBatch->init(this->_renderer, this->_renderTexture, material, mesh, this->_viewMatrix, this->_projMatrix, this->_cameraPosition);
+        this->_uiBatches.push_back(uiBatch);
     }
     else
     {
-        GfxBuiltinBatch *batch = this->_batches.back();
-        if (!material->equals(batch->getMaterial()) || !mesh->equals(batch->getMesh()))
+        GfxBuiltinBatchUI *uiBatch = this->_uiBatches.back();
+        if (!material->equals(uiBatch->getMaterial()) || !mesh->equals(uiBatch->getMesh()))
         {
-            this->_createNewBatch(material, mesh);
+            // 创建新的ui批次
+            uiBatch = new GfxBuiltinBatchUI();
+            uiBatch->init(this->_renderer, this->_renderTexture, material, mesh, this->_viewMatrix, this->_projMatrix, this->_cameraPosition);
+            this->_uiBatches.push_back(uiBatch);
         }
     }
-    GfxBuiltinBatch *batch = this->_batches.back();
+    GfxBuiltinBatchUI *batch = this->_uiBatches.back();
     batch->addObject(material->getInstanceData());
 }
-void GfxBuiltinQueue::_createNewBatch(GfxMaterial *material, GfxMesh *mesh)
+void GfxBuiltinQueue::_submitObject3DOpaque(GfxMaterial *material, GfxMesh *mesh)
 {
-    const GfxRendererState &pipelineState = material->getRendererState();
-    if (pipelineState.renderer == GfxRendererCategory::_UI)
-    {
-        GfxBuiltinBatchUI *batch = new GfxBuiltinBatchUI(this->_renderer, this->_renderTexture, material, mesh);
-        this->_batches.push_back(batch);
-    }else if (pipelineState.renderer == GfxRendererCategory::_3D)
-    {
-        GfxBuiltinBatch3D *batch = new GfxBuiltinBatch3D(this->_renderer, this->_renderTexture, material, mesh);
-        this->_batches.push_back(batch);
-    }else {
-        LOGE("[Gfx : QueueBuiltin] :: _createNewBatch: pipelineState.renderer is not supported");
-    }
-}
 
+    std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
+    GfxMaterial *_b_mtl = nullptr;
+    for (size_t i = 0; i < this->_3dOpaqueMaterials.size(); i++)
+    {
+        if (material->equals(this->_3dOpaqueMaterials[i]))
+        {
+            _b_mtl = this->_3dOpaqueMaterials[i];
+            break;
+        }
+    }
+    GfxMesh *_b_mesh = nullptr;
+    for (size_t i = 0; i < this->_3dOpaqueMeshes.size(); i++)
+    {
+        if (mesh->equals(this->_3dOpaqueMeshes[i]))
+        {
+            _b_mesh = this->_3dOpaqueMeshes[i];
+            break;
+        }
+    }
+    std::string key = "";
+    if (_b_mtl != nullptr && _b_mesh != nullptr)
+    {
+        key = _b_mtl->getRendererStateKey() + "_" + _b_mesh->getUuid();
+    }
+    else
+    {
+        key = material->getRendererStateKey() + "_" + mesh->getUuid();
+    }
+    GfxBuiltinBatch3D *batch = nullptr;
+    if (this->_3dOpaqueBatches.find(key) == this->_3dOpaqueBatches.end())
+    {
+        // 没有，创建新的
+        batch = new GfxBuiltinBatch3D();
+        batch->init(this->_renderer, this->_renderTexture, material, mesh, this->_viewMatrix, this->_projMatrix, this->_cameraPosition);
+        this->_3dOpaqueBatches[key] = batch;
+        this->_3dOpaqueMaterials.push_back(material);
+        this->_3dOpaqueMeshes.push_back(mesh);
+    }
+    else
+    {
+        // 找到，添加对象
+        batch = this->_3dOpaqueBatches[key];
+    }
+    batch->addObject(material->getInstanceData());
+}
+void GfxBuiltinQueue::_submitObject3DTransparent(GfxMaterial *material, GfxMesh *mesh)
+{
+}
 void GfxBuiltinQueue::render(std::vector<VkCommandBuffer> &commandBuffers)
 {
     this->_resetCommandBuffer();
     this->_beginCommandBuffer();
     this->_beginRenderPass();
-    this->_bindUniformBuffer();
-
-    for (size_t i = 0; i < this->_batches.size(); i++)
+    // std::chrono::high_resolution_clock::time_point frameStart = std::chrono::high_resolution_clock::now();
+    // std::cout << "render frame batch: " << this->_batchIndex << std::endl;
+    // 3d不透明批次
+    for (auto &[key, batch] : this->_3dOpaqueBatches)
     {
-        GfxBuiltinBatch *batch = this->_batches[i];
-        batch->render(this->_renderTexture->getCommandBuffer(), this->_ubo);
+        batch->render(this->_renderTexture->getCommandBuffer());
     }
+    // ui批次
+    for (size_t i = 0; i < this->_uiBatches.size(); i++)
+    {
+        GfxBuiltinBatch *batch = this->_uiBatches[i];
+        batch->render(this->_renderTexture->getCommandBuffer());
+    }
+    // std::chrono::high_resolution_clock::time_point frameEnd = std::chrono::high_resolution_clock::now();
+    // float frameDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(frameEnd - frameStart).count() / 1000000.0f;
+    // LOGI("render frame batch duration: %f", frameDuration);
+
     // 渲染结束
     vkCmdEndRenderPass(this->_renderTexture->getCommandBuffer());
     // 结束渲染pass
@@ -101,15 +186,38 @@ void GfxBuiltinQueue::render(std::vector<VkCommandBuffer> &commandBuffers)
         throw std::runtime_error("Failed to record command buffer!");
     }
     commandBuffers.push_back(this->_renderTexture->getCommandBuffer());
-    // 清空批次
-    for (size_t i = 0; i < this->_batches.size(); i++)
+
+    // // 清空批次
+    // std::chrono::high_resolution_clock::time_point clearStart = std::chrono::high_resolution_clock::now();
+    // 3d不透明批次
+    // for (size_t i = 0; i < this->_3dOpaqueBatches.size(); i++)
+    // {
+    //     GfxBuiltinBatch *batch = this->_3dOpaqueBatches[i];
+    //     batch->destroy();
+    //     delete batch;
+    //     batch = nullptr;
+    // }
+    for (auto &[key, batch] : this->_3dOpaqueBatches)
     {
-        GfxBuiltinBatch *batch = this->_batches[i];
         batch->destroy();
         delete batch;
         batch = nullptr;
     }
-    this->_batches.clear();
+    // ui批次
+    for (size_t i = 0; i < this->_uiBatches.size(); i++)
+    {
+        GfxBuiltinBatch *batch = this->_uiBatches[i];
+        batch->destroy();
+        delete batch;
+        batch = nullptr;
+    }
+    this->_uiBatches.clear();
+    this->_3dOpaqueBatches.clear();
+    this->_3dOpaqueMaterials.clear();
+    this->_3dOpaqueMeshes.clear();
+    // std::chrono::high_resolution_clock::time_point clearEnd = std::chrono::high_resolution_clock::now();
+    // float clearDuration = std::chrono::duration_cast<std::chrono::nanoseconds>(clearEnd - clearStart).count() / 1000000.0f;
+    // LOGI("render frame batch clear duration: %f", clearDuration);
 }
 void GfxBuiltinQueue::_resetCommandBuffer()
 {
@@ -135,7 +243,7 @@ void GfxBuiltinQueue::_beginRenderPass()
     renderPassInfo.renderArea.offset = {0, 0};
 
     std::array<VkClearValue, 2> clearValues = {}; /*  // 至少4个，因为最高索引是3 */
-    clearValues[0].color = {{0.0f, 1.0f, 0.0f, 0.0f}};
+    clearValues[0].color = {{0.0f, 0.0f, 0.0f, 0.0f}};
     clearValues[1].depthStencil = {1.0f, 0}; /* // 深度=1.0f，模板=0 */
     renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
     renderPassInfo.pClearValues = clearValues.data();
@@ -146,16 +254,6 @@ GfxRenderTexture *GfxBuiltinQueue::getRenderTexture()
 {
     return this->_renderTexture;
 }
-void GfxBuiltinQueue::_bindUniformBuffer()
-{
-    this->_ubo = Gfx::_bufferUBO->getBuffer(16 + 16 + 1);
-    this->_ubo->setIsOccupied(true);
-    // 提交视图矩阵和投影矩阵
-    memcpy(this->_ubo->getMappedData(), this->_viewMatrix.data(), sizeof(float) * 16);
-    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 16, this->_projMatrix.data(), sizeof(float) * 16);
-    // 提交全局时间
-    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 16 * 2, &Gfx::_time, sizeof(float));
-}
 
 void GfxBuiltinQueue::_clean()
 {
@@ -165,15 +263,24 @@ void GfxBuiltinQueue::_reset()
 }
 void GfxBuiltinQueue::destroy()
 {
-    // 清空批次
-    for (size_t i = 0; i < this->_batches.size(); i++)
+    for (auto &[key, batch] : this->_3dOpaqueBatches)
     {
-        GfxBuiltinBatch *batch = this->_batches[i];
         batch->destroy();
         delete batch;
         batch = nullptr;
     }
-    this->_batches.clear();
+    this->_3dOpaqueBatches.clear();
+    this->_3dOpaqueMaterials.clear();
+    this->_3dOpaqueMeshes.clear();
+    // ui批次
+    for (size_t i = 0; i < this->_uiBatches.size(); i++)
+    {
+        GfxBuiltinBatch *batch = this->_uiBatches[i];
+        batch->destroy();
+        delete batch;
+        batch = nullptr;
+    }
+    this->_uiBatches.clear();
     this->_renderer = nullptr;
     this->_renderTexture = nullptr;
 }

@@ -2,13 +2,15 @@
 #include <string>
 #include "ui-renderer.h"
 #include "../../component/component-register.h"
+#include "../../math/math-api.h"
 
 namespace Boo
 {
     class Node;
     class Camera;
-    class TextureAsset;
     class MaterialAsset;
+    class TextureAsset;
+    class MeshAsset;
 
     enum class SizeMode
     {
@@ -25,8 +27,24 @@ namespace Boo
     class UISprite : public UIRenderer
     {
     private:
+        /**
+         * @brief 精灵的材质
+         */
+        MaterialAsset *_materialAsset;
+        /**
+         * @brief 精灵的纹理
+         */
         TextureAsset *_textureAsset;
+        /**
+         * @brief 精灵的网格
+         */
+        MeshAsset *_meshAsset;
+        Color _color;
         SizeMode sizeMode;
+
+        void _createDefaultMaterial();
+        void _createDefaultMesh();
+
     public:
         UISprite(std::string name, Node *node, std::string uuid = "");
 
@@ -40,14 +58,10 @@ namespace Boo
          */
         void setColor(Color &color);
         void setColor(std::string color);
+        void setAlpha(float alpha);
         void setColor(float r, float g, float b, float a);
         void setSizeMode(SizeMode sizeMode);
-        /**
-         * @brief 设置渲染器的透明度
-         *
-         * @param alpha
-         */
-        void setAlpha(float alpha);
+
         /**
          * @brief 设置渲染器的纹理
          *
@@ -55,12 +69,6 @@ namespace Boo
          */
         void setTexture(std::string texture);
         void setTexture(TextureAsset *texture);
-        /**
-         * @brief 设置渲染器的渲染目标
-         *
-         * @param renderTexture
-         */
-        void setRenderTexture();
 
         /**
          * @brief 设置渲染器的材质

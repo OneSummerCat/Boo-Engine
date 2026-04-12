@@ -12,7 +12,7 @@
 #include "../../libs/stb/stb_image.h"
 #include <fastgltf/core.hpp>
 #include <fastgltf/tools.hpp>
-#include <fastgltf/glm_element_traits.hpp>
+// #include <fastgltf/glm_element_traits.hpp>
 
 namespace Boo
 {
@@ -88,13 +88,14 @@ namespace Boo
 		std::string name = std::filesystem::path(fullPath).stem().string();
 		int _width = 0;
 		int _height = 0;
-		int _channels = 4;
-		const void *_pixels = stbi_load(fullPath.string().c_str(), &_width, &_height, nullptr, STBI_rgb_alpha);
+		int _channels = 0;
+		const void *_pixels = stbi_load(fullPath.string().c_str(), &_width, &_height, &_channels, STBI_rgb_alpha);
 		if (_pixels == nullptr)
 		{
 			LOGW("Failed to load TextureAsset: %s", fullPath.c_str());
 			return nullptr;
 		}
+		_channels = STBI_rgb_alpha;
 		std::vector<uint8_t> pixelsVector = std::vector<uint8_t>(static_cast<const uint8_t *>(_pixels), static_cast<const uint8_t *>(_pixels) + (_width * _height * _channels));
 		stbi_image_free((void *)_pixels);
 
@@ -158,7 +159,7 @@ namespace Boo
 			return nullptr;
 		}
 		json materialJson = FileUtil::readJsonFromText(fullPath.string());
-		if (materialJson.is_null() || !materialJson.is_object() || !materialJson.contains("renderer") || !materialJson.contains("type") || !materialJson.contains("vert") || !materialJson.contains("frag"))
+		if (materialJson.is_null() || !materialJson.is_object() || !materialJson.contains("layer") || !materialJson.contains("type") || !materialJson.contains("vert") || !materialJson.contains("frag"))
 		{
 			LOGW("AssetLoad:Failed to load MaterialAsset: %s", fullPath.c_str());
 			return nullptr;
@@ -186,6 +187,7 @@ namespace Boo
 			LOGW("AssetLoad:Not a regular file: %s", fullPath.c_str());
 			return nullptr;
 		}
+		std::chrono::high_resolution_clock::time_point time1 = std::chrono::high_resolution_clock::now();
 		std::string name = std::filesystem::path(fullPath).stem().string();
 		auto bufferResult = fastgltf::GltfDataBuffer::FromPath(fullPath);
 		if (bufferResult.error() != fastgltf::Error::None)
@@ -194,6 +196,9 @@ namespace Boo
 			LOGE("Failed to load GLTFAsset: %s", fullPath.c_str());
 			return nullptr;
 		}
+		std::chrono::high_resolution_clock::time_point time2 = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> frameDuration = std::chrono::duration_cast<std::chrono::duration<double>>(time2 - time1);
+		LOGI("[AssetTask : create] :: loadGLBAsset %s duration: %f", name.c_str(), frameDuration.count() / 1000);
 
 		// 2. 配置解析器选项
 		fastgltf::Parser parser;
@@ -208,7 +213,15 @@ namespace Boo
 			LOGE("Failed to parse glTFAsset %d %s", result.error(), fullPath.c_str());
 			return nullptr;
 		}
+		std::chrono::high_resolution_clock::time_point time3 = std::chrono::high_resolution_clock::now();
+		float parseDuration1 = std::chrono::duration_cast<std::chrono::nanoseconds>(time3 - time2).count() / 1000000.0f;
+		LOGI("[AssetTask : create] :: parse loadGltf %s duration: %f", name.c_str(), parseDuration1);
+
 		std::unique_ptr<fastgltf::Asset> m_asset = std::make_unique<fastgltf::Asset>(std::move(result.get()));
+		std::chrono::high_resolution_clock::time_point time4 = std::chrono::high_resolution_clock::now();
+		float parseDuration2 = std::chrono::duration_cast<std::chrono::nanoseconds>(time4 - time3).count() / 1000000.0f;
+		LOGI("[AssetTask : create] :: parse move asset %s duration: %f", name.c_str(), parseDuration2);
+
 		GLTFAsset *glTFAsset = new GLTFAsset(assetPath, fullPath.string(), name);
 		glTFAsset->create(std::move(m_asset));
 		return glTFAsset;

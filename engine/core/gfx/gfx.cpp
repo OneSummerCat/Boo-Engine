@@ -23,6 +23,14 @@ namespace Gfx
     GfxBufferUBO *_bufferUBO = nullptr;
     GfxBufferInstance *_bufferInstance = nullptr;
     int _drawCount = 0;
-    float _renderTime = 0.0f;
-    GfxMesh *_uiTestMesh = nullptr;
+    /**
+     * @brief 完整帧耗时（含fence等待）毫秒
+     */
+    float _frameTime = 0.0f;
+    /**
+     * @brief 纯CPU提交耗时（不含fence等待）毫秒
+     */ 
+    float _submitTime = 0.0f;
+    std::array<float, 4> _mainLitDir = {0.0f, 0.0f, 0.0f, 0.0f};
+    std::array<float, 4> _mainLitColor = {0.0f, 0.0f, 0.0f, 0.0f};
 }

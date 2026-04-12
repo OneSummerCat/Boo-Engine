@@ -1,17 +1,20 @@
 #pragma once
-#include <vulkan/vulkan_core.h>
 #include <iostream>
 #include <algorithm>
 #include <fstream>
 #include <vector>
 #include <set>
+#include <unordered_map>
 #include <map>
 #include <array>
 #include <cstdint>
+#include "../gfx-struct.h"
 
 class GfxPipeline;
 class GfxBuiltinRenderer;
 class GfxBuiltinBatch;
+class GfxBuiltinBatchUI;
+class GfxBuiltinBatch3D;
 class GfxBuiltinPipeline;
 class GfxRenderTexture;
 class GfxMaterial;
@@ -27,12 +30,31 @@ private:
 	bool _isOnScreen;
 	std::array<float, 16> _viewMatrix;
 	std::array<float, 16> _projMatrix;
+	std::array<float, 4> _cameraPosition;
 
-	std::vector<GfxBuiltinBatch *> _batches;
+	std::vector<GfxBuiltinBatchUI *> _uiBatches;
 
-	GfxBuffer *_ubo;
+	std::vector<GfxMesh *> _3dOpaqueMeshes;
+	std::vector<GfxMaterial *> _3dOpaqueMaterials;
+	std::unordered_map<std::string, GfxBuiltinBatch3D *> _3dOpaqueBatches;
+	// std::vector<GfxBuiltinBatch3D *> _3dTransparentBatches;
+	// std::vector<GfxBuiltinBatch *> _batches;
+	// size_t _batchIndex = 0;
 
-	void _createNewBatch(GfxMaterial *material, GfxMesh *mesh);
+	// size_t _uiBatchIndex = 0;
+
+	// size_t _3dOpaqueBatchIndex = 0;
+
+	// size_t _3dTransparentBatchIndex = 0;
+
+	// void _createNewBatch(GfxMaterial *material, GfxMesh *mesh);
+	// void _createNewUIBatch(GfxMaterial *material, GfxMesh *mesh);
+	// void _createNew3DOpaqueBatch(GfxMaterial *material, GfxMesh *mesh);
+	// void _createNew3DTransparentBatch(GfxMaterial *material, GfxMesh *mesh);
+	void _submitObjectUI(GfxMaterial *material, GfxMesh *mesh);
+	void _submitObject3DOpaque(GfxMaterial *material, GfxMesh *mesh);
+	void _submitObject3DTransparent(GfxMaterial *material, GfxMesh *mesh);
+
 	/**
 	 * @brief 重置命令缓冲区
 	 * 渲染第一步
@@ -48,18 +70,14 @@ private:
 	 * 渲染第三步
 	 */
 	void _beginRenderPass();
-	/**
-	 * @brief 绑定uniform buffer
-	 * 渲染第四步
-	 */
-	void _bindUniformBuffer();
 
 public:
-	GfxBuiltinQueue(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture);
+	GfxBuiltinQueue(std::string renderId, uint32_t width, uint32_t height, GfxBuiltinRenderer *renderer);
 	void init();
 	void setPriority(int priority);
 	int getPriority() const;
-	void submitData(const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen);
+	void resize(uint32_t width, uint32_t height);
+	void submitData(const std::array<float, 16> &viewMatrix, const std::array<float, 16> &projMatrix, bool isOnScreen, std::array<float, 4> &cameraPosition);
 	void submitObject(GfxMaterial *material, GfxMesh *mesh);
 	bool getIsOnScreen();
 	void render(std::vector<VkCommandBuffer> &commandBuffers);
@@ -69,50 +87,6 @@ public:
 	void destroy();
 	~GfxBuiltinQueue();
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //   // void create(GfxRenderPass *pass);
 //     // void add(GfxObject *object);

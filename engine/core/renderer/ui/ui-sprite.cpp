@@ -1,10 +1,14 @@
 #include "ui-sprite.h"
 #include "../../../boo.h"
+#include "../../../log.h"
 #include "../../scene/node.h"
 #include "../../scene/node-2d.h"
 #include "../../renderer/camera.h"
 #include "../../assets/assets-manager.h"
-#include "../../../log.h"
+#include "../../gfx/gfx.h"
+#include "../../gfx/gfx-mgr.h"
+#include "../../gfx/base/gfx-mesh.h"
+#include "../../gfx/base/gfx-material.h"
 
 namespace Boo
 {
@@ -15,9 +19,33 @@ namespace Boo
         // 默认纹理
         this->_textureAsset = nullptr;
         // 默认UI材质
-        this->_materialAsset = new MaterialAsset(AssetBuiltinMaterial::UI,"","");
+        this->_createDefaultMaterial();
+        // 默认UI网格
+        this->_createDefaultMesh();
+    }
+    void UISprite::_createDefaultMaterial()
+    {
+        this->_materialAsset = new MaterialAsset(AssetBuiltinMaterial::UI, "", "");
         MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(AssetBuiltinMaterial::UI));
         this->_materialAsset->create(mtl);
+    }
+
+    void UISprite::_createDefaultMesh()
+    {
+        this->_meshAsset = new MeshAsset();
+        MeshPrimitive primitive;
+        primitive.index = 0;
+        primitive.type = 0;
+        primitive._positions = {-0.5f, 0.5f, 0.0f,
+                                -0.5f, -0.5f, 0.0f,
+                                0.5f, -0.5f, 0.0f,
+                                0.5f, 0.5f, 0.0f};
+        primitive._uvs = {0.0f, 0.0f,
+                          0.0f, 1.0f,
+                          1.0f, 1.0f,
+                          1.0f, 0.0f};
+        primitive._indices = {0, 1, 2, 0, 2, 3};
+        this->_meshAsset->create({primitive});
     }
 
     void UISprite::Awake()
@@ -39,7 +67,7 @@ namespace Boo
         {
             return;
         }
-        this->_setColor(color.getR(), color.getG(), color.getB(), color.getA());
+        this->setColor(color.getR(), color.getG(), color.getB(), color.getA());
     }
     void UISprite::setColor(std::string color)
     {
@@ -48,7 +76,15 @@ namespace Boo
             return;
         }
         Color c(color);
-        this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
+        this->setColor(c.getR(), c.getG(), c.getB(), c.getA());
+    }
+    void UISprite::setAlpha(float alpha)
+    {
+        if (alpha == this->_color.getA())
+            return;
+        Color c(this->_color);
+        c.setA(alpha);
+        this->setColor(c.getR(), c.getG(), c.getB(), c.getA());
     }
     void UISprite::setColor(float r, float g, float b, float a)
     {
@@ -59,20 +95,13 @@ namespace Boo
         {
             return;
         }
-        this->_setColor(r, g, b, a);
+        this->_color.set(r, g, b, a);
+        this->_materialAsset->setUIColor(r, g, b, a);
     }
 
-    void UISprite::setAlpha(float alpha)
-    {
-        if (alpha == this->_color.getA())
-            return;
-        Color c(this->_color);
-        c.setA(alpha);
-        this->_setColor(c.getR(), c.getG(), c.getB(), c.getA());
-    }
     void UISprite::setMaterial(std::string material)
     {
-        MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(material));
+        MaterialAsset *mtl = dynamic_cast<MaterialAsset *>(assetsManager->getAsset(material,true));
         if (mtl == nullptr)
         {
             LOGW("[UISprite]:setMaterial: material %s not found", material.c_str());
@@ -87,12 +116,12 @@ namespace Boo
             LOGW("[UISprite]:setMaterial: material %s not found", material->getName().c_str());
             return;
         }
-        this->_setMaterial(material);
+        this->_materialAsset->create(material);
     }
 
     void UISprite::setTexture(std::string path)
     {
-        TextureAsset *texture = dynamic_cast<TextureAsset *>(assetsManager->getAsset(path));
+        TextureAsset *texture = dynamic_cast<TextureAsset *>(assetsManager->getAsset(path,true));
         if (texture == nullptr)
         {
             LOGW("[UISprite]:setTexture: texture %s not found", path.c_str());
@@ -123,11 +152,9 @@ namespace Boo
         {
             return;
         }
-        // this->_materialAsset->setTexture("");
+        this->_materialAsset->setTexture(texture);
     }
-    void UISprite::setRenderTexture()
-    {
-    }
+
     void UISprite::setSizeMode(SizeMode sizeMode)
     {
         if (this->sizeMode == sizeMode)
@@ -162,7 +189,27 @@ namespace Boo
     }
     void UISprite::Render(Camera *camera)
     {
+        if (!this->_canRenderer(camera))
+        {
+            return;
+        }
+        if (this->_materialAsset == nullptr)
+        {
+            return;
+        }
+        if (this->_meshAsset == nullptr)
+        {
+            return;
+        }
         UIRenderer::Render(camera);
+        // 后续添加节点层级alpha测试
+        const Mat4 &matrix = this->_node2D->getUIWorldMatrix();
+        Mat4::multiply(matrix, view->getFitMatrix(), this->_uiViewMatrix);
+        // 更新世界矩阵
+        this->_materialAsset->setModelWorldMatrix(this->_uiViewMatrix.data());
+        GfxMgr::getInstance()->submitRenderObject(camera->getUuid(), this->_materialAsset->getGfxMaterial(), this->_meshAsset->getGfxMesh(0));
+        // 增加渲染物体数量
+        profiler->addObjectCount(1);
     }
     void UISprite::Disable()
     {
@@ -172,6 +219,10 @@ namespace Boo
     void UISprite::destroy()
     {
         UIRenderer::destroy();
+        delete this->_materialAsset;
+        delete this->_meshAsset;
+        this->_materialAsset = nullptr;
+        this->_meshAsset = nullptr;
     }
     UISprite::~UISprite()
     {

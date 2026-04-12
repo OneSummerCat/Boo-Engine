@@ -1,8 +1,6 @@
 #pragma once
 #include <map>
 #include <string>
-#include <vulkan/vulkan_core.h>
-
 class GfxContext;
 class GfxRenderer;
 class GfxShader;
@@ -11,6 +9,7 @@ class GfxBufferUBO;
 class GfxBufferInstance;
 class GfxRenderTexture;
 class GfxMesh;
+#include "gfx-struct.h"
 
 namespace Gfx
 {
@@ -25,7 +24,12 @@ namespace Gfx
 	extern GfxBufferUBO *_bufferUBO;
 	extern GfxBufferInstance *_bufferInstance;
 	extern int _drawCount;
-	extern float _renderTime;
+	extern float _frameTime;
+	extern float _submitTime;
+	//主光源位置
+	extern std::array<float, 4> _mainLitDir;
+	//主光源颜色
+	extern std::array<float, 4> _mainLitColor;
+
 	
-	extern GfxMesh *_uiTestMesh;
 }

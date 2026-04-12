@@ -9,13 +9,6 @@ namespace Boo
     class Mat4
     {
     private:
-        // 行主序矩阵
-        /**
-         * | m[0][0] m[0][1] m[0][2] m[0][3] |   | 旋转/缩放     | 透视 |
-         * | m[1][0] m[1][1] m[1][2] m[1][3] | = | 旋转/缩放     | 透视 |
-         * | m[2][0] m[2][1] m[2][2] m[2][3] |   | 旋转/缩放     | 透视 |
-         * | m[3][0] m[3][1] m[3][2] m[3][3] |   | 位移 (X,Y,Z) | 1    |
-         */
         std::array<float, 16> _m = {
             1, 0, 0, 0,
             0, 1, 0, 0,
@@ -25,68 +18,143 @@ namespace Boo
     public:
         const std::array<float, 16> &data() const { return this->_m; }
 
-        const float &getM00() const { return this->_m[0]; }
-        const float &getM01() const { return this->_m[1]; }
-        const float &getM02() const { return this->_m[2]; }
-        const float &getM03() const { return this->_m[3]; }
-        const float &getM10() const { return this->_m[4]; }
-        const float &getM11() const { return this->_m[5]; }
-        const float &getM12() const { return this->_m[6]; }
-        const float &getM13() const { return this->_m[7]; }
-        const float &getM20() const { return this->_m[8]; }
-        const float &getM21() const { return this->_m[9]; }
-        const float &getM22() const { return this->_m[10]; }
-        const float &getM23() const { return this->_m[11]; }
-        const float &getM30() const { return this->_m[12]; }
-        const float &getM31() const { return this->_m[13]; }
-        const float &getM32() const { return this->_m[14]; }
-        const float &getM33() const { return this->_m[15]; }
+        float getM0() const { return _m[0]; }
+        float getM1() const { return _m[1]; }
+        float getM2() const { return _m[2]; }
+        float getM3() const { return _m[3]; }
+        float getM4() const { return _m[4]; }
+        float getM5() const { return _m[5]; }
+        float getM6() const { return _m[6]; }
+        float getM7() const { return _m[7]; }
+        float getM8() const { return _m[8]; }
+        float getM9() const { return _m[9]; }
+        float getM10() const { return _m[10]; }
+        float getM11() const { return _m[11]; }
+        float getM12() const { return _m[12]; }
+        float getM13() const { return _m[13]; }
+        float getM14() const { return _m[14]; }
+        float getM15() const { return _m[15]; }
 
-        void setM00(float value) { this->_m[0] = value; }
-        void setM01(float value) { this->_m[1] = value; }
-        void setM02(float value) { this->_m[2] = value; }
-        void setM03(float value) { this->_m[3] = value; }
-        void setM10(float value) { this->_m[4] = value; }
-        void setM11(float value) { this->_m[5] = value; }
-        void setM12(float value) { this->_m[6] = value; }
-        void setM13(float value) { this->_m[7] = value; }
-        void setM20(float value) { this->_m[8] = value; }
-        void setM21(float value) { this->_m[9] = value; }
-        void setM22(float value) { this->_m[10] = value; }
-        void setM23(float value) { this->_m[11] = value; }
-        void setM30(float value) { this->_m[12] = value; }
-        void setM31(float value) { this->_m[13] = value; }
-        void setM32(float value) { this->_m[14] = value; }
-        void setM33(float value) { this->_m[15] = value; }
+        void setM0(float v) { _m[0] = v; }
+        void setM1(float v) { _m[1] = v; }
+        void setM2(float v) { _m[2] = v; }
+        void setM3(float v) { _m[3] = v; }
+        void setM4(float v) { _m[4] = v; }
+        void setM5(float v) { _m[5] = v; }
+        void setM6(float v) { _m[6] = v; }
+        void setM7(float v) { _m[7] = v; }
+        void setM8(float v) { _m[8] = v; }
+        void setM9(float v) { _m[9] = v; }
+        void setM10(float v) { _m[10] = v; }
+        void setM11(float v) { _m[11] = v; }
+        void setM12(float v) { _m[12] = v; }
+        void setM13(float v) { _m[13] = v; }
+        void setM14(float v) { _m[14] = v; }
+        void setM15(float v) { _m[15] = v; }
 
+    public:
         Mat4();
         void set(Mat4 &mat);
         void set(const std::array<float, 16> &data);
-        /**
-         * @brief 平移
-         * @param x
-         * @param y
-         * @param z
-         */
-        void translate(float x, float y, float z);
-        /**
-         * @brief 缩放
-         * @param x
-         * @param y
-         * @param z
-         */
-        void scale(float x, float y, float z);
+        void fromTRS(Vec3 &pos, Quat &quat, Vec3 &scale);
         bool equal(Mat4 &mat);
+        void scale(const Vec3 &scale);
         ~Mat4();
 
     public:
         static Mat4 identity();
+        static void copy(const Mat4 &mat, Mat4 &out);
+        /**
+         * @brief 交换矩阵的行和列
+         *
+         * @param mat
+         * @param out
+         */
+        static void transpose(const Mat4 &mat, Mat4 &out);
+        /**
+         * @brief 计算矩阵的行列式
+         *
+         * @param mat
+         * @return float
+         */
+        static float determinant(const Mat4 &mat);
+        /**
+         * @brief 计算矩阵的逆矩阵
+         *
+         * @param mat
+         * @param out
+         */
         static void inverse(const Mat4 &mat, Mat4 &out);
+        /**
+         * @brief 计算矩阵的逆矩阵的转置
+         *
+         * @param mat
+         * @param out
+         */
         static void multiplyVec3(const Mat4 &mat, Vec3 &in, Vec3 &out);
+        /**
+         * @brief 计算矩阵的乘积
+         *
+         * @param mat
+         * @param other
+         * @param out
+         */
         static void multiply(const Mat4 &mat, const Mat4 &other, Mat4 &out);
+        /**
+         * @brief 计算矩阵的逆矩阵的转置
+         *
+         * @param mat
+         * @param out
+         */
+        static void inverseTranspose(const Mat4 &mat, Mat4 &out);
+        /**
+         * @brief 从矩阵中提取位置
+         *
+         * @param mat
+         * @param out
+         */
         static void getPosition(const Mat4 &mat, Vec3 &out);
+        /**
+         * @brief 从矩阵中提取旋转
+         *
+         * @param mat
+         * @param out
+         */
         static void getRotation(const Mat4 &mat, Quat &out);
+        /**
+         * @brief 从矩阵中提取缩放
+         *
+         * @param mat
+         * @param out
+         */
         static void getScale(const Mat4 &mat, Vec3 &out);
+
+        /**
+         * @brief 从矩阵中提取位移、旋转、缩放 (SRT)
+         * 假设矩阵以 Scale -> Rotation -> Translation 顺序构建
+         *
+         * @param mat 输入矩阵
+         * @param outPos 输出的位移 (可为nullptr)
+         * @param outQuat 输出的旋转四元数 (可为nullptr)
+         * @param outScale 输出的缩放 (可为nullptr)
+         */
+        static void toSRT(const Mat4 &mat, Vec3 *outPos, Quat *outQuat, Vec3 *outScale);
+
+        static void ortho(Mat4 &out, float left, float right, float bottom, float top, float near, float far, float projectionSignY, int orientation); // float minClipZ,
+        static void perspective(Mat4 &out, float fov, float aspect, float near, float far, float projectionSignY, int orientation);                    // bool isFOVY, float minClipZ,
     };
 
 } // namespace Boo
+// /**
+//          * @brief 从四元数创建矩阵
+//          *
+//          * @param out
+//          * @param quat
+//          */
+//         static void fromQuat(Mat4 &out, Quat &quat);
+// static void translate(Mat4 &out, const Mat4 &mat, Vec3 &v);
+// static void scale(Mat4 &out, const Mat4 &mat, Vec3 &v);
+// static void rotateX(Mat4 &out, const Mat4 &mat, float rad);
+// static void rotateY(Mat4 &out, const Mat4 &mat, float rad);
+// static void rotateZ(Mat4 &out, const Mat4 &mat, float rad);
+// static void rotate(Mat4 &out, const Mat4 &mat, float rad, Vec3 &axis);

@@ -9,8 +9,6 @@
 #include <cstdint>
 #include <unordered_map>
 #include <sstream>
-#include <vulkan/vulkan_core.h>
-#include <shaderc/shaderc.hpp>
 #include "../gfx-struct.h"
 
 class GfxContext;

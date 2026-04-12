@@ -129,6 +129,11 @@ namespace Boo
 		 */
 		Mat4 _localMatrix;
 		Mat4 _worldMatrix;
+		/**
+		 * 当前节点世界矩阵的逆转置矩阵
+		 */
+		Mat4 _worldMatrixIT;
+
 
 		/*
 		 *节点世界变化是否发生了变换
@@ -211,6 +216,11 @@ namespace Boo
 		const Vec3 &getEulerAngles();
 
 		/**
+		 * @brief 设置本地矩阵
+		 * @param matrix 本地矩阵
+		 */
+		void setMatrix(const Mat4 &matrix);
+		/**
 		 * 获取本地矩阵
 		 */
 		const Mat4 &getLocalMatrix();
@@ -218,6 +228,8 @@ namespace Boo
 		 * 获取世界矩阵
 		 */
 		const Mat4 &getWorldMatrix();
+		
+
 		/**
 		 * @brief 当前节点在当前帧帧内是否发生了变换
 		 * @return true 发生了变换
@@ -255,7 +267,7 @@ namespace Boo
 		/**
 		 * 获取子节点列表
 		 */
-		const std::vector<Node *> &getChildren();
+		std::vector<Node *> &getChildren();
 		/**
 		 * 获取子节点
 		 */

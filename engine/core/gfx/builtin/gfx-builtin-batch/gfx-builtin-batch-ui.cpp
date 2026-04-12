@@ -12,12 +12,22 @@
 #include "../gfx-builtin-renderer.h"
 #include "../gfx-builtin-pipeline/gfx-builtin-pipeline.h"
 
-GfxBuiltinBatchUI::GfxBuiltinBatchUI(GfxBuiltinRenderer *renderer, GfxRenderTexture *renderTexture, GfxMaterial *material, GfxMesh *mesh)
-    : GfxBuiltinBatch(renderer, renderTexture, material, mesh)
+GfxBuiltinBatchUI::GfxBuiltinBatchUI()
+    : GfxBuiltinBatch()
 {
 }
-void GfxBuiltinBatchUI::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *ubo)
+void GfxBuiltinBatchUI::addObject(const std::vector<char> &instanceData)
 {
+    if (instanceData.size() !=80)
+    {
+        LOGE("[Gfx : BatchBuiltinUI] :: addObject: instanceData size must be 20! Current size: %d", (int)instanceData.size());
+        return;
+    }
+    GfxBuiltinBatch::addObject(instanceData);
+}
+void GfxBuiltinBatchUI::render(VkCommandBuffer &queueCommandBuffer)
+{
+
     const GfxRendererState &pipelineState = this->_material->getRendererState();
     GfxBuiltinPipeline *pipeline = this->_renderer->getPipeline(pipelineState);
     if (pipeline == nullptr)
@@ -25,12 +35,23 @@ void GfxBuiltinBatchUI::render(VkCommandBuffer &queueCommandBuffer, GfxBuffer *u
         LOGE("[Gfx : BatchBuiltin] :: render: pipeline not found!");
         return;
     }
+    this->_bindUniformBuffer();
     this->_bindPipeline(queueCommandBuffer, pipeline);
     this->_stencilTest(queueCommandBuffer, pipelineState);
     this->_setViewportScissor(queueCommandBuffer);
-    this->_bindDescriptorSets(queueCommandBuffer, pipeline, ubo);
+    this->_bindDescriptorSets(queueCommandBuffer, pipeline, this->_ubo);
     this->_bindVertexIndicesBuffers(queueCommandBuffer);
     this->_drawIndexed(queueCommandBuffer);
+}
+void GfxBuiltinBatchUI::_bindUniformBuffer()
+{
+    this->_ubo = Gfx::_bufferUBO->getBuffer((16 + 16 + 1) * sizeof(float)); // 视图矩阵+投影矩阵+时间
+    this->_ubo->setIsOccupied(true);
+    // 提交视图矩阵和投影矩阵
+    memcpy(this->_ubo->getMappedData(), this->_viewMatrix.data(), sizeof(float) * 16);
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 16, this->_projMatrix.data(), sizeof(float) * 16);
+    // 提交时间
+    memcpy((char *)this->_ubo->getMappedData() + sizeof(float) * 32, &Gfx::_frameTime, sizeof(float));
 }
 void GfxBuiltinBatchUI::_stencilTest(VkCommandBuffer &queueCommandBuffer, const GfxRendererState &rendererState)
 {
@@ -79,11 +100,11 @@ void GfxBuiltinBatchUI::_bindDescriptorSets(VkCommandBuffer &queueCommandBuffer,
     descriptorWrites[0].pBufferInfo = &bufferInfo;
     // 绑定采样器
     std::array<VkDescriptorImageInfo, 4> imageInfos;
-    GfxTexture *defaultTexture = Gfx::_textures.at("Gfx::Texture::default.png");
+    GfxTexture *defaultTexture = Gfx::_textures.at("builtin::default.png");
     for (size_t i = 0; i < 4; i++)
     {
         imageInfos[i].imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        if (i < this->_material->getTextures().size())
+        if (i >= this->_material->getTextures().size())
         {
             imageInfos[i].imageView = defaultTexture->getImageView();
             imageInfos[i].sampler = defaultTexture->getSampler();

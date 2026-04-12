@@ -4,6 +4,7 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <cstdint>
 class Window;
 class Android;
 namespace Boo
@@ -44,10 +45,15 @@ namespace Boo
     class Game
     {
     private:
-        // float _logicTime = 0.0f;
-        // float _renderTime = 0.0f;
-        long long _deltaTime;
+        /**
+         * @brief 引擎设置帧率
+         */
         int _frameRate;
+        /**
+         * @brief 实际帧率
+         */
+        int _fps;
+        long long _deltaTime;
 
         /**
          * @brief 视图是否改变
@@ -112,7 +118,6 @@ namespace Boo
          */
         void _initView(int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode, int width, int height);
 
-        
         void _update(float dt);
         void _updateSchedules(float dt);
         void _lateUpdate(float dt);
@@ -133,11 +138,10 @@ namespace Boo
          */
         void init(Window *window, int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode);
         void init(Android *android, int uiDesignWidth, int uiDesignHeight, UIDesignFitMode fitMode);
-
-        Scene *getScene()
-        {
-            return this->_curScene;
-        }
+        void setFrameRate(int frameRate);
+        const int getFrameRate() const;
+        const int getFps() const;
+        Scene *getScene();
         void openScene(Scene *scene);
         void destroyScene();
 

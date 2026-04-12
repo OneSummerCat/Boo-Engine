@@ -60,7 +60,35 @@ namespace Boo
 	}
 	void Node3D::_updateWorldTransform()
 	{
-		Node::_updateWorldTransform();
+		if (!this->_isActiveInHierarchy)
+			return;
+		if (this->_worldTransformFlag == NodeTransformFlag::NONE_FLAG)
+			return;
+		// 通过位移,旋转,缩放计算本地矩阵
+		this->_localMatrix.fromTRS(this->_position, this->_rotation, this->_scale);
+		if (this->_parent)
+		{
+			Mat4::multiply(this->_localMatrix, this->_parent->getWorldMatrix(), this->_worldMatrix);
+		}
+		else
+		{
+			this->_worldMatrix = this->_localMatrix;
+		}
+		Mat4::getPosition(this->_worldMatrix, this->_worldPosition);
+		Mat4::getScale(this->_worldMatrix, this->_worldScale);
+		Mat4::getRotation(this->_worldMatrix, this->_worldRotation);
+		this->_worldTransformFlag = NodeTransformFlag::NONE_FLAG;
+		// 计算世界矩阵的逆转置矩阵
+		Mat4::inverseTranspose(this->_worldMatrix, this->_worldMatrixIT);
+	}
+	/**
+	 * @brief 获取世界矩阵的逆转置矩阵
+	 * @return Mat4 世界矩阵的逆转置矩阵
+	 */
+	const Mat4 &Node3D::getWorldMatrixIT()
+	{
+		this->_updateWorldTransform();
+		return this->_worldMatrixIT;
 	}
 	void Node3D::setActive(bool active)
 	{
@@ -99,7 +127,6 @@ namespace Boo
 			}
 		}
 		this->_components.push_back(component);
-		LOGI("Node3D::addComponent: %s, %s", this->getName().c_str(), component->getName().c_str());
 		if (this->_parent != nullptr)
 		{
 			component->setNodeActiveInHierarchy(this->_isActiveInHierarchy);

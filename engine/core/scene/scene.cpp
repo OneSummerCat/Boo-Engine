@@ -42,10 +42,11 @@ namespace Boo
 			return;
 		}
 		this->_root2D = new Node2D("root2D");
-		this->_root2D->_isLocked = true;
 		this->_root2D->setGroupID(uint32_t(NodeGroup::Node2D));
 		this->addChild(this->_root2D);
 		this->_root2D->setSize(view->getDesignWidth(), view->getDesignHeight());
+		// 跟节点上锁
+		this->_root2D->_isLocked = true;
 	}
 	void Scene::createRoot3D()
 	{
@@ -54,9 +55,10 @@ namespace Boo
 			return;
 		}
 		this->_root3D = new Node3D("root3D");
-		this->_root3D->_isLocked = true;
 		this->_root3D->setGroupID(uint32_t(NodeGroup::Node3D));
 		this->addChild(this->_root3D);
+		// 跟节点上锁
+		this->_root3D->_isLocked = true;
 	}
 	Node3D *Scene::getRoot3D()
 	{
